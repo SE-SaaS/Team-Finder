@@ -137,3 +137,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# IDE settings
+.vscode/
+
+# Image assets (large files)
+frontend/public/sequence/
+frontend/public/chaosxbg.png
