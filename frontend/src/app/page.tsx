@@ -25,8 +25,12 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative bg-black w-full min-h-screen selection:bg-[#e8294a]/30">
-      {/* REMOVED: Static background and dark overlay layers to prevent canvas conflict */}
+    <main className="relative w-full min-h-screen selection:bg-[#e8294a]/30">
+      {/* CSS Starfield Background */}
+      <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
+        <div className="stars stars-blue"></div>
+        <div className="stars stars-red"></div>
+      </div>
 
       {/* NAVBAR */}
       <nav
@@ -39,11 +43,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <span className="text-white font-medium tracking-tight text-xl">TeamFinder</span>
-            <div className="hidden md:flex items-center gap-4 text-xs text-white/50">
-              <span>Overview</span>
-              <span>•</span>
-              <span>Features</span>
-            </div>
           </div>
 
           <div>
@@ -54,14 +53,16 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* MAIN SCROLL CONTAINER - 400vh for scroll distance */}
-      <div ref={containerRef} className="relative w-full h-[400vh] z-10">
-        
-        {/* LAYER 3: Sticky Canvas and Scrollytelling overlay */}
-        <div className="sticky top-0 h-[100vh] w-full">
+      {/* MAIN SCROLL CONTAINER - 300vh for scroll distance */}
+      <div ref={containerRef} className="relative w-full h-[300vh]">
+
+        {/* LAYER 1: Canvas - sticky background that stays in view */}
+        <div className="sticky top-0 h-screen w-full z-10">
           <TeamFinderCanvas scrollProgress={scrollYProgress} />
-          <Scrollytelling scrollProgress={scrollYProgress} />
         </div>
+
+        {/* LAYER 2: Scrollytelling text - overlaid on top, scrolls naturally */}
+        <Scrollytelling scrollProgress={scrollYProgress} />
 
       </div>
 
