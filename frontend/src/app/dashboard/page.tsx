@@ -5,11 +5,41 @@
  * Team matching, project browsing, and profile management
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { user, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'browse' | 'projects' | 'profile'>('browse');
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, loading, router]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] relative overflow-hidden">
@@ -27,7 +57,7 @@ export default function Dashboard() {
             TeamFinder
           </Link>
 
-          {/* Profile Avatar */}
+          {/* Profile Actions */}
           <div className="flex items-center gap-4">
             <Link
               href="/profile"
@@ -35,8 +65,14 @@ export default function Dashboard() {
             >
               Edit Profile
             </Link>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-white/70 hover:text-[#e8294a] transition-all"
+            >
+              Sign Out
+            </button>
             <div className="w-10 h-10 rounded-full bg-[#4455ff] flex items-center justify-center text-white font-bold cursor-pointer hover:scale-110 transition-all">
-              AH
+              {user.user_metadata?.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
             </div>
           </div>
         </div>
