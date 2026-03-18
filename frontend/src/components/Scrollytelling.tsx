@@ -67,7 +67,7 @@ export default function Scrollytelling({ scrollProgress }: ScrollytellingProps) 
               Find Your<br />Team.
             </h2>
             <p className="text-lg lg:text-xl text-white/60 mb-10 tracking-wide">Initiate Your Project Odyssey.</p>
-            <a href="/login.html" className="group relative px-10 py-4 rounded-full bg-[#e8294a] text-white font-semibold text-base tracking-wide overflow-hidden shadow-[0_0_40px_rgba(232,41,74,0.5)] hover:shadow-[0_0_70px_rgba(232,41,74,0.7)] transition-all hover:scale-105 active:scale-95 duration-300 inline-block">
+            <a href="/auth/signup" className="group relative px-10 py-4 rounded-full bg-[#e8294a] text-white font-semibold text-base tracking-wide overflow-hidden shadow-[0_0_40px_rgba(232,41,74,0.5)] hover:shadow-[0_0_70px_rgba(232,41,74,0.7)] transition-all hover:scale-105 active:scale-95 duration-300 inline-block">
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
               <span className="relative z-10 flex items-center gap-2.5">
                 Join TeamFinder

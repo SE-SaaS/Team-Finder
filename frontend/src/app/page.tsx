@@ -46,7 +46,7 @@ export default function Home() {
           </div>
 
           <div>
-            <a href="/login.html" className="bg-[#e8294a] text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-[#ff3b5d] hover:shadow-[0_0_15px_rgba(232,41,74,0.5)] transition-all duration-300 inline-block">
+            <a href="/auth/login" className="bg-[#e8294a] text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-[#ff3b5d] hover:shadow-[0_0_15px_rgba(232,41,74,0.5)] transition-all duration-300 inline-block">
               Join TeamFinder
             </a>
           </div>

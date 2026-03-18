@@ -2,13 +2,15 @@
 
 /**
  * Profile Wizard - Main Controller
- * 7-Step Onboarding Flow with localStorage Draft Persistence
+ * 7-Step Onboarding Flow with Supabase + localStorage Draft Persistence
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import type { ProfileData } from '@/types/profile';
 import { loadDraft, saveDraft, clearDraft, getDraftAgeFormatted } from '@/components/profile/utils/profileStorage';
+import { saveProfile } from '@/lib/profileApi';
 
 // Step Components (to be created)
 import Step1_BasicInfo from '@/components/profile/steps/Step1_BasicInfo';
@@ -21,6 +23,7 @@ import Step7_Bio from '@/components/profile/steps/Step7_Bio';
 
 export default function ProfileWizard() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [draftAge, setDraftAge] = useState<string | null>(null);
@@ -40,6 +43,15 @@ export default function ProfileWizard() {
     avatar: '',
     avatarColor: '',
   });
+
+  // ============================================
+  // AUTH PROTECTION
+  // ============================================
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, loading, router]);
 
   // ============================================
   // DRAFT RECOVERY ON MOUNT
@@ -124,15 +136,23 @@ export default function ProfileWizard() {
   // ============================================
   // SUBMIT
   // ============================================
-  const handleSubmit = () => {
-    // TODO: Send to backend (future - Supabase integration)
-    console.log('Profile Completed:', profileData);
+  const handleSubmit = async () => {
+    if (!user) return;
 
-    // Clear draft
-    clearDraft();
+    try {
+      // Save to Supabase
+      await saveProfile(user.id, profileData);
+      console.log('✅ Profile saved to Supabase');
 
-    // Redirect to dashboard
-    router.push('/dashboard');
+      // Clear draft
+      clearDraft();
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('❌ Failed to save profile:', error);
+      alert('Failed to save profile. Please try again.');
+    }
   };
 
   // ============================================
@@ -258,6 +278,20 @@ export default function ProfileWizard() {
         return null;
     }
   };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (!user) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] relative overflow-hidden">
