@@ -1,11 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, MotionValue, useSpring, useTransform } from 'framer-motion';
 
 interface TeamFinderCanvasProps {
   scrollProgress: MotionValue<number>;
 }
+
+// =============================================================
+// FRAME RANGE CONFIG
+// The full sequence is 240 frames (ezgif-frame-001 to 240).
+// Frames 1-35 are the empty black hole formation — skip them.
+// Frames 200+ are mostly static — skip them too.
+// We sample FRAME_COUNT frames evenly from this good range.
+// =============================================================
+const SEQUENCE_START = 40;  // First visually interesting frame
+const SEQUENCE_END = 200;   // Last visually interesting frame
 
 export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,10 +24,9 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
   const [progress, setProgress] = useState(0);
 
   // Device-optimized frame count
-  // Mobile: 30 frames, Desktop: 60 frames (matches standard 60fps)
+  // Mobile: 30 frames, Desktop: 60 frames
   const [FRAME_COUNT] = useState(() => {
-    if (typeof window === 'undefined') return 60; // SSR: default to 60
-
+    if (typeof window === 'undefined') return 60;
     const isMobile = window.innerWidth < 768;
     return isMobile ? 30 : 60;
   });
@@ -29,18 +38,26 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
     restDelta: 0.001,
   });
 
-  // Map 0 -> 1.0 progress to 0 -> 239 frames
+  // Map scroll progress 0→1 to frame index 0→(FRAME_COUNT-1)
+  // This now correctly maps to the sampled good frames
   const frameIndex = useTransform(springProgress, [0, 1.0], [0, FRAME_COUNT - 1]);
 
+  // Fade out canvas at 80-82% scroll to reveal starfield for Beat 5
+  const canvasOpacity = useTransform(scrollProgress, [0.80, 0.82], [1, 0]);
+
   useEffect(() => {
-    // Preload ALL frames before ANY animation starts
     let loadedCount = 0;
     const images: HTMLImageElement[] = new Array(FRAME_COUNT);
 
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new window.Image();
 
-      const fileNumber = String(i + 1).padStart(3, '0');
+      // KEY FIX: Sample evenly from the good range (40-200)
+      // instead of loading frames 1-30/60 (which are black hole frames)
+      const actualFrame = Math.round(
+        SEQUENCE_START + (i / (FRAME_COUNT - 1)) * (SEQUENCE_END - SEQUENCE_START)
+      );
+      const fileNumber = String(actualFrame).padStart(3, '0');
       img.src = `/sequence/ezgif-frame-${fileNumber}.jpg`;
 
       const handleLoad = () => {
@@ -51,14 +68,12 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
         if (loadedCount === FRAME_COUNT) {
           setLoadedImages(images);
           setIsLoading(false);
-          // Initial render of first frame once loaded
           renderCanvas(images, 0);
         }
       };
 
       const handleError = () => {
-        console.error(`Failed to load frame ${fileNumber}`);
-        // Still increment count to prevent hanging
+        console.error(`Failed to load frame ${fileNumber} (sampled index ${i})`);
         loadedCount++;
         setProgress(Math.round((loadedCount / FRAME_COUNT) * 100));
 
@@ -84,11 +99,10 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
     const image = imagesList[Math.min(currentFrame, FRAME_COUNT - 1)];
     if (!image) return;
 
-    // Use display dimensions for drawing
     const displayWidth = window.innerWidth;
     const displayHeight = window.innerHeight;
 
-    // Fill with black to prevent any transparency background bleeds
+    // Fill with black to prevent transparency bleeds
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, displayWidth, displayHeight);
 
@@ -97,7 +111,6 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
     const vRatio = displayHeight / image.height;
     const ratio = Math.min(hRatio, vRatio);
 
-    // Scale down a bit to ensure it doesn't touch the immediate edges
     const finalRatio = ratio * 0.9;
 
     const centerShift_x = (displayWidth - image.width * finalRatio) / 2;
@@ -122,18 +135,15 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
     let animationFrameId: number;
     let lastRenderedFrame = -1;
 
-    // 60fps locked via requestAnimationFrame
     const renderLoop = () => {
-      // Clamp the frame index so it doesn't exceed bounds
       const rawFrame = frameIndex.get();
       const currentFrame = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(rawFrame)));
-      
-      // Optimization: Only redraw if the frame actually changed
+
       if (currentFrame !== lastRenderedFrame) {
         renderCanvas(loadedImages, currentFrame);
         lastRenderedFrame = currentFrame;
       }
-      
+
       animationFrameId = requestAnimationFrame(renderLoop);
     };
 
@@ -145,28 +155,22 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
   }, [isLoading, loadedImages, frameIndex]);
 
   useEffect(() => {
-    // Canvas resolution setup
     const handleResize = () => {
       if (canvasRef.current) {
         const dpr = window.devicePixelRatio || 1;
         const displayWidth = window.innerWidth;
         const displayHeight = window.innerHeight;
 
-        // Set actual canvas size with DPI scaling
         canvasRef.current.width = displayWidth * dpr;
         canvasRef.current.height = displayHeight * dpr;
-
-        // Set display size via CSS
         canvasRef.current.style.width = displayWidth + 'px';
         canvasRef.current.style.height = displayHeight + 'px';
 
-        // Scale context to match DPI
         const ctx = canvasRef.current.getContext('2d');
         if (ctx) {
           ctx.scale(dpr, dpr);
         }
 
-        // Re-render with current frame
         if (!isLoading && loadedImages.length > 0) {
           renderCanvas(loadedImages, Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(frameIndex.get()))));
         }
@@ -179,7 +183,10 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
   }, [isLoading, loadedImages, frameIndex]);
 
   return (
-    <div className="w-full h-[100vh] sticky top-0 overflow-hidden flex items-center justify-center pointer-events-none z-10 bg-black">
+    <motion.div
+      style={{ opacity: canvasOpacity }}
+      className="w-full h-full overflow-hidden flex items-center justify-center pointer-events-none bg-black"
+    >
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-50 transition-opacity duration-500">
           <div className="text-white text-sm tracking-widest font-mono mb-4 text-blue-200 uppercase">
@@ -196,12 +203,11 @@ export default function TeamFinderCanvas({ scrollProgress }: TeamFinderCanvasPro
           </div>
         </div>
       )}
-      
-      {/* Background Sequence Canvas */}
+
       <canvas
         ref={canvasRef}
         className="w-full h-full absolute inset-0 mix-blend-screen"
       />
-    </div>
+    </motion.div>
   );
 }
