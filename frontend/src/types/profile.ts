@@ -10,11 +10,13 @@
 export interface ProfileData {
   // Step 1: Basic Info
   name: string;
+  email: string;
   university: string;
   major: string;
+  specialization: string;
+  year: '1st' | '2nd' | '3rd' | '4th';
 
   // Step 2: Year & Courses
-  year: '1st' | '2nd' | '3rd' | '4th';
   completedCourses: string[]; // Course IDs
 
   // Step 3: Skill Selector

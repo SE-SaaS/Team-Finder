@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import type { ProfileData } from '@/types/profile';
 import { AVATAR_COLORS } from '@/types/profile';
+import { getMajorInfo } from '@/data/majors';
 
 interface Step7Props {
   data: Partial<ProfileData>;
@@ -69,7 +70,9 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
         <div>
           <h3 className="text-xl font-bold text-white">{data.name}</h3>
           <p className="text-white/60">{data.university}</p>
-          <p className="text-sm text-white/50">{data.major} • {data.year} Year</p>
+          <p className="text-sm text-white/50">
+            {data.major ? getMajorInfo(data.major)?.name || data.major : ''} • {data.year} Year
+          </p>
         </div>
       </div>
 
