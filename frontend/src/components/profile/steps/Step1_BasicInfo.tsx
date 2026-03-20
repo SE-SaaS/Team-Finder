@@ -2,12 +2,14 @@
 
 /**
  * Step 1: Basic Info
- * Name, University, Major
+ * University (read-only from session), Major, Specialization, Year
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ProfileData } from '@/types/profile';
-import { IT_MAJORS } from '@/data/majors';
+import { MAJORS, MAJOR_CODES, getMajorInfo, getSpecializations } from '@/data/majors';
+import { validateStep1 } from '@/lib/validation/profileValidation';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Step1Props {
   data: Partial<ProfileData>;
@@ -16,31 +18,52 @@ interface Step1Props {
 }
 
 export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) {
+  const { session } = useAuth();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [availableSpecializations, setAvailableSpecializations] = useState<string[]>([]);
+
+  // Load university from session on mount
+  useEffect(() => {
+    const university = session?.user?.user_metadata?.university;
+    if (university) {
+      onChange({ ...data, university });
+    }
+  }, [session]);
+
+  // Load specializations when major changes
+  useEffect(() => {
+    if (data.major) {
+      const majorInfo = getMajorInfo(data.major);
+      setAvailableSpecializations(majorInfo?.specializations || []);
+    } else {
+      setAvailableSpecializations([]);
+    }
+  }, [data.major]);
 
   const handleChange = (field: keyof ProfileData, value: string) => {
-    onChange({ ...data, [field]: value });
-    // Clear error when user starts typing
+    const newData: Partial<ProfileData> = { ...data, [field]: value };
+
+    // Reset specialization when major changes
+    if (field === 'major' && value !== data.major) {
+      newData.specialization = '';
+      const majorInfo = getMajorInfo(value);
+      setAvailableSpecializations(majorInfo?.specializations || []);
+    }
+
+    onChange(newData);
+
+    // Clear error when user makes a selection
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
     }
   };
 
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!data.name || data.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
-
-    if (!data.university || data.university.trim().length < 2) {
-      newErrors.university = 'University name is required';
-    }
-
-    if (!data.major) {
-      newErrors.major = 'Please select your major';
-    }
-
+    const newErrors = validateStep1({
+      major: data.major || '',
+      specialization: data.specialization || '',
+      year: data.year || '',
+    });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -48,12 +71,6 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
   const handleNext = () => {
     if (validate()) {
       onNext();
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleNext();
     }
   };
 
@@ -65,62 +82,18 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
         <p className="text-white/60">Let's start with the basics</p>
       </div>
 
-      {/* Name Field */}
+      {/* University Field (Read-only) */}
       <div>
         <label className="block text-sm font-medium text-white/70 mb-2">
-          Full Name <span className="text-[#e8294a]">*</span>
+          University
         </label>
         <input
           type="text"
-          value={data.name || ''}
-          onChange={(e) => handleChange('name', e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter your full name"
-          className={`
-            w-full px-4 py-3 rounded-lg bg-[#0f0f18] border text-white
-            placeholder:text-white/30 transition-all
-            focus:outline-none focus:ring-2
-            ${
-              errors.name
-                ? 'border-[#e8294a] focus:ring-[#e8294a]/50'
-                : 'border-white/10 focus:border-[#4455ff] focus:ring-[#4455ff]/50'
-            }
-          `}
+          value={data.university || 'Loading...'}
+          disabled
+          className="w-full px-4 py-3 rounded-lg bg-[#0f0f18] border border-white/10 text-white/50 cursor-not-allowed"
         />
-        {errors.name && (
-          <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
-            <span>⚠</span> {errors.name}
-          </p>
-        )}
-      </div>
-
-      {/* University Field */}
-      <div>
-        <label className="block text-sm font-medium text-white/70 mb-2">
-          University <span className="text-[#e8294a]">*</span>
-        </label>
-        <input
-          type="text"
-          value={data.university || ''}
-          onChange={(e) => handleChange('university', e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Enter your university name"
-          className={`
-            w-full px-4 py-3 rounded-lg bg-[#0f0f18] border text-white
-            placeholder:text-white/30 transition-all
-            focus:outline-none focus:ring-2
-            ${
-              errors.university
-                ? 'border-[#e8294a] focus:ring-[#e8294a]/50'
-                : 'border-white/10 focus:border-[#4455ff] focus:ring-[#4455ff]/50'
-            }
-          `}
-        />
-        {errors.university && (
-          <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
-            <span>⚠</span> {errors.university}
-          </p>
-        )}
+        <p className="mt-1 text-xs text-white/40">Pulled from your account settings</p>
       </div>
 
       {/* Major Dropdown */}
@@ -143,9 +116,9 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
           `}
         >
           <option value="" className="bg-[#16161f]">Select your major</option>
-          {IT_MAJORS.map((major) => (
-            <option key={major} value={major} className="bg-[#16161f]">
-              {major}
+          {MAJOR_CODES.map((code) => (
+            <option key={code} value={code} className="bg-[#16161f]">
+              {getMajorInfo(code)?.name} ({code})
             </option>
           ))}
         </select>
@@ -156,15 +129,85 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
         )}
       </div>
 
+      {/* Specialization Dropdown */}
+      <div>
+        <label className="block text-sm font-medium text-white/70 mb-2">
+          Specialization <span className="text-[#e8294a]">*</span>
+        </label>
+        <select
+          value={data.specialization || ''}
+          onChange={(e) => handleChange('specialization', e.target.value)}
+          disabled={!data.major}
+          className={`
+            w-full px-4 py-3 rounded-lg bg-[#0f0f18] border text-white
+            transition-all cursor-pointer
+            focus:outline-none focus:ring-2
+            ${
+              !data.major
+                ? 'border-white/10 text-white/30 cursor-not-allowed'
+                : errors.specialization
+                ? 'border-[#e8294a] focus:ring-[#e8294a]/50'
+                : 'border-white/10 focus:border-[#4455ff] focus:ring-[#4455ff]/50'
+            }
+          `}
+        >
+          <option value="" className="bg-[#16161f]">
+            {!data.major ? 'Select a major first' : 'Select your specialization'}
+          </option>
+          {availableSpecializations.map((spec) => (
+            <option key={spec} value={spec} className="bg-[#16161f]">
+              {spec}
+            </option>
+          ))}
+        </select>
+        {errors.specialization && (
+          <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
+            <span>⚠</span> {errors.specialization}
+          </p>
+        )}
+      </div>
+
+      {/* Year Dropdown */}
+      <div>
+        <label className="block text-sm font-medium text-white/70 mb-2">
+          Academic Year <span className="text-[#e8294a]">*</span>
+        </label>
+        <select
+          value={data.year || ''}
+          onChange={(e) => handleChange('year', e.target.value)}
+          className={`
+            w-full px-4 py-3 rounded-lg bg-[#0f0f18] border text-white
+            transition-all cursor-pointer
+            focus:outline-none focus:ring-2
+            ${
+              errors.year
+                ? 'border-[#e8294a] focus:ring-[#e8294a]/50'
+                : 'border-white/10 focus:border-[#4455ff] focus:ring-[#4455ff]/50'
+            }
+          `}
+        >
+          <option value="" className="bg-[#16161f]">Select your year</option>
+          <option value="1st" className="bg-[#16161f]">1st Year</option>
+          <option value="2nd" className="bg-[#16161f]">2nd Year</option>
+          <option value="3rd" className="bg-[#16161f]">3rd Year</option>
+          <option value="4th" className="bg-[#16161f]">4th Year</option>
+        </select>
+        {errors.year && (
+          <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
+            <span>⚠</span> {errors.year}
+          </p>
+        )}
+      </div>
+
       {/* Navigation */}
       <div className="flex justify-end pt-6">
         <button
           onClick={handleNext}
-          disabled={!data.name || !data.university || !data.major}
+          disabled={!data.major || !data.specialization || !data.year}
           className={`
             px-8 py-3 rounded-lg font-semibold transition-all
             ${
-              data.name && data.university && data.major
+              data.major && data.specialization && data.year
                 ? 'bg-[#4455ff] text-white hover:bg-[#5566ff] shadow-[0_0_20px_rgba(68,85,255,0.3)] hover:shadow-[0_0_30px_rgba(68,85,255,0.5)]'
                 : 'bg-white/10 text-white/30 cursor-not-allowed'
             }
