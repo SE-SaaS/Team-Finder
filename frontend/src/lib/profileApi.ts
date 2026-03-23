@@ -1,24 +1,25 @@
 import { supabase } from './supabase';
 import { ProfileData } from '@/types/profile';
 
-// Save or update user profile
-export async function saveProfile(userId: string, data: Partial<ProfileData>) {
-  const { error } = await supabase
-    .from('profiles')
-    .upsert({
-      id: userId,
-      username: data.email?.split('@')[0] || '', // Generate username from email
-      email: data.email,
-      name: data.name,
-      university: data.university,
+// Save or update user profile via secure API route
+export async function saveProfile(_userId: string, data: Partial<ProfileData>) {
+  const response = await fetch('/api/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      major: data.major,
+      specialization: data.specialization,
       year: data.year,
       availability: data.availability,
       bio: data.bio,
       avatar: data.avatar,
-      updated_at: new Date().toISOString(),
-    });
+    }),
+  });
 
-  if (error) throw error;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to save profile');
+  }
 }
 
 // Get user profile
@@ -33,13 +34,17 @@ export async function getProfile(userId: string) {
   return data;
 }
 
-// Save user's selected skills
+// Save user's selected skills (with race condition fix)
 export async function saveUserSkills(userId: string, skillIds: number[]) {
   // First, delete existing skills
-  await supabase
+  const { error: deleteError } = await supabase
     .from('user_skills')
     .delete()
     .eq('user_id', userId);
+
+  if (deleteError) throw deleteError;
+
+  if (skillIds.length === 0) return;
 
   // Then insert new skills
   const skillsData = skillIds.map(skillId => ({
@@ -47,11 +52,11 @@ export async function saveUserSkills(userId: string, skillIds: number[]) {
     skill_id: skillId,
   }));
 
-  const { error } = await supabase
+  const { error: insertError } = await supabase
     .from('user_skills')
     .insert(skillsData);
 
-  if (error) throw error;
+  if (insertError) throw insertError;
 }
 
 // Save skill ratings/proficiencies
@@ -91,12 +96,16 @@ export async function saveSkillRatings(
 }
 
 // Save user's completed courses
-export async function saveUserCourses(userId: string, courseIds: number[]) {
+export async function saveUserCourses(userId: string, courseIds: string[]) {
   // Delete existing courses
-  await supabase
+  const { error: deleteError } = await supabase
     .from('user_courses')
     .delete()
     .eq('user_id', userId);
+
+  if (deleteError) throw deleteError;
+
+  if (courseIds.length === 0) return;
 
   // Insert new courses
   const coursesData = courseIds.map(courseId => ({
@@ -104,11 +113,11 @@ export async function saveUserCourses(userId: string, courseIds: number[]) {
     course_id: courseId,
   }));
 
-  const { error } = await supabase
+  const { error: insertError } = await supabase
     .from('user_courses')
     .insert(coursesData);
 
-  if (error) throw error;
+  if (insertError) throw insertError;
 }
 
 // Save exam result

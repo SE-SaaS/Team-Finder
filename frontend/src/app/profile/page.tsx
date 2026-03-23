@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ProfileData } from '@/types/profile';
 import { loadDraft, saveDraft, clearDraft, getDraftAgeFormatted } from '@/components/profile/utils/profileStorage';
-import { saveProfile } from '@/lib/profileApi';
+import { saveProfile, saveUserCourses, saveUserSkills } from '@/lib/profileApi';
 
 // Step Components (to be created)
 import Step1_BasicInfo from '@/components/profile/steps/Step1_BasicInfo';
@@ -30,7 +30,6 @@ export default function ProfileWizard() {
 
   // Profile data state
   const [profileData, setProfileData] = useState<Partial<ProfileData>>({
-    name: '',
     university: '',
     major: '',
     year: undefined,
@@ -114,8 +113,8 @@ export default function ProfileWizard() {
   // ============================================
   const canProceed = (): boolean => {
     switch (currentStep) {
-      case 1: // Basic Info
-        return !!(profileData.name && profileData.university && profileData.major);
+      case 1:
+        return !!(profileData.university && profileData.major && profileData.specialization);
       case 2: // Year & Courses
         return !!profileData.year;
       case 3: // Skill Selector
@@ -140,18 +139,29 @@ export default function ProfileWizard() {
     if (!user) return;
 
     try {
-      // Save to Supabase
+      // Save profile (basic info, availability, bio, avatar)
       await saveProfile(user.id, profileData);
-      console.log('✅ Profile saved to Supabase');
+      
+      // Save completed courses from Step 2
+      if (profileData.completedCourses && profileData.completedCourses.length > 0) {
+        await saveUserCourses(user.id, profileData.completedCourses);
+        
+      }
 
-      // Clear draft
+      // Save selected skills from Step 3 (now as number[] IDs)
+      if (profileData.skills && profileData.skills.length > 0) {
+        await saveUserSkills(user.id, profileData.skills);
+        
+      }
+
+      // Clear draft from localStorage
       clearDraft();
 
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
-      console.error('❌ Failed to save profile:', error);
-      alert('Failed to save profile. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to save profile. Please try again.');
+      // Do NOT navigate - keep user on wizard to retry
     }
   };
 
