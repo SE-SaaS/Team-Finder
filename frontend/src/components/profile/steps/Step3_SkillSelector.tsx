@@ -9,6 +9,7 @@ import { useState, useMemo } from 'react';
 import type { ProfileData } from '@/types/profile';
 import { SKILL_LOCKS, getLockedSkills, getUnlockedSkills } from '@/data/skillLocks';
 import SkillPill from '@/components/profile/ui/SkillPill';
+import { getSkillId } from '@/constants/skills';
 
 interface Step3Props {
   data: Partial<ProfileData>;
@@ -30,13 +31,16 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
     return { lockedSkills: locked, unlockedSkills: unlocked };
   }, [yearNum, data.completedCourses]);
 
-  const handleSkillToggle = (skill: string) => {
+  const handleSkillToggle = (skillName: string) => {
+    const skillId = getSkillId(skillName);
+    if (!skillId) return; // Safety check
+
     const currentSkills = data.skills || [];
-    const isSelected = currentSkills.includes(skill);
+    const isSelected = currentSkills.includes(skillId);
 
     const newSkills = isSelected
-      ? currentSkills.filter(s => s !== skill)
-      : [...currentSkills, skill];
+      ? currentSkills.filter(id => id !== skillId)
+      : [...currentSkills, skillId];
 
     onChange({ ...data, skills: newSkills });
 
@@ -88,8 +92,9 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
         {/* All Skills in Flat List */}
         <div className="flex flex-wrap gap-3">
           {SKILL_LOCKS.map((skillLock) => {
+            const skillId = getSkillId(skillLock.skill);
             const isLocked = lockedSkills.includes(skillLock.skill);
-            const isSelected = data.skills?.includes(skillLock.skill) || false;
+            const isSelected = skillId ? (data.skills?.includes(skillId) || false) : false;
             const isVerified = data.examResults?.[skillLock.skill]?.passed || false;
 
             return (

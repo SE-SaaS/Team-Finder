@@ -20,7 +20,7 @@ export interface ProfileData {
   completedCourses: string[]; // Course IDs
 
   // Step 3: Skill Selector
-  skills: string[]; // Selected from ALL_SKILLS[38]
+  skills: number[]; // Skill IDs from skills table
 
   // Step 4: Roadmap.sh (future)
   roadmapVerified: string[]; // Skills auto-verified via OAuth

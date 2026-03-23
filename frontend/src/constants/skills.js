@@ -21,3 +21,24 @@ export const ALL_SKILLS = [
 ];
 
 // Total: 38 skills
+
+// Skill ID mapping (for database compatibility)
+export const SKILL_ID_MAP = ALL_SKILLS.reduce((acc, skill, index) => {
+  acc[skill] = index + 1; // IDs start from 1
+  return acc;
+}, {});
+
+// Reverse mapping: ID to skill name
+export const ID_TO_SKILL_MAP = ALL_SKILLS.reduce((acc, skill, index) => {
+  acc[index + 1] = skill;
+  return acc;
+}, {});
+
+// Helper functions
+export function getSkillId(skillName) {
+  return SKILL_ID_MAP[skillName];
+}
+
+export function getSkillName(skillId) {
+  return ID_TO_SKILL_MAP[skillId];
+}
