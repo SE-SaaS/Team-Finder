@@ -1,0 +1,350 @@
+{
+  "university": "HU",
+  "major": "CS",
+  "courses": [
+    {
+      "id": "hu-cs-1910011100",
+      "code": "1910011100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011101",
+      "code": "1910011101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-0110101152",
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011123",
+      "code": "1910011123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011110",
+      "code": "1910011110",
+      "name": "Object Oriented (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011111",
+      "code": "1910011111",
+      "name": "Object Oriented Lab (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-0151003260",
+      "code": "0151003260",
+      "name": "Fundamentals of Software Engineering",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110108101",
+      "code": "0110108101",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011250",
+      "code": "1910011250",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011112",
+      "code": "1910011112",
+      "name": "Object Oriented (2)",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011213",
+      "code": "1910011213",
+      "name": "Object Oriented Lab (2)",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011214",
+      "code": "1910011214",
+      "name": "Visual Programming",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011215",
+      "code": "1910011215",
+      "name": "Visual Programming Lab",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-0110108103",
+      "code": "0110108103",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110408240",
+      "code": "0110408240",
+      "name": "Computer Design and Organization",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011246",
+      "code": "1910011246",
+      "name": "Theory of Computation",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011320",
+      "code": "1910011320",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002240",
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002310",
+      "code": "0151002310",
+      "name": "Programming of Internet",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110102102",
+      "code": "0110102102",
+      "name": "General Physics (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110102103",
+      "code": "0110102103",
+      "name": "General Physics Laboratory (1)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011251",
+      "code": "1910011251",
+      "name": "Algorithms",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011431",
+      "code": "1910011431",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011320-os",
+      "code": "1910011320",
+      "name": "Parallel and Distributed Operating Systems",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110408343",
+      "code": "0110408343",
+      "name": "Fundamentals of Computer Architecture",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151000470",
+      "code": "0151000470",
+      "name": "System Analysis & Design",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110101408",
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002471",
+      "code": "0151002471",
+      "name": "Information Systems Security",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002351",
+      "code": "0151002351",
+      "name": "Data Mining",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151003437",
+      "code": "0151003437",
+      "name": "User Interface Design & Implementation",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011321",
+      "code": "1910011321",
+      "name": "Internet Protocols",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011322",
+      "code": "1910011322",
+      "name": "Mobile Application Development",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011330",
+      "code": "1910011330",
+      "name": "Multimedia Programming",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011341",
+      "code": "1910011341",
+      "name": "Operation Research",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011373",
+      "code": "1910011373",
+      "name": "Simulation",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011416",
+      "code": "1910011416",
+      "name": "Programming Languages Design",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011421",
+      "code": "1910011421",
+      "name": "Wireless Networking",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011422",
+      "code": "1910011422",
+      "name": "Network Security",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011474",
+      "code": "1910011474",
+      "name": "Computer Graphics",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011440",
+      "code": "1910011440",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011440-1",
+      "code": "1910011440",
+      "name": "Applied Project (1)",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011491",
+      "code": "1910011491",
+      "name": "Applied Project (2)",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 2
+    },
+    {
+      "id": "hu-cs-1910011492",
+      "code": "1910011492",
+      "name": "Special Topics In Computer Science",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

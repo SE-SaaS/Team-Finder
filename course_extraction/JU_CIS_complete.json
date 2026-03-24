@@ -1,0 +1,246 @@
+{
+  "university": "JU",
+  "major": "CIS",
+  "courses": [
+    {
+      "id": "ju-cis-1901101",
+      "code": "1901101",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1904120",
+      "code": "1904120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902110",
+      "code": "1902110",
+      "name": "Object-Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-math1",
+      "code": "MATH001",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-math4",
+      "code": "MATH004",
+      "name": "General Physics (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902242",
+      "code": "1902242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902224",
+      "code": "1902224",
+      "name": "Database Management Systems",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902235",
+      "code": "1902235",
+      "name": "Information Systems and Organizations",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905201",
+      "code": "1905201",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-math2",
+      "code": "MATH002",
+      "name": "Linear Algebra",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-math3",
+      "code": "MATH003",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902321",
+      "code": "1902321",
+      "name": "Advanced Java Programming",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905221",
+      "code": "1905221",
+      "name": "Web Server Programming",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905341",
+      "code": "1905341",
+      "name": "Theory of Algorithms",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1901363",
+      "code": "1901363",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905310",
+      "code": "1905310",
+      "name": "Mobile Development Frameworks",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902322",
+      "code": "1902322",
+      "name": "Software Engineering",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902331",
+      "code": "1902331",
+      "name": "Human Computer Interaction",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902312",
+      "code": "1902312",
+      "name": "Database Technologies",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-math5",
+      "code": "MATH005",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905320",
+      "code": "1905320",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902316",
+      "code": "1902316",
+      "name": "HCI User Interface",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902345",
+      "code": "1902345",
+      "name": "Information Security and Privacy",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905354",
+      "code": "1905354",
+      "name": "Cloud Image Processing",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905373",
+      "code": "1905373",
+      "name": "Advanced Software Engineering",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902336",
+      "code": "1902336",
+      "name": "System Analysis and Design",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902494",
+      "code": "1902494",
+      "name": "Special Topics in CIS",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905378",
+      "code": "1905378",
+      "name": "Project Management",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

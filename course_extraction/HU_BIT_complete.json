@@ -1,0 +1,366 @@
+{
+  "university": "HU",
+  "major": "BIT",
+  "courses": [
+    {
+      "code": "1910011100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-bit-1910011100",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-bit-1910011101",
+      "credit_hours": 1
+    },
+    {
+      "code": "1910011123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-bit-1910011123",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-bit-0110101152",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011250",
+      "name": "Data Structures",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-bit-1910011250",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011110",
+      "name": "Object Oriented (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-bit-1910011110",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011111",
+      "name": "Object Oriented Lab (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-bit-1910011111",
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-bit-0110108101",
+      "code": "0110108101",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031260",
+      "name": "Fundamentals of Software Engineering",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-bit-2010031260",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-bit-0151002240",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002241",
+      "name": "Introduction to Database Systems Lab",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-bit-0151002241",
+      "credit_hours": 1
+    },
+    {
+      "code": "1910011214",
+      "name": "Visual Programming",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-bit-1910011214",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011212",
+      "name": "Object Oriented (2)",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-bit-1910011212",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-bit-0110108103",
+      "code": "0110108103",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002310",
+      "name": "Programming of Internet Applications",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-bit-0151002310",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011130",
+      "name": "Simulation",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-bit-1910011130",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011320",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-bit-1910011320",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-bit-0110102102",
+      "code": "0110102102",
+      "name": "General Physics (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-bit-0110102103",
+      "code": "0110102103",
+      "name": "General Physics Laboratory (1)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "code": "0151002470",
+      "name": "System Analysis & Design",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-0151002470",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041260",
+      "name": "Information Systems for Small and Medium Enterprises",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-2010041260",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041330",
+      "name": "Managing and Developing Information Systems",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-2010041330",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002342",
+      "name": "Advanced Database Systems",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-0151002342",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011421",
+      "name": "Wireless Networking",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-1910011421",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011422",
+      "name": "Network Security",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-bit-1910011422",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-bit-0110101408",
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031436",
+      "name": "Software Project Management",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010031436",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041280",
+      "name": "Enterprise Architecture",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010041280",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041360",
+      "name": "E-Marketing",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010041360",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041361",
+      "name": "E-Services",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010041361",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010043312",
+      "name": "Data Mining",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010043312",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042362",
+      "name": "cloud-computing",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010042362",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002374",
+      "name": "Information Systems Management",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-0151002374",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002410",
+      "name": "Advanced Internet - Applications Programming",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-0151002410",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041351",
+      "name": "AI Applications in Business",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-bit-2010041351",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041431",
+      "name": "Electronic Business Security",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041431",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041441",
+      "name": "Decision Support Systems",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041441",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041442",
+      "name": "Knowledge Management",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041442",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041452",
+      "name": "Business Intelligence",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041452",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041470",
+      "name": "Enterprise Resource Planning Systems",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041470",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041490",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041490",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041491",
+      "name": "Project in Business Information Technology (1)",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041491",
+      "credit_hours": 1
+    },
+    {
+      "code": "2010041494",
+      "name": "Research Methods in Information Technology",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-bit-2010041494",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041492",
+      "name": "Project in Business Information Technology (2)",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-bit-2010041492",
+      "credit_hours": 2
+    },
+    {
+      "code": "2010041493",
+      "name": "Special Topics In Business Information",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-bit-2010041493",
+      "credit_hours": 3
+    }
+  ]
+}

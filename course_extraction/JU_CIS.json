@@ -1,0 +1,94 @@
+{
+  "university": "JU",
+  "major": "CIS",
+  "courses": [
+    {
+      "id": "ju-cis-1901341",
+      "code": "1901341",
+      "name": "Theory of Algorithms",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1901359",
+      "code": "1901359",
+      "name": "Computer Graphics",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902242",
+      "code": "1902242",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1901354",
+      "code": "1901354",
+      "name": "Computer Networks",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1901473",
+      "code": "1901473",
+      "name": "Operating Systems",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1905322",
+      "code": "1905322",
+      "name": "Data Mining",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902310",
+      "code": "1902310",
+      "name": "Advanced AI Programming",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1904340",
+      "code": "1904340",
+      "name": "Natural Language Processing",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1915380",
+      "code": "1915380",
+      "name": "Machine Learning and Neural Networks",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1902231",
+      "code": "1902231",
+      "name": "Web Server Programming",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cis-1911351",
+      "code": "1911351",
+      "name": "Security of Web Applications",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

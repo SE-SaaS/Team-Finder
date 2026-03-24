@@ -1,0 +1,382 @@
+{
+  "university": "HU",
+  "major": "CIS",
+  "courses": [
+    {
+      "code": "0151001100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-cis-0151001100",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-cis-0151001101",
+      "credit_hours": 1
+    },
+    {
+      "code": "0151001123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-cis-0151001123",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-cis-0110101152",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001250",
+      "name": "Data Structures",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-cis-0151001250",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001110",
+      "name": "Object Oriented (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-cis-0151001110",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001111",
+      "name": "Object Oriented Lab (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-cis-0151001111",
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cis-0110108101",
+      "code": "0110108101",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "code": "0151003260",
+      "name": "Fundamentals of Software Engineering",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151003260",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001212",
+      "name": "Object Oriented (2)",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151001212",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001213",
+      "name": "Object Oriented Lab (2)",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151001213",
+      "credit_hours": 1
+    },
+    {
+      "code": "0151001214",
+      "name": "Visual Programming",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151001214",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001215",
+      "name": "Visual Programming Lab",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151001215",
+      "credit_hours": 1
+    },
+    {
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151002240",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002241",
+      "name": "Introduction to Database Systems Lab",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-cis-0151002241",
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cis-0110108103",
+      "code": "0110108103",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001320",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0151001320",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001351",
+      "name": "Algorithms",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0151001351",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002310",
+      "name": "Programming of Internet Applications",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0151002310",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002311",
+      "name": "Programming of Internet Applications Lab",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0151002311",
+      "credit_hours": 1
+    },
+    {
+      "code": "0151001431",
+      "name": "Operating Systems",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0151001431",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110408240",
+      "name": "Computer Design and Organization",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-cis-0110408240",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cis-0110102102",
+      "code": "0110102102",
+      "name": "General Physics (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cis-0110102103",
+      "code": "0110102103",
+      "name": "General Physics Laboratory (1)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "code": "0151001431",
+      "name": "Wireless Networking & Mobile Applications",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151001431",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002324",
+      "name": "Advanced Database Systems",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151002324",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002350",
+      "name": "Data Warehousing Technologies",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151002350",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002376",
+      "name": "System Analysis & Design",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151002376",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001321",
+      "name": "Internet Protocols",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151001321",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001330",
+      "name": "Multimedia Programming",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151001330",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001460",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151001460",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151003221",
+      "name": "Object Oriented Software Development",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-cis-0151003221",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cis-0110101408",
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002361",
+      "name": "Data Mining",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002361",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002372",
+      "name": "Information Retrieval Systems",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002372",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002374",
+      "name": "Information Systems Management",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002374",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002375",
+      "name": "E-commerce",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002375",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151001422",
+      "name": "Network Security",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151001422",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002377",
+      "name": "Information Technology Systems",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002377",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002410",
+      "name": "Advanced Internet - Applications Programming",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151002410",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151003436",
+      "name": "Software Project Mangement",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151003436",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151003437",
+      "name": "User Interface Design & Implementation",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-cis-0151003437",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002471",
+      "name": "Information Systems Security",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-cis-0151002471",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002490",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-cis-0151002490",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002492",
+      "name": "Applied Project (1)",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-cis-0151002492",
+      "credit_hours": 1
+    },
+    {
+      "code": "0151002493",
+      "name": "Applied Project (2)",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-cis-0151002493",
+      "credit_hours": 2
+    },
+    {
+      "code": "0151002491",
+      "name": "Selected Topics In Computer Information Systems",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-cis-0151002491",
+      "credit_hours": 3
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "university": "HU",
+  "major": "SWE",
+  "courses": [
+    {
+      "code": "1910011100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-swe-1910011100",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-swe-1910011101",
+      "credit_hours": 1
+    },
+    {
+      "code": "1910011123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-swe-1910011123",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-swe-0110101152",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011250",
+      "name": "Data Structures",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-swe-1910011250",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011110",
+      "name": "Object Oriented (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-swe-1910011110",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011111",
+      "name": "Object Oriented Lab (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-swe-1910011111",
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-swe-0110108101",
+      "code": "0110108101",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031260",
+      "name": "Fundamentals of Software Engineering",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-2010031260",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-0151002240",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002241",
+      "name": "Introduction to Database Systems Lab",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-0151002241",
+      "credit_hours": 1
+    },
+    {
+      "code": "1910011351",
+      "name": "Algorithms",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-1910011351",
+      "credit_hours": 3
+    },
+    {
+      "code": "1510011431",
+      "name": "Operating Systems",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-1510011431",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031272",
+      "name": "Computer Organization",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-2010031272",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031220",
+      "name": "Computer Programming for Software Engineering",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-swe-2010031220",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-swe-0110108103",
+      "code": "0110108103",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031221",
+      "name": "Object Oriented Development",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-swe-2010031221",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031273",
+      "name": "Advanced Object Oriented Programming",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-swe-2010031273",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-swe-0110101408",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-swe-0110102102",
+      "code": "0110102102",
+      "name": "General Physics (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-swe-0110102103",
+      "code": "0110102103",
+      "name": "General Physics Laboratory (1)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "code": "2010031320",
+      "name": "Software Architecture",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-swe-2010031320",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031323",
+      "name": "Software Requirements Engineering",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-swe-2010031323",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031332",
+      "name": "Software Design",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-swe-2010031332",
+      "credit_hours": 3
+    },
+    {
+      "code": "1510031352",
+      "name": "Software Systems Analysis and Design",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-swe-1510031352",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031353",
+      "name": "Software Ethics and Security",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-swe-2010031353",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-swe-0110101408",
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031375",
+      "name": "Web Applications Programming and Engineering",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031375",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031410",
+      "name": "Software Testing",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031410",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031436",
+      "name": "Software Project Management",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031436",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031325",
+      "name": "Software Maintenance",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031325",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031334",
+      "name": "Cloud Computing Applications",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031334",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031354",
+      "name": "Internet of Things and its Security",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031354",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031355",
+      "name": "Mobile Devices Applications Development",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031355",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031356",
+      "name": "Data Science and Artificial Intelligence",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031356",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031437",
+      "name": "User Interface Design & Implementation",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-swe-2010031437",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031440",
+      "name": "Software Quality Assurance",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-swe-2010031440",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031498",
+      "name": "Graduation Project (1)",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-swe-2010031498",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031490",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-swe-2010031490",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031441",
+      "name": "Software Measurements",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-swe-2010031441",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031499",
+      "name": "Graduation Project (2)",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-swe-2010031499",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031495",
+      "name": "Selected Topics In Software Engineering",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-swe-2010031495",
+      "credit_hours": 3
+    }
+  ]
+}

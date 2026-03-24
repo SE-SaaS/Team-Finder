@@ -1,0 +1,262 @@
+{
+  "university": "JU",
+  "major": "DS",
+  "courses": [
+    {
+      "id": "ju-ds-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902110",
+      "code": "1902110",
+      "name": "Object-Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902120",
+      "code": "1902120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1932521",
+      "code": "1932521",
+      "name": "Principles of Data Science",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-math1",
+      "code": "MATH001",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-math4",
+      "code": "MATH004",
+      "name": "General Physics (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1932111",
+      "code": "1932111",
+      "name": "AI Programming",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902242",
+      "code": "1902242",
+      "name": "Database Systems",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1901242",
+      "code": "1901242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-math2",
+      "code": "MATH002",
+      "name": "Linear Algebra",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-math3",
+      "code": "MATH003",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1901341",
+      "code": "1901341",
+      "name": "Theory of Algorithms",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902222",
+      "code": "1902222",
+      "name": "Data Mining",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1932331",
+      "code": "1932331",
+      "name": "Web Engineering and Cloud Computing",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1914351",
+      "code": "1914351",
+      "name": "Applied Statistics",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902322",
+      "code": "1902322",
+      "name": "Software Engineering",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1911322",
+      "code": "1911322",
+      "name": "Intelligence Security",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1932320",
+      "code": "1932320",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-math5",
+      "code": "MATH005",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1901502",
+      "code": "1901502",
+      "name": "Computer Networks",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1933321",
+      "code": "1933321",
+      "name": "NoSQL Databases",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902390",
+      "code": "1902390",
+      "name": "Seminar-Road to Software Industry",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 0
+    },
+    {
+      "id": "ju-ds-1932331v",
+      "code": "1932331",
+      "name": "Machine Learning",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1934341",
+      "code": "1934341",
+      "name": "Big Data",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1912421",
+      "code": "1912421",
+      "name": "Deep Learning",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1904122",
+      "code": "1904122",
+      "name": "IT Project Management",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1934691",
+      "code": "1934691",
+      "name": "Special Topics in Data Science",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902253",
+      "code": "1902253",
+      "name": "Web Server Programming",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1905353",
+      "code": "1905353",
+      "name": "Intelligent Robotics",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1904321",
+      "code": "1904321",
+      "name": "Virtual Reality",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ds-1902324",
+      "code": "1902324",
+      "name": "Database Languages and Tools",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

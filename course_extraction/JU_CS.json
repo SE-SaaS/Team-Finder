@@ -1,0 +1,214 @@
+{
+  "university": "JU",
+  "major": "CS",
+  "courses": [
+    {
+      "id": "ju-cs-1901101",
+      "code": "1901101",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1904120",
+      "code": "1904120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1902110",
+      "code": "1902110",
+      "name": "Object-Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1902242",
+      "code": "1902242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1902243",
+      "code": "1902243",
+      "name": "Data Structures Lab",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 2
+    },
+    {
+      "id": "ju-cs-1902224",
+      "code": "1902224",
+      "name": "Database Management Systems",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901204",
+      "code": "1901204",
+      "name": "Logic Design",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901351",
+      "code": "1901351",
+      "name": "Numerical Analysis",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901241",
+      "code": "1901241",
+      "name": "Theory of Computation",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901341",
+      "code": "1901341",
+      "name": "Theory of Algorithms",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901353",
+      "code": "1901353",
+      "name": "Modeling and Simulation",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901301",
+      "code": "1901301",
+      "name": "Computer Ethics",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "ju-cs-1901322",
+      "code": "1901322",
+      "name": "Computer Organization",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901363",
+      "code": "1901363",
+      "name": "Computer Networks",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901359",
+      "code": "1901359",
+      "name": "Computer Graphics",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1905320",
+      "code": "1905320",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1902372",
+      "code": "1902372",
+      "name": "Software Engineering",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1902390",
+      "code": "1902390",
+      "name": "Seminar-Road to Software Industry",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 0
+    },
+    {
+      "id": "ju-cs-1901444",
+      "code": "1901444",
+      "name": "Computational Problems and Techniques",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901471",
+      "code": "1901471",
+      "name": "Design And Implementation of Programming Languages",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901473",
+      "code": "1901473",
+      "name": "Operating Systems",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901476",
+      "code": "1901476",
+      "name": "Systems Programming and Compilers Construction",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1901494",
+      "code": "1901494",
+      "name": "Special topics",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cs-1911322",
+      "code": "1911322",
+      "name": "Information Security and Privacy",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}
