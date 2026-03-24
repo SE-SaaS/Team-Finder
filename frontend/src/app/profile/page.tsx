@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ProfileData } from '@/types/profile';
-import { loadDraft, saveDraft, clearDraft, getDraftAgeFormatted } from '@/components/profile/utils/profileStorage';
+import { loadDraft, saveDraft, clearDraft } from '@/components/profile/utils/profileStorage';
 import { saveProfile, saveUserCourses, saveUserSkills } from '@/lib/profileApi';
 
 // Step Components (to be created)
@@ -26,13 +26,13 @@ export default function ProfileWizard() {
   const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [showDraftModal, setShowDraftModal] = useState(false);
-  const [draftAge, setDraftAge] = useState<string | null>(null);
 
   // Profile data state
   const [profileData, setProfileData] = useState<Partial<ProfileData>>({
     university: '',
     major: '',
     year: undefined,
+    semester: undefined,
     completedCourses: [],
     skills: [],
     roadmapVerified: [],
@@ -56,15 +56,14 @@ export default function ProfileWizard() {
   // DRAFT RECOVERY ON MOUNT
   // ============================================
   useEffect(() => {
-    const draft = loadDraft();
-    if (draft) {
-      setDraftAge(getDraftAgeFormatted());
-      setShowDraftModal(true);
-    }
-  }, []);
+    if (!user) return;
+    const draft = loadDraft(user.id);
+    if (draft && draft.currentStep > 1) setShowDraftModal(true);
+  }, [user]);
 
   const handleResumeDraft = () => {
-    const draft = loadDraft();
+    if (!user) return;
+    const draft = loadDraft(user.id);
     if (draft) {
       setProfileData(draft.data);
       setCurrentStep(draft.currentStep);
@@ -81,11 +80,9 @@ export default function ProfileWizard() {
   // AUTO-SAVE ON DATA CHANGE
   // ============================================
   useEffect(() => {
-    // Don't auto-save on initial render
-    if (currentStep > 0) {
-      saveDraft(profileData, currentStep);
-    }
-  }, [profileData, currentStep]);
+    if (!user || currentStep <= 1) return;
+    saveDraft(profileData, currentStep, user.id);
+  }, [profileData, currentStep, user]);
 
   // ============================================
   // NAVIGATION
@@ -98,13 +95,17 @@ export default function ProfileWizard() {
 
   const nextStep = () => {
     if (currentStep < 7) {
-      setCurrentStep(currentStep + 1);
+      // Step 4 (Roadmap.sh) is a future feature — skip it silently
+      const next = currentStep === 3 ? 5 : currentStep + 1;
+      setCurrentStep(next);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      // Skip step 4 going backwards too
+      const prev = currentStep === 5 ? 3 : currentStep - 1;
+      setCurrentStep(prev);
     }
   };
 
@@ -116,7 +117,7 @@ export default function ProfileWizard() {
       case 1:
         return !!(profileData.university && profileData.major && profileData.specialization);
       case 2: // Year & Courses
-        return !!profileData.year;
+        return !!(profileData.year && profileData.semester);
       case 3: // Skill Selector
         return (profileData.skills?.length ?? 0) >= 3;
       case 4: // Roadmap.sh (auto-skip)
@@ -334,8 +335,7 @@ export default function ProfileWizard() {
           <div className="bg-[#16161f] rounded-xl p-8 max-w-md w-full mx-4 border border-white/10">
             <h2 className="text-2xl font-bold text-white mb-4">Continue Where You Left Off?</h2>
             <p className="text-white/70 mb-6">
-              We found a saved draft from <span className="text-[#4455ff]">{draftAge}</span>.
-              Would you like to resume?
+              We found a saved draft of your profile. Would you like to resume where you left off?
             </p>
             <div className="flex gap-4">
               <button

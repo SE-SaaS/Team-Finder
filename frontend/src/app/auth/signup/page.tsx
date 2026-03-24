@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getUniversityFromEmail, isValidUniversityEmail } from '@/data/universities';
-import { supabase } from '@/lib/supabase';
+import { getUniversityFromEmail } from '@/data/universities';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -36,40 +35,25 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (!isValidUniversityEmail(email)) {
-      setError('Invalid university email');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            university: getUniversityFromEmail(email),
-            verification_method: 'email_domain',
-            enrollment_confirmed: false,
-          }
-        }
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) {
-        setError(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to create account');
         return;
       }
 
       setStep('verify');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+    } catch {
+      setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -208,12 +192,13 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
+                maxLength={16}
                 className="w-full px-4 py-3 bg-[#08080e] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-[#4455ff] transition-colors"
-                placeholder="At least 6 characters"
+                placeholder="e.g. MyPass1!"
               />
               <p className="mt-1 text-xs text-white/40">
-                Minimum 6 characters
+                8–16 characters · uppercase · number · symbol
               </p>
             </div>
 

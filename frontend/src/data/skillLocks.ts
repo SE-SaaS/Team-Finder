@@ -408,15 +408,3 @@ export function getLockedSkills(
   }).map(lock => lock.skill);
 }
 
-/**
- * Get skills grouped by category
- */
-export function getSkillsByCategory(): Record<string, string[]> {
-  return SKILL_LOCKS.reduce((acc, lock) => {
-    if (!acc[lock.category]) {
-      acc[lock.category] = [];
-    }
-    acc[lock.category].push(lock.skill);
-    return acc;
-  }, {} as Record<string, string[]>);
-}

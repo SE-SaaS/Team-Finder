@@ -22,11 +22,23 @@ export async function saveProfile(_userId: string, data: Partial<ProfileData>) {
   }
 }
 
-// Get user profile
+// Get own profile (authenticated user viewing their own data)
 export async function getProfile(userId: string) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, email, university, major, specialization, year, availability, bio, avatar, avatar_color, updated_at')
+    .eq('id', userId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Get a public profile (browsing another student) — never exposes email or internal fields
+export async function getPublicProfile(userId: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('university, major, specialization, year, availability, bio, avatar, avatar_color')
     .eq('id', userId)
     .single();
 

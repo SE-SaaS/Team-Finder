@@ -1,5 +1,4 @@
 import { MAJOR_CODES, getSpecializations } from '@/data/majors'
-import { UNIVERSITIES } from '@/data/universities'
 
 export interface ValidationResult {
   isValid: boolean
