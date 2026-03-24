@@ -144,3 +144,8 @@ vite.config.ts.timestamp-*
 # Image assets (large files)
 frontend/public/sequence/
 frontend/public/chaosxbg.png
+
+# Course extraction temporary files
+Majors/
+temp_pages/
+course_extraction/hu_extracted/
