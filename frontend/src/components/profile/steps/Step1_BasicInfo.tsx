@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import type { ProfileData } from '@/types/profile';
-import { MAJORS, MAJOR_CODES, getMajorInfo, getSpecializations } from '@/data/majors';
+import { MAJOR_CODES, getMajorInfo } from '@/data/majors';
 import { validateStep1 } from '@/lib/validation/profileValidation';
 import { useAuth } from '@/contexts/AuthContext';
 

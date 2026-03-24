@@ -17,6 +17,7 @@ export interface ProfileData {
   year: '1st' | '2nd' | '3rd' | '4th';
 
   // Step 2: Year & Courses
+  semester: 1 | 2;
   completedCourses: string[]; // Course IDs
 
   // Step 3: Skill Selector
@@ -98,10 +99,15 @@ export interface SkillUnlockStatus {
 
 export interface Course {
   id: string;
-  code: string; // e.g., "CS 101"
-  name: string; // e.g., "Intro to Programming"
-  unlocksSkills: string[]; // Skills this course unlocks
-  recommendedYear: number; // 1-4
+  code: string;
+  name: string;
+  university: string;
+  major: string;
+  year: number; // 1-4 (recommended: 33 credit hours per year)
+  semester: 1 | 2;
+  credit_hours?: number;
+  prerequisite_ids?: string[];
+  unlocks_skills?: number[]; // Skill IDs from skills table
   description?: string;
 }
 
@@ -114,6 +120,7 @@ export interface ProfileDraft {
   lastSaved: number; // Unix timestamp
   currentStep: number; // 1-7
   version: string; // Schema version for migration
+  userId: string; // Scopes draft to a specific user
 }
 
 // ============================================
