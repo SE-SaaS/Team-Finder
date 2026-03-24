@@ -1,0 +1,262 @@
+{
+  "university": "JU",
+  "major": "AI",
+  "courses": [
+    {
+      "id": "ju-ai-1901101",
+      "code": "1901101",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1932110",
+      "code": "1932110",
+      "name": "Object Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1904120",
+      "code": "1904120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1932120",
+      "code": "1932120",
+      "name": "Introduction to Artificial Intelligence",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-math1",
+      "code": "MATH001",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-math4",
+      "code": "MATH004",
+      "name": "General Physics (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1932111",
+      "code": "1932111",
+      "name": "AI Programming",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902242",
+      "code": "1902242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-math2",
+      "code": "MATH002",
+      "name": "Linear Algebra",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-math3",
+      "code": "MATH003",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1905341",
+      "code": "1905341",
+      "name": "Theory of Algorithms",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902222",
+      "code": "1902222",
+      "name": "Data Mining",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902221",
+      "code": "1902221",
+      "name": "Knowledge Representation and Reasoning",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902220",
+      "code": "1902220",
+      "name": "Ethics of Artificial Intelligence and Data Sciences",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902322",
+      "code": "1902322",
+      "name": "Software Engineering",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1911322",
+      "code": "1911322",
+      "name": "Information Security",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1932310",
+      "code": "1932310",
+      "name": "Machine Learning and Neural Networks",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-math5",
+      "code": "MATH005",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1901502",
+      "code": "1901502",
+      "name": "Computer Networks",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1905323",
+      "code": "1905323",
+      "name": "Ontologies and Knowledge",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1902322v",
+      "code": "1902322",
+      "name": "Computer Vision",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1904320",
+      "code": "1904320",
+      "name": "Internet of Things",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1905360",
+      "code": "1905360",
+      "name": "Natural Language Processing",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1912421",
+      "code": "1912421",
+      "name": "Deep Learning",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1905353",
+      "code": "1905353",
+      "name": "Intelligent Robotics",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1901421",
+      "code": "1901421",
+      "name": "Cloud Computing",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1904691",
+      "code": "1904691",
+      "name": "Special Topics in Artificial Intelligence",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1904122",
+      "code": "1904122",
+      "name": "Project Management",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1905380",
+      "code": "1905380",
+      "name": "Arabic Language Engineering",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-ai-1911483",
+      "code": "1911483",
+      "name": "Security Intelligence",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

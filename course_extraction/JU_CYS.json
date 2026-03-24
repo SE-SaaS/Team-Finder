@@ -1,0 +1,94 @@
+{
+  "university": "JU",
+  "major": "CYS",
+  "courses": [
+    {
+      "id": "ju-cys-1901101",
+      "code": "1901101",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1904120",
+      "code": "1904120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1902110",
+      "code": "1902110",
+      "name": "Object-Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1911161",
+      "code": "1911161",
+      "name": "Principles of Security",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1911251",
+      "code": "1911251",
+      "name": "Cryptography",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1911251v2",
+      "code": "1911251",
+      "name": "Security Risk Assessment and Ethics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1902242",
+      "code": "1902242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-1902324",
+      "code": "1902324",
+      "name": "Database Techniques",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-cys-0101131",
+      "code": "0101131",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

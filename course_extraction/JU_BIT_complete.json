@@ -1,0 +1,254 @@
+{
+  "university": "JU",
+  "major": "BIT",
+  "courses": [
+    {
+      "id": "ju-bit-1901101",
+      "code": "1901101",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1941102",
+      "code": "1941102",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1904101",
+      "code": "1904101",
+      "name": "Fundamentals of Information Technology",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1904120",
+      "code": "1904120",
+      "name": "Web Applications Development",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902110",
+      "code": "1902110",
+      "name": "Object-Oriented Programming",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-math1",
+      "code": "MATH001",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-math4",
+      "code": "MATH004",
+      "name": "General Physics (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902242",
+      "code": "1902242",
+      "name": "Data Structures",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902224",
+      "code": "1902224",
+      "name": "Database Management Systems",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902235",
+      "code": "1902235",
+      "name": "Statistical Packages",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-math2",
+      "code": "MATH002",
+      "name": "Linear Algebra",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-math3",
+      "code": "MATH003",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905341",
+      "code": "1905341",
+      "name": "Theory of Algorithms",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1904371",
+      "code": "1904371",
+      "name": "Business Intelligence",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1901363",
+      "code": "1901363",
+      "name": "Computer Networks",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902321",
+      "code": "1902321",
+      "name": "Web Server Programming",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1901301",
+      "code": "1901301",
+      "name": "Computer Ethics",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905353",
+      "code": "1905353",
+      "name": "e-Business",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902322",
+      "code": "1902322",
+      "name": "Software Engineering",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905211",
+      "code": "1905211",
+      "name": "Mobile Programming",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-math5",
+      "code": "MATH005",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1901102",
+      "code": "1901102",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905331",
+      "code": "1905331",
+      "name": "Learning Resource Management",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905321",
+      "code": "1905321",
+      "name": "Knowledge Management Systems",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905355",
+      "code": "1905355",
+      "name": "E-Learning",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1906383",
+      "code": "1906383",
+      "name": "Document Analysis",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905384",
+      "code": "1905384",
+      "name": "Advanced Computer Networks",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1902336",
+      "code": "1902336",
+      "name": "System Analysis and Design",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905322",
+      "code": "1905322",
+      "name": "Data Mining",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1906434",
+      "code": "1906434",
+      "name": "Payment Systems",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "ju-bit-1905494",
+      "code": "1905494",
+      "name": "Special Topics in BIT",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 3
+    }
+  ]
+}

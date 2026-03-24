@@ -1,0 +1,214 @@
+{
+  "university": "HU",
+  "major": "CS",
+  "courses": [
+    {
+      "id": "hu-cs-1910011100",
+      "code": "1910011100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011101",
+      "code": "1910011101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-0110101152",
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011123",
+      "code": "1910011123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1510011110",
+      "code": "1510011110",
+      "name": "Fundamentals of Software Engineering",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011250",
+      "code": "1910011250",
+      "name": "Data Structures",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002240",
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002310",
+      "code": "0151002310",
+      "name": "Programming of Internet",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151000470",
+      "code": "0151000470",
+      "name": "System Analysis & Design",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0151002471",
+      "code": "0151002471",
+      "name": "Information Systems Security",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011110",
+      "code": "1910011110",
+      "name": "Object Oriented (1)",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011111",
+      "code": "1910011111",
+      "name": "Object Oriented Lab (1)",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011112",
+      "code": "1910011112",
+      "name": "Object Oriented (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011213",
+      "code": "1910011213",
+      "name": "Object Oriented Lab (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011214",
+      "code": "1910011214",
+      "name": "Visual Programming",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1510011215",
+      "code": "1510011215",
+      "name": "Visual Programming Lab",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011246",
+      "code": "1910011246",
+      "name": "Theory of Computation",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011320",
+      "code": "1910011320",
+      "name": "Computer Networks",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011250",
+      "code": "1910011250",
+      "name": "Algorithms",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011320",
+      "code": "1910011320",
+      "name": "Parallel and Distributed Operating Systems",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011123",
+      "code": "1910011123",
+      "name": "Artificial Intelligence",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110408240",
+      "code": "0110408240",
+      "name": "Computer Design and Organization",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-0110408343",
+      "code": "0110408343",
+      "name": "Fundamentals of Computer Architecture",
+      "year": 3,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011440",
+      "code": "1910011440",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-cs-1910011440-1",
+      "code": "1910011440",
+      "name": "Applied Project (1)",
+      "year": 4,
+      "semester": 1,
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-cs-1910011491",
+      "code": "1910011491",
+      "name": "Applied Project (2)",
+      "year": 4,
+      "semester": 2,
+      "credit_hours": 2
+    }
+  ]
+}

@@ -1,0 +1,358 @@
+{
+  "university": "HU",
+  "major": "DS_AI",
+  "courses": [
+    {
+      "code": "1910011100",
+      "name": "Introduction to Programming",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-dsai-1910011100",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011101",
+      "name": "Introduction to Programming Lab",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-dsai-1910011101",
+      "credit_hours": 1
+    },
+    {
+      "code": "1910011123",
+      "name": "Digital Logic Design",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-dsai-1910011123",
+      "credit_hours": 3
+    },
+    {
+      "code": "0110101152",
+      "name": "Discrete Mathematics",
+      "year": 1,
+      "semester": 1,
+      "id": "hu-dsai-0110101152",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011250",
+      "name": "Data Structures",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-dsai-1910011250",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011110",
+      "name": "Object Oriented (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-dsai-1910011110",
+      "credit_hours": 3
+    },
+    {
+      "code": "1910011111",
+      "name": "Object Oriented Lab (1)",
+      "year": 1,
+      "semester": 2,
+      "id": "hu-dsai-1910011111",
+      "credit_hours": 1
+    },
+    {
+      "id": "hu-dsai-0110108101",
+      "code": "0110108101",
+      "name": "Calculus (1)",
+      "year": 1,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010031260",
+      "name": "Fundamentals of Software Engineering",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-2010031260",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002240",
+      "name": "Introduction to Database Systems",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-0151002240",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002241",
+      "name": "Introduction to Database Systems Lab",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-0151002241",
+      "credit_hours": 1
+    },
+    {
+      "code": "2010042220",
+      "name": "Introduction to Artificial Intelligence",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-2010042220",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042260",
+      "name": "Introduction to Data Science and Artificial Intelligence",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-2010042260",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042210",
+      "name": "Information Retrieval",
+      "year": 2,
+      "semester": 1,
+      "id": "hu-dsai-2010042210",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-dsai-0110108103",
+      "code": "0110108103",
+      "name": "Principles of Statistics",
+      "year": 2,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042211",
+      "name": "Data Engineering",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-dsai-2010042211",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042300",
+      "name": "Algorithms Analysis and Design",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-dsai-2010042300",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002310",
+      "name": "Programming of Internet Applications",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-dsai-0151002310",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010041250",
+      "name": "Business Data Analytics",
+      "year": 2,
+      "semester": 2,
+      "id": "hu-dsai-2010041250",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-dsai-0110102102",
+      "code": "0110102102",
+      "name": "General Physics (2)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-dsai-0110102103",
+      "code": "0110102103",
+      "name": "General Physics Laboratory (1)",
+      "year": 2,
+      "semester": 2,
+      "credit_hours": 1
+    },
+    {
+      "code": "2010043212",
+      "name": "Data Visualization",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010043212",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010043321",
+      "name": "Machine Learning",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010043321",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010043322",
+      "name": "Digital Image Processing",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010043322",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010043323",
+      "name": "Neural Networks & Deep Learning",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010043323",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042362",
+      "name": "cloud-computing",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010042362",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002342",
+      "name": "Advanced Database Systems",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-0151002342",
+      "credit_hours": 3
+    },
+    {
+      "code": "0151002350",
+      "name": "Data Warehousing Technologies",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-0151002350",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042313",
+      "name": "Time Series analysis",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010042313",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042314",
+      "name": "Data Security",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010042314",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042352",
+      "name": "Data Science Tools",
+      "year": 3,
+      "semester": 1,
+      "id": "hu-dsai-2010042352",
+      "credit_hours": 3
+    },
+    {
+      "id": "hu-dsai-0110101408",
+      "code": "0110101408",
+      "name": "Numerical Methods",
+      "year": 3,
+      "semester": 1,
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042340",
+      "name": "Robotic Programming",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-dsai-2010042340",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042341",
+      "name": "Introduction to Mobile Robots",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-dsai-2010042341",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042391",
+      "name": "Advanced Programming for Data Science and Artificial Intelligence (Big Data)",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-dsai-2010042391",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042424",
+      "name": "Computer Vision & AND 2010042351",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-dsai-2010042424",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042403",
+      "name": "High-Performance Computing",
+      "year": 3,
+      "semester": 2,
+      "id": "hu-dsai-2010042403",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042470",
+      "name": "Natural Language Processing and Text Mining",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-dsai-2010042470",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042490",
+      "name": "Practical Training",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-dsai-2010042490",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042491",
+      "name": "Project in data science and artificial intelligence(1)",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-dsai-2010042491",
+      "credit_hours": 1
+    },
+    {
+      "code": "2010041494",
+      "name": "Research Methods in Information Technology",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-dsai-2010041494",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042480",
+      "name": "Smart Cities",
+      "year": 4,
+      "semester": 1,
+      "id": "hu-dsai-2010042480",
+      "credit_hours": 3
+    },
+    {
+      "code": "2010042492",
+      "name": "Project in data science and artificial intelligence(2)",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-dsai-2010042492",
+      "credit_hours": 2
+    },
+    {
+      "code": "2010042493",
+      "name": "Special Topics",
+      "year": 4,
+      "semester": 2,
+      "id": "hu-dsai-2010042493",
+      "credit_hours": 3
+    }
+  ]
+}
