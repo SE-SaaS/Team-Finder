@@ -246,6 +246,37 @@ def remove_skill_from_student(email: str, skill_name: str) -> str:
     except Exception as e:
         conn.rollback()
         return f"Error: {str(e)}"
+    
+
+@tool
+def get_major_plan(major_code: str) -> str:
+    """
+    Fetch a university major's course plan.
+
+    Args:
+        major_code: The major plan code (e.g., 'AI_JU', 'CS_JU')
+
+    Returns:
+        The full major plan as text, or an error message if not found
+    """
+    try:
+        import importlib.util
+        import os
+
+        plans_path = os.path.join(os.path.dirname(__file__), "..", "..", "majors_plans", "plans.py")
+        plans_path = os.path.abspath(plans_path)
+
+        spec = importlib.util.spec_from_file_location("plans", plans_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        plan = getattr(mod, major_code, None)
+        if plan is None:
+            return f"Major plan '{major_code}' not found in plans.py"
+        return plan
+    except Exception as e:
+        return f"Error loading major plan: {str(e)}"
+
 
 
 # ==================== Web Scraping Tools ====================
@@ -341,6 +372,7 @@ async def create_university_assistant():
         remove_course_from_student,
         add_skill_to_student,
         remove_skill_from_student,
+        get_major_plan,
     ]
 
     # Roadmap tools
