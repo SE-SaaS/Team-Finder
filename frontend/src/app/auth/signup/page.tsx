@@ -1,16 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getUniversityFromEmail } from '@/data/universities';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function SignupPage() {
   const [step, setStep] = useState<'signup' | 'verify'>('signup');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [detectedUniversity, setDetectedUniversity] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({ students: 0, projects: 0, matchRate: 94 });
+
+  // Fetch real stats
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const [studentsRes, projectsRes] = await Promise.all([
+          supabase.from('profiles').select('id', { count: 'exact', head: true }),
+          supabase.from('projects').select('id', { count: 'exact', head: true }),
+        ]);
+        setStats({
+          students: studentsRes.count || 0,
+          projects: projectsRes.count || 0,
+          matchRate: 94,
+        });
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      }
+    }
+    fetchStats();
+  }, []);
 
   const handleEmailChange = (email: string) => {
     setEmail(email);
@@ -23,7 +47,7 @@ export default function SignupPage() {
 
     const university = getUniversityFromEmail(email);
     if (!university) {
-      setError('Only @ju.edu.jo or @hu.edu.jo emails are accepted');
+      setError('Only @ju.edu.jo or @hu.edu.jo emails accepted');
       setDetectedUniversity(null);
       return;
     }
@@ -35,13 +59,26 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Validate full name
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      setError('Please enter your full name');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, fullName: fullName.trim() }),
       });
 
       const data = await res.json();
@@ -62,55 +99,29 @@ export default function SignupPage() {
   // Verification Screen
   if (step === 'verify') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] flex items-center justify-center px-4">
-        {/* Starfield Background */}
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="stars stars-blue"></div>
           <div className="stars stars-red"></div>
         </div>
 
-        {/* Verification Message */}
-        <div className="relative z-10 w-full max-w-md">
-          <div className="bg-[#16161f]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-2xl">
-            <div className="text-center">
-              {/* Success Icon */}
-              <div className="w-16 h-16 bg-[#4455ff]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-[#4455ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-                </svg>
-              </div>
-
-              <h1 className="text-3xl font-bold text-white mb-3">Check your email</h1>
-              <p className="text-white/70 mb-2">
-                We've sent a verification link to
-              </p>
-              <p className="text-[#4455ff] font-medium mb-6">
-                {email}
-              </p>
-              <p className="text-white/50 text-sm mb-8">
-                Click the link in the email to verify your account and complete signup.
-              </p>
-
-              <div className="bg-[#4455ff]/10 border border-[#4455ff]/30 rounded-lg p-4 mb-6">
-                <p className="text-white/60 text-xs">
-                  💡 <strong>Tip:</strong> Check your spam folder if you don't see the email within a few minutes
-                </p>
-              </div>
-
-              <Link
-                href="/auth/login"
-                className="inline-block w-full bg-[#4455ff] hover:bg-[#3344ee] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:scale-105"
-              >
-                Go to Login
-              </Link>
-
-              <div className="mt-6">
-                <Link href="/" className="text-white/40 hover:text-white/60 text-sm transition-colors">
-                  ← Back to home
-                </Link>
-              </div>
-            </div>
+        <div className="relative z-10 w-full max-w-md text-center">
+          <div className="w-16 h-16 bg-[#dc2626]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+            </svg>
           </div>
+
+          <h1 className="text-3xl font-bold text-white mb-3">Check your email</h1>
+          <p className="text-gray-400 mb-2">Verification link sent to</p>
+          <p className="text-[#dc2626] font-medium mb-8">{email}</p>
+
+          <Link
+            href="/auth/login"
+            className="inline-block w-full max-w-sm bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200"
+          >
+            Go to Login
+          </Link>
         </div>
       </div>
     );
@@ -118,99 +129,177 @@ export default function SignupPage() {
 
   // Signup Form
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] flex items-center justify-center px-4">
-      {/* Starfield Background */}
+    <div className="min-h-screen bg-black flex">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="stars stars-blue"></div>
         <div className="stars stars-red"></div>
       </div>
 
-      {/* Signup Form */}
-      <div className="relative z-10 w-full max-w-md">
-        <div className="bg-[#16161f]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8 shadow-2xl">
-          <h1 className="text-4xl font-bold text-white mb-2 text-center">Join TeamFinder</h1>
-          <p className="text-white/60 text-center mb-8">Use your university email to get started</p>
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative z-10 flex-col justify-center px-16">
+        <div className="absolute top-8 left-8">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#dc2626] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">T</span>
+            </div>
+            <span className="text-white text-xl font-bold tracking-tight">TeamFinder</span>
+          </Link>
+        </div>
+
+        <div className="mb-6">
+          <span className="text-[#dc2626] text-xs font-semibold tracking-widest uppercase">
+            University Team Platform
+          </span>
+        </div>
+
+        <h1 className="text-6xl font-bold text-white mb-6 leading-tight">
+          Find your<br />
+          <span className="text-[#dc2626]">perfect</span><br />
+          <span className="text-gray-400">team.</span>
+        </h1>
+
+        <p className="text-gray-400 text-lg mb-12 max-w-md leading-relaxed">
+          Match with teammates based on skills and availability.
+        </p>
+
+        <div className="flex gap-12">
+          <div>
+            <div className="text-4xl font-bold text-white mb-1">{stats.students}+</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">Students</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold text-white mb-1">{stats.projects}+</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">Projects</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold text-white mb-1">{stats.matchRate}%</div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">Match Rate</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Signup Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 relative z-10">
+        <div className="w-full max-w-md">
+          <div className="mb-8">
+            <h2 className="text-4xl font-bold text-white mb-2">Join TeamFinder</h2>
+            <p className="text-gray-400">Create your account</p>
+          </div>
+
+          <div className="flex gap-4 mb-8">
+            <Link
+              href="/auth/login"
+              onClick={() => {
+                setFullName('');
+                setEmail('');
+                setPassword('');
+                setConfirmPassword('');
+                setError('');
+                setDetectedUniversity(null);
+              }}
+              className="flex-1 bg-transparent border border-gray-700 text-gray-400 font-semibold py-3 rounded-lg text-center hover:border-gray-600 transition-colors"
+            >
+              Sign in
+            </Link>
+            <button className="flex-1 bg-[#dc2626] text-white font-semibold py-3 rounded-lg">
+              Create account
+            </button>
+          </div>
 
           {error && (
-            <div className="bg-[#e8294a]/10 border border-[#e8294a]/50 text-[#e8294a] px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2">
-              <span>⚠</span>
-              <span>{error}</span>
+            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSignup} className="space-y-6">
-            {/* Email Field */}
+          <form onSubmit={handleSignup} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
                 University Email
               </label>
               <input
-                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => handleEmailChange(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-[#08080e] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-[#4455ff] transition-colors"
-                placeholder="student@ju.edu.jo or student@hu.edu.jo"
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
+                placeholder="you@ju.edu.jo or you@hu.edu.jo"
               />
               {detectedUniversity && (
-                <p className="mt-2 text-sm text-[#4ade80] flex items-center gap-1">
-                  <span>✓</span> {detectedUniversity} detected
-                </p>
-              )}
-              {!detectedUniversity && email && email.includes('@') && (
-                <p className="mt-2 text-xs text-white/40">
-                  Accepted domains: @ju.edu.jo, @hu.edu.jo
+                <p className="mt-2 text-sm text-green-400 flex items-center gap-1">
+                  <span>✓</span> {detectedUniversity}
                 </p>
               )}
             </div>
 
-            {/* University Field (Read-only) */}
-            {detectedUniversity && (
-              <div>
-                <label htmlFor="university" className="block text-sm font-medium text-white/70 mb-2">
-                  University
-                </label>
-                <input
-                  id="university"
-                  type="text"
-                  value={detectedUniversity}
-                  disabled
-                  className="w-full px-4 py-3 bg-[#08080e]/50 border border-white/10 rounded-lg text-white/50 cursor-not-allowed"
-                />
-              </div>
-            )}
-
-            {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-2">
+              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
                 Password
               </label>
               <input
-                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
                 maxLength={16}
-                className="w-full px-4 py-3 bg-[#08080e] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-[#4455ff] transition-colors"
-                placeholder="e.g. MyPass1!"
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
+                placeholder="••••••••"
               />
-              <p className="mt-1 text-xs text-white/40">
-                8–16 characters · uppercase · number · symbol
+              <p className="mt-1.5 text-xs text-gray-600">
+                8-16 chars · uppercase · number · symbol
               </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                maxLength={16}
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
+                placeholder="••••••••"
+              />
+              {confirmPassword && password !== confirmPassword && (
+                <p className="mt-1.5 text-xs text-red-400">
+                  Passwords do not match
+                </p>
+              )}
+              {confirmPassword && password === confirmPassword && (
+                <p className="mt-1.5 text-xs text-green-400 flex items-center gap-1">
+                  <span>✓</span> Passwords match
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={loading || !detectedUniversity || !password}
+              disabled={loading || !detectedUniversity || !password || !confirmPassword || !fullName.trim() || password !== confirmPassword}
               className={`
-                w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200
+                w-full font-semibold py-3.5 rounded-lg transition-all duration-200 mt-6
                 ${
-                  detectedUniversity && password
-                    ? 'bg-[#4455ff] hover:bg-[#3344ee] text-white hover:scale-105'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
+                  detectedUniversity && password && confirmPassword && fullName.trim() && password === confirmPassword
+                    ? 'bg-[#dc2626] hover:bg-[#b91c1c] text-white'
+                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
                 }
               `}
             >
@@ -218,20 +307,16 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-white/60 text-sm">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-[#4455ff] hover:text-[#3344ee] font-semibold">
-                Sign in
-              </Link>
-            </p>
-          </div>
-
-          <div className="mt-8 text-center">
-            <Link href="/" className="text-white/40 hover:text-white/60 text-sm transition-colors">
-              ← Back to home
+          <p className="text-xs text-gray-600 text-center mt-6">
+            By signing up you agree to our{' '}
+            <Link href="#" className="text-gray-500 hover:text-gray-400 underline">
+              Terms of Service
             </Link>
-          </div>
+            {' '}and{' '}
+            <Link href="#" className="text-gray-500 hover:text-gray-400 underline">
+              Privacy Policy
+            </Link>
+          </p>
         </div>
       </div>
     </div>

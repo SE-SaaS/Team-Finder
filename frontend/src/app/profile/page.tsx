@@ -53,13 +53,13 @@ export default function ProfileWizard() {
   }, [user, loading, router]);
 
   // ============================================
-  // DRAFT RECOVERY ON MOUNT
+  // DRAFT RECOVERY ON MOUNT - DISABLED
   // ============================================
-  useEffect(() => {
-    if (!user) return;
-    const draft = loadDraft(user.id);
-    if (draft && draft.currentStep > 1) setShowDraftModal(true);
-  }, [user]);
+  // useEffect(() => {
+  //   if (!user) return;
+  //   const draft = loadDraft(user.id);
+  //   if (draft && draft.currentStep > 1) setShowDraftModal(true);
+  // }, [user]);
 
   const handleResumeDraft = () => {
     if (!user) return;

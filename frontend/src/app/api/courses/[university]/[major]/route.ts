@@ -31,11 +31,21 @@ export async function GET(
   try {
     const supabase = createClient();
 
+    // Convert full university names to codes
+    const universityMap: Record<string, string> = {
+      'University of Jordan': 'JU',
+      'Hashemite University': 'HU',
+      'JU': 'JU',
+      'HU': 'HU',
+    };
+
+    const universityCode = universityMap[university] || university.toUpperCase();
+
     // Fetch all courses for this university + major
     const { data: courses, error } = await supabase
       .from('courses')
       .select('*')
-      .eq('university', university.toUpperCase())
+      .eq('university', universityCode)
       .eq('major', major.toUpperCase())
       .order('year', { ascending: true })
       .order('semester', { ascending: true })
