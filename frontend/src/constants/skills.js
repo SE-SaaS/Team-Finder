@@ -3,9 +3,10 @@ export const ALL_SKILLS = [
   'HTML/CSS', 'JavaScript', 'TypeScript', 'React', 'Vue',
   'Angular', 'Next.js', 'Tailwind', 'Sass', 'Webpack',
 
-  // Backend (10)
+  // Backend (15)
   'Node.js', 'Express', 'Python', 'Django', 'Flask',
   'Java', 'Spring Boot', 'C#', '.NET', 'PHP',
+  'C', 'C++', 'Rust', 'R', 'Prolog',
 
   // Database (6)
   'SQL', 'PostgreSQL', 'MongoDB', 'MySQL', 'Redis', 'Firebase',
@@ -16,11 +17,14 @@ export const ALL_SKILLS = [
   // Mobile (3)
   'React Native', 'Flutter', 'Swift',
 
+  // Security (3)
+  'Cryptography', 'Decryption', 'Assembly',
+
   // Other (3)
   'REST APIs', 'GraphQL', 'Testing'
 ];
 
-// Total: 38 skills
+// Total: 46 skills
 
 // Skill ID mapping (for database compatibility)
 export const SKILL_ID_MAP = ALL_SKILLS.reduce((acc, skill, index) => {

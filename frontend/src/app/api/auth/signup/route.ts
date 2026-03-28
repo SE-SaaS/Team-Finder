@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabaseServer';
 import { isValidUniversityEmail, getUniversityFromEmail } from '@/data/universities';
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const { email, password, fullName } = await req.json();
 
   // Server-side domain validation — cannot be bypassed from client
   if (!email || !isValidUniversityEmail(email)) {
@@ -48,15 +48,19 @@ export async function POST(req: NextRequest) {
     email,
     password,
     options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/auth/callback`,
       data: {
+        name: fullName,
         university,
         verification_method: 'email_domain',
         enrollment_confirmed: false,
+        profile_completed: false,
       },
     },
   });
 
   if (error) {
+    console.error('Supabase signup error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

@@ -1,0 +1,16 @@
+{
+  "name": "teamfinder-backend",
+  "version": "1.0.0",
+  "description": "Backend scripts and utilities for TeamFinder",
+  "main": "index.js",
+  "scripts": {
+    "migrate:users": "node migrate_user_metadata.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.99.2",
+    "dotenv": "^16.0.0"
+  }
+}

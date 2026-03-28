@@ -9,6 +9,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ProfileData, YearLevel, Course } from '@/types/profile';
+import { getSkillName } from '@/constants/skills';
 
 interface Step2Props {
   data: Partial<ProfileData>;
@@ -62,7 +63,26 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
   }, [user, data.university, data.major]);
 
   const handleYearChange = (year: YearLevel) => {
-    onChange({ ...data, year });
+    const yearNum = parseInt(year.charAt(0));
+
+    // Auto-complete courses from previous years
+    if (yearNum > 1) {
+      const previousYearCourses = courses.filter(course => course.year < yearNum);
+      const previousCourseIds = previousYearCourses.map(c => c.id);
+
+      // Merge with existing completed courses (avoid duplicates)
+      const existingCompleted = data.completedCourses || [];
+      const allCompleted = Array.from(new Set([...existingCompleted, ...previousCourseIds]));
+
+      onChange({
+        ...data,
+        year,
+        completedCourses: allCompleted
+      });
+    } else {
+      onChange({ ...data, year });
+    }
+
     if (errors.year) {
       setErrors({ ...errors, year: '' });
     }
@@ -73,6 +93,30 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
     if (errors.semester) {
       setErrors({ ...errors, semester: '' });
     }
+  };
+
+  // Get numeric year from YearLevel string (e.g., "1st" -> 1)
+  const getCurrentYearNumber = (): number => {
+    if (!data.year) return 1;
+    return parseInt(data.year.charAt(0));
+  };
+
+  const getCurrentSemester = (): number => {
+    return data.semester || 1;
+  };
+
+  // Clear all auto-completed courses (for students who failed courses)
+  const handleClearAutoCompleted = () => {
+    const currentYear = getCurrentYearNumber();
+    const manuallySelectedCourses = (data.completedCourses || []).filter(courseId => {
+      const course = courses.find(c => c.id === courseId);
+      return course && course.year >= currentYear;
+    });
+
+    onChange({
+      ...data,
+      completedCourses: manuallySelectedCourses
+    });
   };
 
   const handleCourseToggle = (courseId: string) => {
@@ -202,6 +246,32 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
             Select courses you've completed to unlock additional skills.
           </p>
 
+          {/* Auto-completion Info */}
+          {getCurrentYearNumber() > 1 && (
+            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1">
+                  <span className="text-blue-400 text-lg">ℹ️</span>
+                  <div className="flex-1">
+                    <p className="text-sm text-blue-200 mb-2">
+                      <strong>Auto-Selected:</strong> Courses from Year {getCurrentYearNumber() - 1} and below are pre-selected.
+                    </p>
+                    <p className="text-xs text-blue-300/70">
+                      💡 <strong>Failed a course?</strong> Simply uncheck it below. Only select courses you actually passed.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleClearAutoCompleted}
+                  className="px-3 py-1.5 text-xs rounded-lg bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10 transition-all whitespace-nowrap"
+                  title="Clear all auto-selected courses from previous years"
+                >
+                  Clear All Previous
+                </button>
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div className="text-center py-8 text-white/50">
               Loading courses...
@@ -224,6 +294,15 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
             <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
               {[1, 2, 3, 4].map((year) =>
                 [1, 2].map((semester) => {
+                  const currentYear = getCurrentYearNumber();
+                  const currentSemester = getCurrentSemester();
+
+                  // Only show courses up to current year/semester
+                  // For past years: show all semesters
+                  // For current year: only show up to current semester
+                  if (year > currentYear) return null;
+                  if (year === currentYear && semester > currentSemester) return null;
+
                   const key = `${year}-${semester}`;
                   const semesterCourses = coursesByYearAndSemester[key];
 
@@ -237,6 +316,9 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
                       <div className="grid grid-cols-1 gap-2">
                         {semesterCourses.map((course) => {
                           const isSelected = data.completedCourses?.includes(course.id) || false;
+                          const currentYear = getCurrentYearNumber();
+                          const isAutoCompleted = course.year < currentYear && isSelected;
+
                           return (
                             <button
                               key={course.id}
@@ -245,7 +327,9 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
                                 px-4 py-3 rounded-lg text-left transition-all
                                 ${
                                   isSelected
-                                    ? 'bg-[#4455ff]/20 border-2 border-[#4455ff] text-white'
+                                    ? isAutoCompleted
+                                      ? 'bg-yellow-500/10 border-2 border-yellow-500/40 text-white'
+                                      : 'bg-[#4455ff]/20 border-2 border-[#4455ff] text-white'
                                     : 'bg-[#0f0f18] border border-white/10 text-white/70 hover:border-white/30 hover:text-white'
                                 }
                               `}
@@ -271,8 +355,15 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
 
                                 {/* Course Info */}
                                 <div className="flex-1">
-                                  <div className="font-medium">
-                                    {course.code} - {course.name}
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {course.code} - {course.name}
+                                    </span>
+                                    {isAutoCompleted && (
+                                      <span className="px-2 py-0.5 text-xs rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                                        ⚡ Auto-Selected
+                                      </span>
+                                    )}
                                   </div>
                                   {course.description && (
                                     <div className="text-xs text-white/40 mt-1">
@@ -280,8 +371,18 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
                                     </div>
                                   )}
                                   {course.unlocks_skills && course.unlocks_skills.length > 0 && (
-                                    <div className="text-xs text-[#4455ff]/80 mt-1">
-                                      Unlocks {course.unlocks_skills.length} skill(s)
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      {course.unlocks_skills.map((skillId) => {
+                                        const skillName = getSkillName(skillId);
+                                        return skillName ? (
+                                          <span
+                                            key={skillId}
+                                            className="px-2 py-0.5 text-xs rounded bg-[#4455ff]/20 text-[#4455ff] border border-[#4455ff]/30"
+                                          >
+                                            {skillName}
+                                          </span>
+                                        ) : null;
+                                      })}
                                     </div>
                                   )}
                                 </div>

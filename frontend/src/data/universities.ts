@@ -45,8 +45,8 @@ export type University = typeof UNIVERSITIES[number];
 // ============================================
 
 const EMAIL_DOMAIN_MAP: Record<string, string> = {
-  'ju.edu.jo': 'University of Jordan (UJ) – Amman',
-  'hu.edu.jo': 'Hashemite University – Zarqa',
+  'ju.edu.jo': 'University of Jordan',
+  'hu.edu.jo': 'Hashemite University',
 };
 
 const VALID_DOMAINS = Object.keys(EMAIL_DOMAIN_MAP);

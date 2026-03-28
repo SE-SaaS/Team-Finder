@@ -5,11 +5,12 @@
  * Flat list with soft-locks based on year + courses
  */
 
-import { useState, useMemo } from 'react';
-import type { ProfileData } from '@/types/profile';
-import { SKILL_LOCKS, getLockedSkills, getUnlockedSkills } from '@/data/skillLocks';
+import { useState, useMemo, useEffect } from 'react';
+import type { ProfileData, Course } from '@/types/profile';
+import { SKILL_LOCKS, isSkillLevelLocked, getLockedLevel, canSkipSkillSelector } from '@/data/skillLocks';
 import SkillPill from '@/components/profile/ui/SkillPill';
-import { getSkillId } from '@/constants/skills';
+import { getSkillId, getSkillName } from '@/constants/skills';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Step3Props {
   data: Partial<ProfileData>;
@@ -19,17 +20,77 @@ interface Step3Props {
 }
 
 export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: Step3Props) {
+  const { user } = useAuth();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const yearNum = data.year ? parseInt(data.year.charAt(0)) : 1;
 
-  // Determine which skills are locked/unlocked
-  const { lockedSkills, unlockedSkills } = useMemo(() => {
-    const locked = getLockedSkills(yearNum, data.completedCourses || []);
-    const unlocked = getUnlockedSkills(yearNum, data.completedCourses || []);
+  // Fetch courses to check what skills they unlock
+  useEffect(() => {
+    async function fetchCourses() {
+      const university = user?.user_metadata?.university || data.university;
+      const major = data.major;
 
-    return { lockedSkills: locked, unlockedSkills: unlocked };
-  }, [yearNum, data.completedCourses]);
+      if (!university || !major) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/courses/${university}/${major}`);
+        if (response.ok) {
+          const coursesData = await response.json();
+          setCourses(coursesData);
+        }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCourses();
+  }, [user, data.university, data.major]);
+
+  // Calculate unlocked skills from completed courses (from database)
+  const unlockedSkillIds = useMemo(() => {
+    const completedCourseIds = data.completedCourses || [];
+    const skillIds = new Set<number>();
+
+    // Add skills unlocked by completed courses
+    completedCourseIds.forEach(courseId => {
+      const course = courses.find(c => c.id === courseId);
+      if (course && course.unlocks_skills) {
+        course.unlocks_skills.forEach(skillId => skillIds.add(skillId));
+      }
+    });
+
+    // SPECIAL CASE: Year 1 students get C++ by default (Beginner level only)
+    if (yearNum === 1) {
+      const cppSkillId = getSkillId('C++');
+      if (cppSkillId) {
+        skillIds.add(cppSkillId);
+      }
+    }
+
+    return Array.from(skillIds);
+  }, [courses, data.completedCourses, yearNum]);
+
+  // Convert skill IDs to skill names
+  const unlockedSkillNames = useMemo(() => {
+    return unlockedSkillIds
+      .map(id => getSkillName(id))
+      .filter(name => name) as string[];
+  }, [unlockedSkillIds]);
+
+  // All skills that are NOT unlocked by courses are locked
+  const lockedSkillNames = useMemo(() => {
+    return SKILL_LOCKS
+      .map(lock => lock.skill)
+      .filter(skill => !unlockedSkillNames.includes(skill));
+  }, [unlockedSkillNames]);
 
   const handleSkillToggle = (skillName: string) => {
     const skillId = getSkillId(skillName);
@@ -53,8 +114,14 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if ((data.skills?.length ?? 0) < 3) {
-      newErrors.skills = 'Please select at least 3 skills';
+    // Year 1 students have mostly theoretical courses - no minimum
+    // Year 2+ students need at least 3 skills for matching algorithm
+    const minimumSkills = yearNum === 1 ? 0 : 3;
+
+    if ((data.skills?.length ?? 0) < minimumSkills) {
+      newErrors.skills = yearNum === 1
+        ? 'Please select your skills (optional for Year 1)'
+        : 'Please select at least 3 skills';
     }
 
     setErrors(newErrors);
@@ -73,7 +140,9 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Select Your Skills</h2>
         <p className="text-white/60">
-          Choose technologies you're comfortable with. Locked skills can be unlocked by passing an exam.
+          {yearNum === 1
+            ? 'Skills unlock by completing courses. Year 1 has mostly theoretical courses - few skills available.'
+            : 'Skills unlock by completing courses or passing exams. Select at least 3 skills you\'re comfortable with.'}
         </p>
       </div>
 
@@ -83,7 +152,7 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
           <span className="text-[#4455ff] font-bold text-2xl">{data.skills?.length || 0}</span> skills selected
         </span>
         <span className="text-xs text-white/50">
-          {lockedSkills.length} locked • {unlockedSkills.length} unlocked
+          {lockedSkillNames.length} locked • {unlockedSkillNames.length} unlocked
         </span>
       </div>
 
@@ -93,7 +162,7 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
         <div className="flex flex-wrap gap-3">
           {SKILL_LOCKS.map((skillLock) => {
             const skillId = getSkillId(skillLock.skill);
-            const isLocked = lockedSkills.includes(skillLock.skill);
+            const isLocked = lockedSkillNames.includes(skillLock.skill);
             const isSelected = skillId ? (data.skills?.includes(skillId) || false) : false;
             const isVerified = data.examResults?.[skillLock.skill]?.passed || false;
 
@@ -142,11 +211,11 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
         </button>
         <button
           onClick={handleNext}
-          disabled={(data.skills?.length ?? 0) < 3}
+          disabled={yearNum === 1 ? false : (data.skills?.length ?? 0) < 3}
           className={`
             px-8 py-3 rounded-lg font-semibold transition-all
             ${
-              (data.skills?.length ?? 0) >= 3
+              yearNum === 1 || (data.skills?.length ?? 0) >= 3
                 ? 'bg-[#4455ff] text-white hover:bg-[#5566ff] shadow-[0_0_20px_rgba(68,85,255,0.3)] hover:shadow-[0_0_30px_rgba(68,85,255,0.5)]'
                 : 'bg-white/10 text-white/30 cursor-not-allowed'
             }

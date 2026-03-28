@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import type { ProfileData } from '@/types/profile';
 import { AVATAR_COLORS } from '@/types/profile';
 import { getMajorInfo } from '@/data/majors';
+import { getSkillName } from '@/constants/skills';
 
 interface Step7Props {
   data: Partial<ProfileData>;
@@ -136,11 +137,12 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
         <div className="mt-6">
           <h4 className="text-sm font-semibold text-white/70 mb-3">Your Skills:</h4>
           <div className="flex flex-wrap gap-2">
-            {data.skills?.slice(0, 10).map((skill) => {
-              const isVerified = data.examResults?.[skill]?.passed || false;
+            {data.skills?.slice(0, 10).map((skillId) => {
+              const skillName = getSkillName(skillId) || `Unknown skill ID: ${skillId}`;
+              const isVerified = data.examResults?.[skillName]?.passed || false;
               return (
                 <span
-                  key={skill}
+                  key={skillId}
                   className={`
                     px-3 py-1.5 rounded-lg text-sm
                     ${
@@ -150,7 +152,7 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
                     }
                   `}
                 >
-                  {skill} {isVerified && '✓'}
+                  {skillName} {isVerified && '✓'}
                 </span>
               );
             })}

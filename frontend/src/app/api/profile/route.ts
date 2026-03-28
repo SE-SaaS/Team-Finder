@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
   // Parse request body
   const body = await req.json();
 
+  // Convert year/semester strings to integers
+  const yearInt = body.year ? parseInt(String(body.year).replace(/\D/g, '')) : null;
+  const semesterInt = body.semester ? parseInt(String(body.semester).replace(/\D/g, '')) : null;
+
   // Initialize server-side Supabase client
   const supabase = createClient();
 
@@ -41,7 +45,8 @@ export async function POST(req: NextRequest) {
       verification_method: 'email_domain',
       major: body.major,
       specialization: body.specialization,
-      year: body.year,
+      year: yearInt,
+      semester: semesterInt,
       availability: body.availability,
       bio: body.bio,
       avatar: body.avatar,
@@ -50,6 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
   if (error) {
+    console.error('Profile error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
@@ -75,6 +81,7 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (error) {
+    console.error('Profile error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

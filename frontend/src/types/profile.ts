@@ -77,7 +77,7 @@ export interface ExamSubmission {
 
 export interface SkillLock {
   skill: string;
-  category: 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Mobile' | 'Other';
+  category: 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Mobile' | 'Security' | 'Other';
   requiredYear: number; // 1=1st year, 2=2nd year, 3=3rd year, 4=4th year
   unlockableByCourses?: string[]; // Course IDs that unlock this skill
   unlockableByExam: boolean; // Can unlock by passing exam
@@ -107,7 +107,7 @@ export interface Course {
   semester: 1 | 2;
   credit_hours?: number;
   prerequisite_ids?: string[];
-  unlocks_skills?: number[]; // Skill IDs from skills table
+  unlocks_skills?: number[]; // Skill IDs (matches DB schema: INTEGER[])
   description?: string;
 }
 

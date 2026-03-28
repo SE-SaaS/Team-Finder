@@ -644,7 +644,7 @@ VALUES ('hu-swe-1510031352', '1510031352', 'Software Systems Analysis and Design
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-swe-2010031353', '2010031353', 'Software Ethics and Security', 'HU', 'SWE', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
-VALUES ('hu-swe-0110101408', '0110101408', 'Numerical Methods', 'HU', 'SWE', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
+VALUES ('hu-swe-0110101408-v2', '0110101408', 'Numerical Methods', 'HU', 'SWE', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-swe-2010031375', '2010031375', 'Web Applications Programming and Engineering', 'HU', 'SWE', 3, 2, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
@@ -818,7 +818,7 @@ VALUES ('hu-cis-0110102102', '0110102102', 'General Physics (2)', 'HU', 'CIS', 2
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-cis-0110102103', '0110102103', 'General Physics Laboratory (1)', 'HU', 'CIS', 2, 2, 1, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
-VALUES ('hu-cis-0151001431', '0151001431', 'Wireless Networking & Mobile Applications', 'HU', 'CIS', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
+VALUES ('hu-cis-0151001431-v2', '0151001431', 'Wireless Networking & Mobile Applications', 'HU', 'CIS', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-cis-0151002324', '0151002324', 'Advanced Database Systems', 'HU', 'CIS', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
@@ -932,7 +932,7 @@ VALUES ('hu-cys-1910011460', '1910011460', 'Artificial Intelligence', 'HU', 'CYS
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-cys-0110101408', '0110101408', 'Numerical Methods', 'HU', 'CYS', 3, 1, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
-VALUES ('hu-cys-2010043360', '2010043360', 'Network Monitoring and Analysis', 'HU', 'CYS', 3, 2, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
+VALUES ('hu-cys-2010043360-v2', '2010043360', 'Network Monitoring and Analysis', 'HU', 'CYS', 3, 2, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
 VALUES ('hu-cys-2010043361', '2010043361', 'Ethical Hacking', 'HU', 'CYS', 3, 2, 3, ARRAY[]::TEXT[], ARRAY[]::INTEGER[], NULL);
 INSERT INTO public.courses (id, code, name, university, major, year, semester, credit_hours, prerequisite_ids, unlocks_skills, description)
