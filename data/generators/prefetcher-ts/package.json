@@ -1,0 +1,25 @@
+{
+  "name": "prefetcher-ts",
+  "version": "1.0.0",
+  "description": "Async prefetcher for learning resources, projects & datasets — AI/CS/CIS/BI/CYS/DS/SWE",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "ts-node src/main.ts",
+    "fetch:major": "ts-node src/main.ts --major",
+    "fetch:all": "ts-node src/main.ts --all"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.5",
+    "unified-api-wrapper": "file:../../api-wrapper"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.35",
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

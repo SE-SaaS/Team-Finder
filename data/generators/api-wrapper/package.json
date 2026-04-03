@@ -1,0 +1,44 @@
+{
+  "name": "unified-api-wrapper",
+  "version": "1.0.0",
+  "description": "Unified TypeScript API wrapper for GitHub, Kaggle, HuggingFace, LeetCode, HackerRank, HackTheBox, CTFtime, PapersWithCode, GitLab, OpenHub, SAP, Tableau, and Power BI.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "docs": "typedoc --out docs src/index.ts"
+  },
+  "vitest": {
+    "exclude": ["dist/**", "node_modules/**"]
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "api", "wrapper", "github", "kaggle", "huggingface", "leetcode",
+    "hackerrank", "hackthebox", "ctftime", "paperswithcode",
+    "gitlab", "openhub", "sap", "tableau", "powerbi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "typedoc": "^0.25.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0"
+  }
+}
