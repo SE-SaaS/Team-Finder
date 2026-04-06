@@ -9,7 +9,6 @@ import { useState, useMemo, useEffect } from 'react';
 import type { ProfileData, Course } from '@/types/profile';
 import { SKILL_LOCKS, isSkillLevelLocked, getLockedLevel, canSkipSkillSelector } from '@/data/skillLocks';
 import SkillPill from '@/components/profile/ui/SkillPill';
-import { getSkillId, getSkillName } from '@/constants/skills';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Step3Props {
@@ -55,35 +54,25 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
   }, [user, data.university, data.major]);
 
   // Calculate unlocked skills from completed courses (from database)
-  const unlockedSkillIds = useMemo(() => {
+  const unlockedSkillNames = useMemo(() => {
     const completedCourseIds = data.completedCourses || [];
-    const skillIds = new Set<number>();
+    const skillNames = new Set<string>();
 
     // Add skills unlocked by completed courses
     completedCourseIds.forEach(courseId => {
       const course = courses.find(c => c.id === courseId);
       if (course && course.unlocks_skills) {
-        course.unlocks_skills.forEach(skillId => skillIds.add(skillId));
+        course.unlocks_skills.forEach(skillName => skillNames.add(skillName));
       }
     });
 
     // SPECIAL CASE: Year 1 students get C++ by default (Beginner level only)
     if (yearNum === 1) {
-      const cppSkillId = getSkillId('C++');
-      if (cppSkillId) {
-        skillIds.add(cppSkillId);
-      }
+      skillNames.add('C++');
     }
 
-    return Array.from(skillIds);
+    return Array.from(skillNames);
   }, [courses, data.completedCourses, yearNum]);
-
-  // Convert skill IDs to skill names
-  const unlockedSkillNames = useMemo(() => {
-    return unlockedSkillIds
-      .map(id => getSkillName(id))
-      .filter(name => name) as string[];
-  }, [unlockedSkillIds]);
 
   // All skills that are NOT unlocked by courses are locked
   const lockedSkillNames = useMemo(() => {
@@ -92,16 +81,33 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
       .filter(skill => !unlockedSkillNames.includes(skill));
   }, [unlockedSkillNames]);
 
-  const handleSkillToggle = (skillName: string) => {
-    const skillId = getSkillId(skillName);
-    if (!skillId) return; // Safety check
+  // Auto-select unlocked skills from completed courses
+  useEffect(() => {
+    if (unlockedSkillNames.length === 0) return;
 
     const currentSkills = data.skills || [];
-    const isSelected = currentSkills.includes(skillId);
+
+    // Add all unlocked skill names to selected skills (avoid duplicates)
+    const allSkills = Array.from(new Set([...currentSkills, ...unlockedSkillNames]));
+
+    // Only update if there's a difference (avoid infinite loop)
+    const isDifferent = JSON.stringify([...currentSkills].sort()) !== JSON.stringify([...allSkills].sort());
+
+    if (isDifferent) {
+      onChange({
+        ...data,
+        skills: allSkills
+      });
+    }
+  }, [unlockedSkillNames]); // Run when unlocked skill names change
+
+  const handleSkillToggle = (skillName: string) => {
+    const currentSkills = data.skills || [];
+    const isSelected = currentSkills.includes(skillName);
 
     const newSkills = isSelected
-      ? currentSkills.filter(id => id !== skillId)
-      : [...currentSkills, skillId];
+      ? currentSkills.filter(name => name !== skillName)
+      : [...currentSkills, skillName];
 
     onChange({ ...data, skills: newSkills });
 
@@ -161,9 +167,8 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
         {/* All Skills in Flat List */}
         <div className="flex flex-wrap gap-3">
           {SKILL_LOCKS.map((skillLock) => {
-            const skillId = getSkillId(skillLock.skill);
             const isLocked = lockedSkillNames.includes(skillLock.skill);
-            const isSelected = skillId ? (data.skills?.includes(skillId) || false) : false;
+            const isSelected = data.skills?.includes(skillLock.skill) || false;
             const isVerified = data.examResults?.[skillLock.skill]?.passed || false;
 
             return (

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
   -- External Project Specific Fields
   source TEXT, -- 'github', 'kaggle', 'ai_generated'
-  external_url TEXT, -- Link to original project
+  external_url TEXT UNIQUE, -- Link to original project (unique for external projects)
   specialization TEXT, -- Target specialization for AI-generated
 
   -- Status

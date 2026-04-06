@@ -11,7 +11,7 @@ export class VulnHubPrefetcher extends BasePrefetcher {
     if (!$) return [];
 
     const results: PrefetchResult[] = [];
-    $(".vm-entry").slice(0, 10).each((_, el) => {
+    $(".vm-entry").slice(0, 10).each((_: number, el: any) => {
       const a = $(el).find("a[href]").first();
       const name = $(el).find(".vm-title").text().trim();
       const href = a.attr("href") ?? "";

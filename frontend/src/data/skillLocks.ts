@@ -12,6 +12,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'HTML/CSS',
+    aliases: ['html', 'css', 'html5', 'css3', 'html-css', 'htmlcss', 'web-design', 'frontend-basics'],
     category: 'Frontend',
     requiredYear: 1, // Unlocked after Web Applications Development (Y1 S2)
     unlockableByCourses: ['ju-cs-1904120', 'ju-ai-1904120', 'ju-ds-1902120', 'ju-bit-1904120'],
@@ -20,6 +21,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'JavaScript',
+    aliases: ['js', 'javascript', 'es6', 'es2015', 'ecmascript', 'vanilla-js', 'vanillajs'],
     category: 'Frontend',
     requiredYear: 1, // Unlocked after Web Applications Development (Y1 S2)
     unlockableByCourses: ['ju-cs-1904120', 'ju-ai-1904120', 'ju-ds-1902120', 'ju-bit-1904120'],
@@ -28,6 +30,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'TypeScript',
+    aliases: ['ts', 'typescript', 'typescript-lang', 'typed-javascript'],
     category: 'Frontend',
     requiredYear: 2, // Locked for 1st year
     unlockableByCourses: ['web201'],
@@ -36,6 +39,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'React',
+    aliases: ['reactjs', 'react.js', 'react-app', 'react-framework', 'react-library'],
     category: 'Frontend',
     requiredYear: 2,
     unlockableByCourses: ['web201', 'web302'],
@@ -44,6 +48,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Vue',
+    aliases: ['vuejs', 'vue.js', 'vue-js', 'vue3', 'vue2', 'vuex'],
     category: 'Frontend',
     requiredYear: 3,
     unlockableByCourses: ['web301', 'web302'],
@@ -52,6 +57,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Angular',
+    aliases: ['angularjs', 'angular.js', 'angular2', 'angular-framework', 'ng'],
     category: 'Frontend',
     requiredYear: 3,
     unlockableByCourses: ['web302'],
@@ -60,6 +66,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Next.js',
+    aliases: ['nextjs', 'next.js', 'next-js', 'nextjs-app', 'next'],
     category: 'Frontend',
     requiredYear: 3,
     unlockableByCourses: ['web301', 'web401'],
@@ -68,6 +75,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Tailwind',
+    aliases: ['tailwindcss', 'tailwind-css', 'tw', 'tailwind-framework'],
     category: 'Frontend',
     requiredYear: 2,
     unlockableByCourses: ['web201'],
@@ -76,6 +84,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Sass',
+    aliases: ['scss', 'sass-css', 'syntactically-awesome-stylesheets'],
     category: 'Frontend',
     requiredYear: 2,
     unlockableByCourses: ['web201'],
@@ -84,6 +93,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Webpack',
+    aliases: ['webpack-bundler', 'webpackjs', 'module-bundler'],
     category: 'Frontend',
     requiredYear: 3,
     unlockableByCourses: ['web302', 'web401'],
@@ -96,6 +106,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'Node.js',
+    aliases: ['nodejs', 'node', 'node-js', 'nodejs-runtime', 'server-side-javascript'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['web202'],
@@ -104,6 +115,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Express',
+    aliases: ['expressjs', 'express.js', 'express-js', 'express-framework'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['web202'],
@@ -112,6 +124,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Python',
+    aliases: ['python3', 'py', 'python-lang', 'python-programming', 'cpython'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['cs201', 'cs202', 'cs302'],
@@ -120,6 +133,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Django',
+    aliases: ['django-framework', 'django-python', 'djangoproject'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['cs302'],
@@ -128,6 +142,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Flask',
+    aliases: ['flask-framework', 'flask-python', 'flaskapp'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['cs302'],
@@ -136,6 +151,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Java',
+    aliases: ['java-lang', 'java-programming', 'openjdk', 'jdk'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['cs201', 'cs202', 'cs303'],
@@ -144,6 +160,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Spring Boot',
+    aliases: ['springboot', 'spring-boot', 'spring', 'spring-framework'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['cs303'],
@@ -152,6 +169,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'C#',
+    aliases: ['csharp', 'c-sharp', 'cs', 'dotnet-csharp'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['cs202', 'cs304'],
@@ -160,6 +178,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: '.NET',
+    aliases: ['dotnet', 'dot-net', 'aspnet', 'asp.net', 'dotnet-core'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['cs304'],
@@ -168,6 +187,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'PHP',
+    aliases: ['php-lang', 'php7', 'php8', 'hypertext-preprocessor'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['web303'],
@@ -176,6 +196,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'C',
+    aliases: ['c-lang', 'c-programming', 'ansi-c', 'c-language'],
     category: 'Backend',
     requiredYear: 3,
     unlockableByCourses: ['ju-cs-1901476', 'ju-cs-1901473'],
@@ -184,6 +205,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'C++',
+    aliases: ['cpp', 'cplusplus', 'c-plus-plus', 'c++11', 'c++17', 'c++20'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['ju-cs-1902110', 'ju-ai-1932110', 'ju-ds-1902110', 'ju-bit-1902110', 'hu-cs-1910011214'],
@@ -192,6 +214,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Rust',
+    aliases: ['rust-lang', 'rustlang', 'rust-programming'],
     category: 'Backend',
     requiredYear: 4,
     unlockableByCourses: [],
@@ -200,6 +223,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'R',
+    aliases: ['r-lang', 'r-programming', 'r-language', 'rstats', 'rstudio'],
     category: 'Backend',
     requiredYear: 2,
     unlockableByCourses: ['MATH003', 'ju-ds-1914351', 'hu-cs-0110108103', 'hu-dsai-0110108103'],
@@ -208,6 +232,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Prolog',
+    aliases: ['prolog-lang', 'swi-prolog', 'logic-programming'],
     category: 'Backend',
     requiredYear: 4,
     unlockableByCourses: ['ju-cs-1901471', 'hu-cs-1910011416'],
@@ -220,6 +245,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'SQL',
+    aliases: ['sql-query', 'structured-query-language', 'tsql', 'plsql'],
     category: 'Database',
     requiredYear: 2, // Unlocked after Database Management (Year 2)
     unlockableByCourses: ['ju-cs-1902224', 'ju-ai-1902242', 'ju-ds-1902242'],
@@ -228,6 +254,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'PostgreSQL',
+    aliases: ['postgres', 'postgresql-database', 'pg', 'pgsql'],
     category: 'Database',
     requiredYear: 3,
     unlockableByCourses: [],
@@ -236,6 +263,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'MongoDB',
+    aliases: ['mongo', 'mongodb-nosql', 'mongoose', 'mongodb-database'],
     category: 'Database',
     requiredYear: 3, // NoSQL taught in Year 3
     unlockableByCourses: ['ju-ds-1933321'],
@@ -244,6 +272,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'MySQL',
+    aliases: ['mysql-database', 'my-sql', 'mariadb'],
     category: 'Database',
     requiredYear: 2, // Unlocked with SQL in Year 2
     unlockableByCourses: ['ju-cs-1902224', 'ju-ai-1902242', 'ju-ds-1902242'],
@@ -252,6 +281,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Redis',
+    aliases: ['redis-cache', 'redis-db', 'redis-server'],
     category: 'Database',
     requiredYear: 2,
     unlockableByCourses: ['db201'],
@@ -260,6 +290,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Firebase',
+    aliases: ['firebase-database', 'firestore', 'firebase-firestore', 'realtime-database'],
     category: 'Database',
     requiredYear: 3,
     unlockableByCourses: ['web301'],
@@ -272,6 +303,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'Git',
+    aliases: ['github', 'gitlab', 'version-control', 'git-scm', 'gitflow'],
     category: 'DevOps',
     requiredYear: 3, // Unlocked in Software Engineering (Year 3)
     unlockableByCourses: ['ju-cs-1902372', 'ju-ai-1902322', 'ju-ds-1902322'],
@@ -280,6 +312,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Docker',
+    aliases: ['docker-container', 'dockerfile', 'docker-compose', 'containerization'],
     category: 'DevOps',
     requiredYear: 3,
     unlockableByCourses: ['devops301', 'devops401'],
@@ -288,6 +321,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Kubernetes',
+    aliases: ['k8s', 'kube', 'kubernetes-orchestration', 'kubectl'],
     category: 'DevOps',
     requiredYear: 4,
     unlockableByCourses: ['devops401', 'devops402'],
@@ -296,6 +330,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'CI/CD',
+    aliases: ['cicd', 'continuous-integration', 'continuous-deployment', 'jenkins', 'github-actions', 'gitlab-ci'],
     category: 'DevOps',
     requiredYear: 3,
     unlockableByCourses: ['cs301', 'devops301', 'devops402'],
@@ -304,6 +339,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'AWS',
+    aliases: ['amazon-web-services', 'aws-cloud', 'ec2', 's3', 'lambda', 'aws-services'],
     category: 'DevOps',
     requiredYear: 4,
     unlockableByCourses: ['devops401'],
@@ -312,6 +348,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Azure',
+    aliases: ['microsoft-azure', 'azure-cloud', 'azure-devops', 'ms-azure'],
     category: 'DevOps',
     requiredYear: 4,
     unlockableByCourses: ['devops401'],
@@ -324,6 +361,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'React Native',
+    aliases: ['react-native', 'reactnative', 'rn', 'react-native-app'],
     category: 'Mobile',
     requiredYear: 4,
     unlockableByCourses: ['mobile401'],
@@ -332,6 +370,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Flutter',
+    aliases: ['flutter-app', 'flutter-framework', 'dart-flutter'],
     category: 'Mobile',
     requiredYear: 4,
     unlockableByCourses: ['mobile401'],
@@ -340,6 +379,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Swift',
+    aliases: ['swift-lang', 'swiftui', 'swift-programming', 'ios-swift'],
     category: 'Mobile',
     requiredYear: 4,
     unlockableByCourses: ['mobile402'],
@@ -352,6 +392,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'Cryptography',
+    aliases: ['crypto', 'encryption', 'cryptographic', 'security-encryption'],
     category: 'Security',
     requiredYear: 3,
     unlockableByCourses: ['ju-cys-1911251', 'hu-cys-2010043251', 'ju-cys-1911131'],
@@ -360,6 +401,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Decryption',
+    aliases: ['decrypt', 'cryptanalysis', 'security-decryption'],
     category: 'Security',
     requiredYear: 3,
     unlockableByCourses: ['ju-cys-1911251', 'hu-cys-2010043251', 'ju-cys-1911131'],
@@ -368,6 +410,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Assembly',
+    aliases: ['asm', 'assembly-language', 'x86', 'arm-assembly', 'low-level-programming'],
     category: 'Security',
     requiredYear: 3,
     unlockableByCourses: ['ju-cs-1901322', 'ju-cs-1901476', 'hu-swe-2010031272'],
@@ -380,6 +423,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   // ============================================
   {
     skill: 'REST APIs',
+    aliases: ['rest', 'restful', 'rest-api', 'api', 'web-api', 'http-api'],
     category: 'Other',
     requiredYear: 2,
     unlockableByCourses: ['web202', 'web303'],
@@ -388,6 +432,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'GraphQL',
+    aliases: ['graphql-api', 'gql', 'graph-ql', 'apollo-graphql'],
     category: 'Other',
     requiredYear: 3,
     unlockableByCourses: ['web301', 'web401'],
@@ -396,6 +441,7 @@ export const SKILL_LOCKS: SkillLock[] = [
   },
   {
     skill: 'Testing',
+    aliases: ['unit-testing', 'test', 'testing-framework', 'jest', 'mocha', 'pytest', 'junit', 'tdd', 'test-driven-development'],
     category: 'Other',
     requiredYear: 3,
     unlockableByCourses: ['cs301', 'web401'],
