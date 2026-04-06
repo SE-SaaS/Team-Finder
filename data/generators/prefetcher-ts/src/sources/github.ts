@@ -1,7 +1,5 @@
-import { FetchOptions } from "../core/basePrefetcher";
+import { BasePrefetcher, FetchOptions } from "../core/basePrefetcher";
 import { PrefetchResult } from "../core/types";
-import { GitHubAPI } from "unified-api-wrapper";
-import type { GitHubRepo } from "unified-api-wrapper";
 
 const MAJOR_TOPICS: Record<string, string[]> = {
   AI:  ["machine-learning", "deep-learning", "neural-network", "llm", "generative-ai"],
@@ -13,57 +11,95 @@ const MAJOR_TOPICS: Record<string, string[]> = {
   SWE: ["software-engineering", "design-patterns", "devops", "clean-code", "api"],
 };
 
-export class GitHubPrefetcher {
+const TIMEOUT_MS  = 30_000; // increased from 15s
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2_000;
+
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export class GitHubPrefetcher extends BasePrefetcher {
   readonly sourceName = "github";
   readonly strategy   = "api";
-  private api: GitHubAPI;
+  readonly baseUrl    = "https://api.github.com";
 
-  constructor(apiKey?: string) {
-    this.api = new GitHubAPI(
-      { token: apiKey },
-      { timeout: 15000, maxRetries: 3, rateLimit: 10 }
-    );
+  protected buildHeaders() {
+    const h: Record<string, string> = {
+      Accept:                 "application/vnd.github+json",
+      "User-Agent":           "PrefetcherBot/1.0",
+      "X-GitHub-Api-Version": "2022-11-28",
+    };
+    if (this.apiKey) h["Authorization"] = `Bearer ${this.apiKey}`;
+    return h;
   }
 
-  private makeItem(item: GitHubRepo, major: string, category: "resource" | "project" | "dataset"): PrefetchResult {
-    return {
-      source:      this.sourceName,
-      major,
-      category,
-      title:       item.full_name,
-      url:         item.html_url,
-      description: item.description || "",
-      tags:        [], // GitHub v3 doesn't return topics in search, would need separate call
-      language:    item.language,
-      stars:       item.stargazers_count,
+  private makeItem(
+    item: Record<string, unknown>,
+    major: string,
+    category: "resource" | "project" | "dataset"
+  ): PrefetchResult {
+    return this.makeResult(major, category, {
+      title:       String(item.full_name ?? ""),
+      url:         String(item.html_url ?? ""),
+      description: String(item.description ?? ""),
+      tags:        Array.isArray(item.topics) ? (item.topics as string[]) : [],
+      language:    item.language as string | undefined,
+      stars:       item.stargazers_count as number | undefined,
       extra: {
         forks:   item.forks_count,
+        license: (item.license as Record<string, unknown> | null)?.spdx_id,
         updated: item.updated_at,
       },
-    };
+    });
   }
 
-  private async searchRepos(query: string, perPage = 10): Promise<GitHubRepo[]> {
+  private async searchRepos(
+    query: string,
+    perPage = 10,
+    attempt = 1
+  ): Promise<Record<string, unknown>[]> {
+    const safePerPage = Math.min(perPage, 10);
     try {
-      const data = await this.api.searchRepos(query, { sort: "stars", per_page: perPage });
-      return data.items;
-    } catch (err) {
-      console.warn(`[github] Search failed:`, (err as Error).message);
+      const data = await this.get<{ items: Record<string, unknown>[]; message?: string }>(
+        `${this.baseUrl}/search/repositories`,
+        { q: query, sort: "stars", per_page: safePerPage },
+        { timeout: TIMEOUT_MS }
+      );
+
+      if (data?.message?.toLowerCase().includes("rate limit")) {
+        console.warn(`[github] Rate limit hit — waiting 60s...`);
+        await sleep(60_000);
+        return this.searchRepos(query, perPage, attempt);
+      }
+
+      return data?.items ?? [];
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isTimeout = msg.includes("timeout") || msg.includes("ECONNRESET");
+
+      if (isTimeout && attempt < MAX_RETRIES) {
+        console.warn(`[github] Timeout on attempt ${attempt}/${MAX_RETRIES} — retrying in ${RETRY_DELAY}ms...`);
+        await sleep(RETRY_DELAY * attempt);
+        return this.searchRepos(query, perPage, attempt + 1);
+      }
+
+      console.error(`[github] Search failed after ${attempt} attempt(s): ${msg}`);
       return [];
     }
   }
 
   async fetchResources(major: string, opts: FetchOptions = {}): Promise<PrefetchResult[]> {
     const topics = MAJOR_TOPICS[major] ?? [major.toLowerCase()];
-    const items  = await this.searchRepos(`awesome ${topics[0]} in:name,description stars:>500`, opts.limit ?? 10);
+    const items  = await this.searchRepos(
+      `awesome ${topics[0]} in:name,description stars:>500`,
+      opts.limit ?? 10
+    );
     return items.map(i => this.makeItem(i, major, "resource"));
   }
 
   async fetchProjects(major: string, opts: FetchOptions = {}): Promise<PrefetchResult[]> {
-    const topics = MAJOR_TOPICS[major] ?? [major.toLowerCase()];
-    // Use only first 2 topics to avoid GitHub query complexity errors
-    const query = topics.slice(0, 2).map(t => `topic:${t}`).join("+");
-    const items = await this.searchRepos(query, opts.limit ?? 10);
+    const topic = (MAJOR_TOPICS[major] ?? [major.toLowerCase()])[0];
+    const items = await this.searchRepos(`topic:${topic}`, opts.limit ?? 10);
     return items.map(i => this.makeItem(i, major, "project"));
   }
 
@@ -71,19 +107,5 @@ export class GitHubPrefetcher {
     const kw    = (MAJOR_TOPICS[major] ?? [major.toLowerCase()])[0];
     const items = await this.searchRepos(`${kw} dataset in:name,description`, opts.limit ?? 10);
     return items.map(i => this.makeItem(i, major, "dataset"));
-  }
-
-  async fetchAll(major: string, opts?: FetchOptions): Promise<PrefetchResult[]> {
-    const [resources, projects, datasets] = await Promise.allSettled([
-      this.fetchResources(major, opts),
-      this.fetchProjects(major, opts),
-      this.fetchDatasets(major, opts),
-    ]);
-
-    const combined: PrefetchResult[] = [];
-    for (const r of [resources, projects, datasets]) {
-      if (r.status === "fulfilled") combined.push(...r.value);
-    }
-    return combined;
   }
 }

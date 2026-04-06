@@ -34,9 +34,13 @@ export abstract class BasePrefetcher {
   }
 
   // ── HTTP helpers ────────────────────────────────────────────────
-  protected async get<T = unknown>(url: string, params?: Record<string, unknown>): Promise<T | null> {
+  protected async get<T = unknown>(
+    url: string,
+    params?: Record<string, unknown>,
+    config?: AxiosRequestConfig
+  ): Promise<T | null> {
     try {
-      const res = await this.client.get<T>(url, { params });
+      const res = await this.client.get<T>(url, { params, ...config });
       return res.data;
     } catch (err) {
       console.warn(`[${this.sourceName}] GET ${url} failed:`, (err as Error).message);
@@ -54,7 +58,7 @@ export abstract class BasePrefetcher {
     }
   }
 
-  protected async getHtml(url: string): Promise<cheerio.CheerioAPI | null> {
+  protected async getHtml(url: string): Promise<ReturnType<typeof cheerio.load> | null> {
     try {
       const res = await this.client.get<string>(url, {
         responseType: "text",

@@ -21,7 +21,7 @@ export interface ProfileData {
   completedCourses: string[]; // Course IDs
 
   // Step 3: Skill Selector
-  skills: number[]; // Skill IDs from skills table
+  skills: string[]; // Skill names (e.g., ['React', 'Python', 'SQL'])
 
   // Step 4: Roadmap.sh (future)
   roadmapVerified: string[]; // Skills auto-verified via OAuth
@@ -77,6 +77,7 @@ export interface ExamSubmission {
 
 export interface SkillLock {
   skill: string;
+  aliases: string[]; // Tag variations for matching (e.g., ['reactjs', 'react.js', 'react-app'])
   category: 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Mobile' | 'Security' | 'Other';
   requiredYear: number; // 1=1st year, 2=2nd year, 3=3rd year, 4=4th year
   unlockableByCourses?: string[]; // Course IDs that unlock this skill
@@ -107,7 +108,7 @@ export interface Course {
   semester: 1 | 2;
   credit_hours?: number;
   prerequisite_ids?: string[];
-  unlocks_skills?: number[]; // Skill IDs (matches DB schema: INTEGER[])
+  unlocks_skills?: string[]; // Skill names (e.g., ['C++', 'Java', 'R'])
   description?: string;
 }
 

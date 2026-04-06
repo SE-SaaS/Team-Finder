@@ -8,13 +8,17 @@
     "start": "node dist/main.js",
     "dev": "ts-node src/main.ts",
     "fetch:major": "ts-node src/main.ts --major",
-    "fetch:all": "ts-node src/main.ts --all"
+    "fetch:all": "ts-node src/main.ts --all",
+    "save": "ts-node src/fetchAndSave.ts",
+    "save:all": "ts-node src/fetchAndSave.ts --all-categories",
+    "generate:sql": "ts-node src/generateSQL.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.43.4",
     "axios": "^1.7.2",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
-    "unified-api-wrapper": "file:../../api-wrapper"
+    "unified-api-wrapper": "file:../api-wrapper"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.35",

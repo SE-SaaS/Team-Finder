@@ -1,7 +1,6 @@
 import { FetchOptions } from "../core/basePrefetcher";
 import { PrefetchResult } from "../core/types";
 import { GitLabAPI } from "unified-api-wrapper";
-import type { GitLabProject } from "unified-api-wrapper";
 
 const GL_TOPICS: Record<string, string> = {
   SWE: "devops",
@@ -35,7 +34,7 @@ export class GitLabPrefetcher {
         page: 1,
       });
 
-      return (data ?? []).map((p: GitLabProject) => ({
+      return (data ?? []).map((p: any) => ({
         source:      this.sourceName,
         major,
         category:    "project" as const,

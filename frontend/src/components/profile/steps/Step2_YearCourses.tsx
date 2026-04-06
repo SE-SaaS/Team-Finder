@@ -62,6 +62,42 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
     fetchCourses();
   }, [user, data.university, data.major]);
 
+  // Auto-select previous year courses when year or courses change (if year > 1)
+  useEffect(() => {
+    if (!data.year || courses.length === 0) return;
+
+    const yearNum = parseInt(data.year.charAt(0));
+    if (yearNum <= 1) return;
+
+    // Auto-select all courses from previous years
+    const previousYearCourses = courses.filter(course => course.year < yearNum);
+    const previousCourseIds = previousYearCourses.map(c => c.id);
+
+    if (previousCourseIds.length === 0) return;
+
+    // Merge with existing completed courses (preserve manual selections in current year)
+    const existingCompleted = data.completedCourses || [];
+
+    // Keep courses from current year that user manually selected/deselected
+    const currentYearManualSelections = existingCompleted.filter(id => {
+      const course = courses.find(c => c.id === id);
+      return course && course.year >= yearNum;
+    });
+
+    // Combine: all previous year courses + manual current year selections
+    const allCompleted = Array.from(new Set([...previousCourseIds, ...currentYearManualSelections]));
+
+    // Only update if there's a difference (avoid infinite loop)
+    const isDifferent = JSON.stringify([...existingCompleted].sort()) !== JSON.stringify([...allCompleted].sort());
+
+    if (isDifferent) {
+      onChange({
+        ...data,
+        completedCourses: allCompleted
+      });
+    }
+  }, [data.year, courses]); // Run when year or courses change
+
   const handleYearChange = (year: YearLevel) => {
     const yearNum = parseInt(year.charAt(0));
 

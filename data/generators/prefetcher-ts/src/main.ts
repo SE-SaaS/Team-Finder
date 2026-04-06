@@ -11,6 +11,9 @@ function loadApiKeys(): Record<string, string> {
       gitlab:      process.env.GITLAB_TOKEN,
       hackthebox:  process.env.HTB_TOKEN,
       openhub:     process.env.OPENHUB_API_KEY,
+      sap:         process.env.SAP_API_KEY,
+      hackerrank:  process.env.HACKERRANK_API_KEY,
+      leetcode:    process.env.LEETCODE_SESSION,
     }).filter(([, v]) => Boolean(v)) as [string, string][]
   );
 }
