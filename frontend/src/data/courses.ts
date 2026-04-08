@@ -13,26 +13,18 @@ export const COURSES: Course[] = [
   {
     id: 'cs101',
     code: 'CS 101',
-    name: 'Intro to Programming',
-    unlocksSkills: ['HTML/CSS', 'JavaScript'],
+    name: 'Introduction to Programming',
+    unlocksSkills: ['C++'], // FIXED: Changed from HTML/CSS, JavaScript
     recommendedYear: 1,
-    description: 'Basic programming concepts',
+    description: 'Basic programming concepts using C++',
   },
   {
     id: 'cs102',
     code: 'CS 102',
-    name: 'Web Fundamentals',
+    name: 'Web Applications Development',
     unlocksSkills: ['HTML/CSS', 'JavaScript'],
     recommendedYear: 1,
     description: 'HTML, CSS, and basic JavaScript',
-  },
-  {
-    id: 'cs103',
-    code: 'CS 103',
-    name: 'Intro to Databases',
-    unlocksSkills: ['SQL', 'MySQL'],
-    recommendedYear: 1,
-    description: 'Database design and SQL basics',
   },
   {
     id: 'it101',
@@ -49,10 +41,10 @@ export const COURSES: Course[] = [
   {
     id: 'cs201',
     code: 'CS 201',
-    name: 'Data Structures & Algorithms',
-    unlocksSkills: ['Python', 'Java'],
+    name: 'Data Structures',
+    unlocksSkills: ['C++'], // FIXED: Changed from Python, Java
     recommendedYear: 2,
-    description: 'Core data structures and algorithm design',
+    description: 'Core data structures and algorithm design using C++',
   },
   {
     id: 'cs202',
@@ -61,6 +53,14 @@ export const COURSES: Course[] = [
     unlocksSkills: ['Java', 'C#', 'Python'],
     recommendedYear: 2,
     description: 'OOP principles and design patterns',
+  },
+  {
+    id: 'db201',
+    code: 'DB 201',
+    name: 'Database Management',
+    unlocksSkills: ['SQL', 'MySQL'], // FIXED: Added this course
+    recommendedYear: 2,
+    description: 'Database design, SQL, and relational database management',
   },
   {
     id: 'web201',
@@ -79,8 +79,8 @@ export const COURSES: Course[] = [
     description: 'Server-side programming with Node.js',
   },
   {
-    id: 'db201',
-    code: 'DB 201',
+    id: 'db202',
+    code: 'DB 202',
     name: 'Advanced Databases',
     unlocksSkills: ['PostgreSQL', 'MongoDB', 'Redis'],
     recommendedYear: 2,

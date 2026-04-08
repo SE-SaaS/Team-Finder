@@ -6,7 +6,6 @@
  */
 
 import type { ProfileData } from '@/types/profile';
-import { getSkillName } from '@/constants/skills';
 
 interface Step5Props {
   data: Partial<ProfileData>;
@@ -32,12 +31,11 @@ export default function Step5_SkillExams({ data, onChange, onNext, onBack }: Ste
       <div className="bg-[#0f0f18] border border-white/10 rounded-xl p-6">
         <h3 className="text-white font-semibold mb-4">Your Selected Skills ({selectedSkills.length})</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          {selectedSkills.map((skillId) => {
-            const skillName = getSkillName(skillId) || `Unknown skill ID: ${skillId}`;
+          {selectedSkills.map((skillName) => {
             const isVerified = data.examResults?.[skillName]?.passed || false;
             return (
               <div
-                key={skillId}
+                key={skillName}
                 className={`
                   px-4 py-3 rounded-lg text-center
                   ${

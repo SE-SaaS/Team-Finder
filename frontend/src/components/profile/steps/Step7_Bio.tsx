@@ -1,15 +1,9 @@
 'use client';
 
-/**
- * Step 7: Bio & Profile Summary
- * Final step with avatar generation and complete profile review
- */
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ProfileData } from '@/types/profile';
 import { AVATAR_COLORS } from '@/types/profile';
 import { getMajorInfo } from '@/data/majors';
-import { getSkillName } from '@/constants/skills';
 
 interface Step7Props {
   data: Partial<ProfileData>;
@@ -18,11 +12,18 @@ interface Step7Props {
   onBack: () => void;
 }
 
+// Seed color from name so it's stable across remounts
+function getAvatarColor(name: string): string {
+  const index = name.charCodeAt(0) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[index];
+}
+
 export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Props) {
   const [charCount, setCharCount] = useState(data.bio?.length || 0);
   const maxChars = 500;
 
-  // Generate avatar on mount if not already set
+  const stableOnChange = useCallback(onChange, []);
+
   useEffect(() => {
     if (!data.avatar && data.name) {
       const initials = data.name
@@ -31,15 +32,13 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
         .slice(0, 2)
         .join('');
 
-      const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-
-      onChange({
+      stableOnChange({
         ...data,
         avatar: initials,
-        avatarColor: randomColor,
+        avatarColor: getAvatarColor(data.name),
       });
     }
-  }, [data.name]);
+  }, [data.name, stableOnChange]);
 
   const handleBioChange = (bio: string) => {
     if (bio.length <= maxChars) {
@@ -91,11 +90,7 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
         />
         <div className="flex justify-between mt-2">
           <p className="text-xs text-white/40">Optional - helps teams get to know you better</p>
-          <p
-            className={`text-xs ${
-              charCount >= maxChars ? 'text-[#e8294a]' : 'text-white/40'
-            }`}
-          >
+          <p className={`text-xs ${charCount >= maxChars ? 'text-[#e8294a]' : 'text-white/40'}`}>
             {charCount}/{maxChars}
           </p>
         </div>
@@ -106,60 +101,49 @@ export default function Step7_Bio({ data, onChange, onSubmit, onBack }: Step7Pro
         <h3 className="text-xl font-bold text-white mb-4">Profile Summary</h3>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Skills */}
           <div className="text-center p-4 bg-[#16161f] rounded-lg">
             <div className="text-3xl font-bold text-[#4455ff]">{data.skills?.length || 0}</div>
             <div className="text-xs text-white/60 mt-1">Skills Selected</div>
           </div>
-
-          {/* Verified */}
           <div className="text-center p-4 bg-[#16161f] rounded-lg">
             <div className="text-3xl font-bold text-green-400">{verifiedSkillsCount}</div>
             <div className="text-xs text-white/60 mt-1">Verified</div>
           </div>
-
-          {/* Courses */}
           <div className="text-center p-4 bg-[#16161f] rounded-lg">
             <div className="text-3xl font-bold text-purple-400">
               {data.completedCourses?.length || 0}
             </div>
             <div className="text-xs text-white/60 mt-1">Courses Completed</div>
           </div>
-
-          {/* Availability */}
           <div className="text-center p-4 bg-[#16161f] rounded-lg">
             <div className="text-lg font-bold text-orange-400">{data.availability}</div>
             <div className="text-xs text-white/60 mt-1">Availability</div>
           </div>
         </div>
 
-        {/* Selected Skills Preview */}
+        {/* Skills Preview */}
         <div className="mt-6">
           <h4 className="text-sm font-semibold text-white/70 mb-3">Your Skills:</h4>
           <div className="flex flex-wrap gap-2">
-            {data.skills?.slice(0, 10).map((skillId) => {
-              const skillName = getSkillName(skillId) || `Unknown skill ID: ${skillId}`;
-              const isVerified = data.examResults?.[skillName]?.passed || false;
+            {data.skills?.slice(0, 10).map((skill) => {
+              const isVerified = data.examResults?.[skill]?.passed || false;
               return (
                 <span
-                  key={skillId}
-                  className={`
-                    px-3 py-1.5 rounded-lg text-sm
-                    ${
-                      isVerified
-                        ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                        : 'bg-[#4455ff]/20 text-[#4455ff] border border-[#4455ff]/30'
-                    }
-                  `}
+                  key={skill}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${
+                    isVerified
+                      ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                      : 'bg-[#4455ff]/20 text-[#4455ff] border border-[#4455ff]/30'
+                  }`}
                 >
-                  {skillName} {isVerified && '✓'}
+                  {skill} {isVerified && '✓'}
                 </span>
               );
             })}
-            {(data.skills?.length || 0) > 10 && (
-              <span className="px-3 py-1.5 rounded-lg text-sm bg-white/5 text-white/50">
-                +{(data.skills?.length || 0) - 10} more
-              </span>
+           {(data.skills?.length || 0) > 10 && (
+            <span className="px-3 py-1.5 rounded-lg text-sm bg-white/5 text-white/50">
+           +{(data.skills?.length || 0) - 10} more
+         </span>
             )}
           </div>
         </div>

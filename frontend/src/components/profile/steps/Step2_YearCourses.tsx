@@ -9,7 +9,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ProfileData, YearLevel, Course } from '@/types/profile';
-import { getSkillName } from '@/constants/skills';
 
 interface Step2Props {
   data: Partial<ProfileData>;
@@ -408,17 +407,14 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
                                   )}
                                   {course.unlocks_skills && course.unlocks_skills.length > 0 && (
                                     <div className="flex flex-wrap gap-1 mt-2">
-                                      {course.unlocks_skills.map((skillId) => {
-                                        const skillName = getSkillName(skillId);
-                                        return skillName ? (
-                                          <span
-                                            key={skillId}
-                                            className="px-2 py-0.5 text-xs rounded bg-[#4455ff]/20 text-[#4455ff] border border-[#4455ff]/30"
-                                          >
-                                            {skillName}
-                                          </span>
-                                        ) : null;
-                                      })}
+                                      {course.unlocks_skills.map((skillName) => (
+                                        <span
+                                          key={skillName}
+                                          className="px-2 py-0.5 text-xs rounded bg-[#4455ff]/20 text-[#4455ff] border border-[#4455ff]/30"
+                                        >
+                                          {skillName}
+                                        </span>
+                                      ))}
                                     </div>
                                   )}
                                 </div>
