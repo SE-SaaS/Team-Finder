@@ -36,6 +36,7 @@ export default function SkillPill({
     DevOps: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
     Mobile: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
     Other: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+    Security: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
   };
 
   const handleClick = () => {

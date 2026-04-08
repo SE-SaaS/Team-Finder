@@ -6,13 +6,16 @@ export async function saveProfile(_userId: string, data: Partial<ProfileData>) {
   const response = await fetch('/api/profile', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include', // Include cookies for authentication
     body: JSON.stringify({
       major: data.major,
       specialization: data.specialization,
       year: data.year,
+      semester: data.semester, // FIXED: Added semester
       availability: data.availability,
       bio: data.bio,
       avatar: data.avatar,
+      avatarColor: data.avatarColor, // FIXED: Changed from avatarColor to match API
     }),
   });
 
@@ -47,7 +50,7 @@ export async function getPublicProfile(userId: string) {
 }
 
 // Save user's selected skills (with race condition fix)
-export async function saveUserSkills(userId: string, skillIds: number[]) {
+export async function saveUserSkills(userId: string, skillNames: string[]) {
   // First, delete existing skills
   const { error: deleteError } = await supabase
     .from('user_skills')
@@ -56,12 +59,12 @@ export async function saveUserSkills(userId: string, skillIds: number[]) {
 
   if (deleteError) throw deleteError;
 
-  if (skillIds.length === 0) return;
+  if (skillNames.length === 0) return;
 
   // Then insert new skills
-  const skillsData = skillIds.map(skillId => ({
+  const skillsData = skillNames.map(skillName => ({
     user_id: userId,
-    skill_id: skillId,
+    skill_name: skillName, // Fixed: was skill_id, should be skill_name
   }));
 
   const { error: insertError } = await supabase
@@ -119,10 +122,22 @@ export async function saveUserCourses(userId: string, courseIds: string[]) {
 
   if (courseIds.length === 0) return;
 
-  // Insert new courses
-  const coursesData = courseIds.map(courseId => ({
+  // FIXED: Fetch course details from courses table to get code and name
+  const { data: courses, error: fetchError } = await supabase
+    .from('courses')
+    .select('id, code, name')
+    .in('id', courseIds);
+
+  if (fetchError) throw fetchError;
+
+  if (!courses || courses.length === 0) return;
+
+  // Insert new courses using course_code and course_name (matching schema)
+  const coursesData = courses.map(course => ({
     user_id: userId,
-    course_id: courseId,
+    course_code: course.code,
+    course_name: course.name,
+    status: 'completed' as const,
   }));
 
   const { error: insertError } = await supabase

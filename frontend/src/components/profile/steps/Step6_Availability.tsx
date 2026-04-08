@@ -1,10 +1,5 @@
 'use client';
 
-/**
- * Step 6: Availability
- * Schedule preference selection
- */
-
 import { useState } from 'react';
 import type { ProfileData, AvailabilityType } from '@/types/profile';
 import AvailabilityCard from '@/components/profile/ui/AvailabilityCard';
@@ -17,62 +12,20 @@ interface Step6Props {
 }
 
 export default function Step6_Availability({ data, onChange, onNext, onBack }: Step6Props) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
   const availabilityOptions: Array<{
     value: AvailabilityType;
     label: string;
     description: string;
     icon: string;
   }> = [
-    {
-      value: 'Full-time',
-      label: 'Full-time',
-      description: 'Available 40+ hours/week for projects',
-      icon: '⏰',
-    },
-    {
-      value: 'Flexible',
-      label: 'Flexible',
-      description: 'Can adjust schedule as needed',
-      icon: '🔄',
-    },
-    {
-      value: 'Evenings',
-      label: 'Evenings',
-      description: 'Primarily evenings after 5pm',
-      icon: '🌙',
-    },
-    {
-      value: 'Weekends',
-      label: 'Weekends',
-      description: 'Weekends only',
-      icon: '📅',
-    },
+    { value: 'Full-time', label: 'Full-time', description: 'Available 40+ hours/week for projects', icon: '⏰' },
+    { value: 'Flexible',  label: 'Flexible',  description: 'Can adjust schedule as needed',        icon: '🔄' },
+    { value: 'Evenings',  label: 'Evenings',  description: 'Primarily evenings after 5pm',         icon: '🌙' },
+    { value: 'Weekends',  label: 'Weekends',  description: 'Weekends only',                        icon: '📅' },
   ];
 
   const handleSelect = (availability: AvailabilityType) => {
     onChange({ ...data, availability });
-    if (errors.availability) {
-      setErrors({ ...errors, availability: '' });
-    }
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!data.availability) {
-      newErrors.availability = 'Please select your availability';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNext = () => {
-    if (validate()) {
-      onNext();
-    }
   };
 
   return (
@@ -98,17 +51,10 @@ export default function Step6_Availability({ data, onChange, onNext, onBack }: S
         ))}
       </div>
 
-      {/* Error Message */}
-      {errors.availability && (
-        <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
-          <span>⚠</span> {errors.availability}
-        </p>
-      )}
-
       {/* Info Box */}
       <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
         <p className="text-sm text-blue-200">
-          💡 <strong>Note:</strong> This affects your match score (15% weight). You can update this anytime.
+          💡 <strong>Note:</strong> This affects your match score (20% weight). You can update this anytime.
         </p>
       </div>
 
@@ -121,7 +67,7 @@ export default function Step6_Availability({ data, onChange, onNext, onBack }: S
           ← Back
         </button>
         <button
-          onClick={handleNext}
+          onClick={onNext}
           disabled={!data.availability}
           className={`
             px-8 py-3 rounded-lg font-semibold transition-all

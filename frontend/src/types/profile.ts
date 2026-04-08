@@ -185,4 +185,4 @@ export const AVATAR_COLORS = [
 export type YearLevel = '1st' | '2nd' | '3rd' | '4th';
 export type AvailabilityType = 'Full-time' | 'Flexible' | 'Evenings' | 'Weekends';
 export type ExamLevel = 'Beginner' | 'Intermediate' | 'Advanced';
-export type SkillCategory = 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Mobile' | 'Other';
+export type SkillCategory = 'Frontend' | 'Backend' | 'Database' | 'DevOps' | 'Mobile' | 'Other' | 'Security';

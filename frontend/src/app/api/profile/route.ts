@@ -12,8 +12,14 @@ import { createClient } from '@/lib/supabaseServer';
 export async function POST(req: NextRequest) {
   // Get authenticated user
   const user = await getUserFromRequest(req);
+
+  console.log('[API /profile POST] User:', user ? `${user.id} (${user.email})` : 'null');
+
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({
+      error: 'Unauthorized - No user session found',
+      debug: 'getUserFromRequest() returned null - check cookies and session'
+    }, { status: 401 });
   }
 
   // CRITICAL: University MUST come from auth metadata, never from request
