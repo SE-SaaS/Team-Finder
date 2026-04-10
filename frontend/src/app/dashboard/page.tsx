@@ -44,23 +44,6 @@ const difficultyMap: Record<string, { dot: string; text: string }> = {
   advanced:     { dot: 'bg-red-400',     text: 'text-red-400'     },
 };
 
-// ── Skeleton ───────────────────────────────────────────────────────────────
-function SkeletonRow() {
-  return (
-    <div className="px-4 py-4 border-b border-[#30363d] animate-pulse flex items-start gap-4">
-      <div className="w-9 h-9 rounded-full bg-[#21262d] shrink-0 mt-0.5" />
-      <div className="flex-1">
-        <div className="h-4 bg-[#21262d] rounded w-1/3 mb-2" />
-        <div className="h-3 bg-[#21262d] rounded w-2/3 mb-3" />
-        <div className="flex gap-2">
-          <div className="h-3 bg-[#21262d] rounded w-12" />
-          <div className="h-3 bg-[#21262d] rounded w-20" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Project Row (GitHub repo-card style) ──────────────────────────────────
 function ProjectRow({ project }: { project: Project }) {
   const diff = difficultyMap[project.difficulty];
@@ -85,6 +68,11 @@ function ProjectRow({ project }: { project: Project }) {
             {project.status === 'open' && (
               <span className="shrink-0 px-2 py-0.5 text-[10px] font-medium border border-[#238636]/50 text-[#3fb950] rounded-full">
                 Open
+              </span>
+            )}
+            {project.status === 'locked' && (
+              <span className="shrink-0 px-2 py-0.5 text-[10px] font-medium border border-[#8b949e]/50 text-[#8b949e] rounded-full">
+                🔒 Locked
               </span>
             )}
           </div>
@@ -127,12 +115,19 @@ function ProjectRow({ project }: { project: Project }) {
           </div>
         </div>
 
-        {/* Star button */}
-        <button className="flex items-center gap-1.5 text-[#8b949e] hover:text-[#f0f6fc] border border-[#30363d] hover:border-[#8b949e] rounded-md px-2.5 py-1 text-xs transition-all shrink-0">
+        {/* Join/Star button */}
+        <button
+          disabled={project.status === 'locked'}
+          className={`flex items-center gap-1.5 border rounded-md px-2.5 py-1 text-xs transition-all shrink-0 ${
+            project.status === 'locked'
+              ? 'text-[#484f58] border-[#21262d] cursor-not-allowed opacity-50'
+              : 'text-[#8b949e] hover:text-[#f0f6fc] border-[#30363d] hover:border-[#8b949e]'
+          }`}
+        >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
           </svg>
-          Star
+          {project.status === 'locked' ? 'Locked' : 'Star'}
         </button>
       </div>
     </div>
@@ -211,10 +206,15 @@ export default function Dashboard() {
   const [universityProjects, setUniversityProjects] = useState<Project[]>([]);
   const [externalProjects, setExternalProjects]     = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects]       = useState(true);
-  const [activeTab, setActiveTab]                   = useState<'university' | 'external'>('university');
+  const [activeTab, setActiveTab]                   = useState<'university' | 'external' | 'my'>('university');
   const [userCourses, setUserCourses]               = useState<string[]>([]);
   const [userSkills, setUserSkills]                 = useState<string[]>([]);
   const [allCourses, setAllCourses]                 = useState<any[]>([]);
+  const [searchQuery, setSearchQuery]               = useState('');
+  const [myProjects, setMyProjects]                 = useState<Project[]>([]);
+  const [trendingProjects, setTrendingProjects]     = useState<Project[]>([]);
+  const [difficultyFilter, setDifficultyFilter]     = useState('');
+  const [techFilter, setTechFilter]                 = useState('');
 
   useEffect(() => {
     if (!loading && !user) router.push('/auth/login');
@@ -291,6 +291,33 @@ export default function Dashboard() {
     fetchProjects();
   }, [isProfileComplete]);
 
+  // Fetch user's own projects + trending projects
+  useEffect(() => {
+    async function fetchMyAndTrending() {
+      if (!user) return;
+      try {
+        const [myResult, trendingResult] = await Promise.all([
+          supabase
+            .from('projects')
+            .select('*')
+            .eq('creator_id', user.id)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('projects')
+            .select('*')
+            .eq('status', 'open')
+            .order('created_at', { ascending: false })
+            .limit(6),
+        ]);
+        setMyProjects(myResult.data ?? []);
+        setTrendingProjects(trendingResult.data ?? []);
+      } catch (e) {
+        console.error('Error fetching my/trending projects:', e);
+      }
+    }
+    fetchMyAndTrending();
+  }, [user]);
+
   // Fetch user's courses and skills
   useEffect(() => {
     async function fetchUserData() {
@@ -354,7 +381,22 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const activeProjects = activeTab === 'university' ? universityProjects : externalProjects;
+  const baseProjects = activeTab === 'university' ? universityProjects
+    : activeTab === 'external' ? externalProjects
+    : myProjects;
+
+  const filteredProjects = baseProjects.filter(p => {
+    const q = searchQuery.toLowerCase();
+    if (q && !p.title.toLowerCase().includes(q) &&
+        !p.description.toLowerCase().includes(q) &&
+        !(p.tech_stack ?? p.tags ?? []).some(t => t.toLowerCase().includes(q))) return false;
+    if (difficultyFilter && p.difficulty !== difficultyFilter) return false;
+    if (techFilter) {
+      const tags = p.tech_stack ?? p.tags ?? [];
+      if (!tags.some(t => t.toLowerCase().includes(techFilter.toLowerCase()))) return false;
+    }
+    return true;
+  });
 
   return (
     <BackgroundThemeProvider>
@@ -373,14 +415,26 @@ export default function Dashboard() {
             <span className="text-[#f0f6fc] font-semibold text-sm hidden xs:inline">TeamFinder</span>
           </Link>
 
-          {/* Search Bar - Responsive, fills available space */}
+          {/* Search Bar - Functional */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-md px-2 sm:px-3 py-1.5 text-sm text-[#8b949e] hover:border-[#8b949e] transition-colors cursor-text">
+            <div className="flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-md px-2 sm:px-3 py-1.5 text-sm text-[#8b949e] focus-within:border-[#58a6ff] transition-colors">
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span className="text-xs truncate">Search projects…</span>
-              <span className="ml-auto text-[10px] border border-[#30363d] rounded px-1 hidden sm:inline">/</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search projects…"
+                className="flex-1 bg-transparent outline-none text-xs text-[#c9d1d9] placeholder-[#8b949e] min-w-0"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="text-[#8b949e] hover:text-[#f0f6fc] shrink-0">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
@@ -443,6 +497,10 @@ export default function Dashboard() {
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
             } label="Profile" />
 
+            <SideNavItem href="/learning" icon={
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            } label="Learning" />
+
             <div className="mt-2 border-t border-[#21262d] pt-3">
               <button
                 onClick={handleSignOut}
@@ -458,9 +516,26 @@ export default function Dashboard() {
 
           {/* ── Main content (Center Feed) ── */}
           <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-6">
-            <h1 className="text-[#f0f6fc] text-lg font-semibold mb-6 break-words">
+            <h1 className="text-[#f0f6fc] text-lg font-semibold mb-4 break-words">
               Good to see you, {displayName} 👋
             </h1>
+
+            {/* ── Stats Strip ── */}
+            {isProfileComplete && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                {[
+                  { label: 'Projects Created', value: myProjects.length,                              color: 'text-[#58a6ff]'  },
+                  { label: 'Skills Added',      value: profileStats.skillsCount,                      color: 'text-[#3fb950]'  },
+                  { label: 'Courses Done',      value: userCourses.length,                             color: 'text-[#f78166]'  },
+                  { label: 'Open Projects',     value: universityProjects.length + externalProjects.length, color: 'text-amber-400' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="bg-[#161b22] border border-[#30363d] rounded-md p-3 text-center hover:border-[#8b949e] transition-colors">
+                    <p className={`text-2xl font-bold ${color}`}>{value}</p>
+                    <p className="text-[#8b949e] text-[11px] mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {!isProfileComplete && (
               <div className="mb-4 bg-[#161b22] border border-[#30363d] rounded-md p-4">
@@ -519,6 +594,23 @@ export default function Dashboard() {
                   </span>
                 </button>
 
+                <button
+                  onClick={() => setActiveTab('my')}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === 'my'
+                      ? 'border-[#f78166] text-[#f0f6fc]'
+                      : 'border-transparent text-[#8b949e] hover:text-[#f0f6fc]'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  My Projects
+                  <span className="text-[10px] bg-[#30363d] text-[#8b949e] rounded-full px-2 py-0.5">
+                    {myProjects.length}
+                  </span>
+                </button>
+
                 <div className="ml-auto flex items-center pb-1">
                   <Link
                     href="/projects/create"
@@ -532,6 +624,32 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* ── Quick Filters ── */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-[#0d1117] border-b border-[#21262d] flex-wrap">
+                <span className="text-[#8b949e] text-[11px] shrink-0 font-medium">Difficulty:</span>
+                {(['', 'beginner', 'intermediate', 'advanced'] as const).map(d => (
+                  <button
+                    key={d || 'all'}
+                    onClick={() => setDifficultyFilter(d)}
+                    className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors capitalize ${
+                      difficultyFilter === d
+                        ? 'border-[#58a6ff] text-[#58a6ff] bg-[#58a6ff]/10'
+                        : 'border-[#30363d] text-[#8b949e] hover:border-[#8b949e] hover:text-[#c9d1d9]'
+                    }`}
+                  >
+                    {d || 'All'}
+                  </button>
+                ))}
+                {(searchQuery || difficultyFilter) && (
+                  <button
+                    onClick={() => { setSearchQuery(''); setDifficultyFilter(''); setTechFilter(''); }}
+                    className="ml-auto text-[10px] text-[#f78166] hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+
               {!isProfileComplete ? (
                 <div className="px-4 py-12 text-center">
                   <svg className="w-10 h-10 text-[#8b949e] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -540,15 +658,44 @@ export default function Dashboard() {
                   <p className="text-[#8b949e] text-sm">Complete your profile to see projects</p>
                 </div>
               ) : loadingProjects ? (
-                <>
-                  <SkeletonRow />
-                  <SkeletonRow />
-                  <SkeletonRow />
-                  <SkeletonRow />
-                </>
-              ) : activeProjects.length === 0 ? (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: 60, color: "#555", fontSize: 12 }}>
+                  Loading...
+                </div>
+              ) : filteredProjects.length === 0 ? (
                 <div className="px-4 py-12 text-center">
-                  {activeTab === 'university' ? (
+                  {searchQuery || difficultyFilter ? (
+                    <>
+                      <svg className="w-10 h-10 text-[#8b949e] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p className="text-[#f0f6fc] font-medium mb-1">No results found</p>
+                      <p className="text-[#8b949e] text-sm mb-3">Try adjusting your search or filters</p>
+                      <button
+                        onClick={() => { setSearchQuery(''); setDifficultyFilter(''); setTechFilter(''); }}
+                        className="text-xs text-[#58a6ff] hover:underline"
+                      >
+                        Clear filters
+                      </button>
+                    </>
+                  ) : activeTab === 'my' ? (
+                    <>
+                      <svg className="w-12 h-12 text-[#8b949e] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <p className="text-[#f0f6fc] font-medium mb-1">No projects yet</p>
+                      <p className="text-[#8b949e] text-sm mb-4">Create your first project and start building your team!</p>
+                      <Link
+                        href="/projects/create"
+                        className="inline-flex items-center gap-2 bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Create Project
+                      </Link>
+                    </>
+                  ) : activeTab === 'university' ? (
                     <>
                       <svg className="w-12 h-12 text-[#8b949e] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -576,7 +723,7 @@ export default function Dashboard() {
                   )}
                 </div>
               ) : (
-                activeProjects.map(p => <ProjectRow key={p.id} project={p} />)
+                filteredProjects.map(p => <ProjectRow key={p.id} project={p} />)
               )}
             </div>
           </main>
@@ -712,6 +859,38 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Trending Projects */}
+            {trendingProjects.length > 0 && (
+              <div className="bg-[#161b22] border border-[#30363d] rounded-md p-4">
+                <p className="text-[#8b949e] text-xs font-semibold uppercase tracking-wider mb-3">
+                  Recently Active
+                </p>
+                <div className="space-y-2.5">
+                  {trendingProjects.map((p, i) => (
+                    <Link
+                      key={p.id}
+                      href={`/projects/${p.id}`}
+                      className="flex items-start gap-2 group"
+                    >
+                      <span className="text-[10px] text-[#8b949e] w-4 shrink-0 mt-0.5 font-mono">{i + 1}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-[#58a6ff] group-hover:underline truncate">{p.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className={`text-[10px] ${difficultyMap[p.difficulty]?.text ?? 'text-[#8b949e]'}`}>
+                            {p.difficulty}
+                          </span>
+                          {p.tech_stack?.[0] && (
+                            <span className="text-[10px] text-[#8b949e] truncate">{p.tech_stack[0]}</span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Difficulty Legend */}
             <div className="bg-[#161b22] border border-[#30363d] rounded-md p-4">
               <p className="text-[#8b949e] text-xs font-semibold uppercase tracking-wider mb-3">Difficulty</p>
               <div className="space-y-1.5">
