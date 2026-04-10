@@ -377,23 +377,7 @@ export default function Dashboard() {
     : profileStats.university === 'University of Jordan' ? 'JU'
     : profileStats.university ?? '—';
 
-  if (loading || checkingProfile) {
-    return (
-      <BackgroundThemeProvider>
-        <BackgroundCanvas />
-        <div className="min-h-screen bg-transparent flex items-center justify-center relative">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-2 border-[#dc2626] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[#8b949e] text-sm">Loading dashboard…</p>
-          </div>
-        </div>
-      </BackgroundThemeProvider>
-    );
-  }
-
-  if (!user) return null;
-
-  // Memoize base projects selection
+  // Memoize base projects selection (must be before conditional returns)
   const baseProjects = useMemo(() => {
     return activeTab === 'university' ? universityProjects
       : activeTab === 'external' ? externalProjects
@@ -415,6 +399,22 @@ export default function Dashboard() {
       return true;
     });
   }, [baseProjects, searchQuery, difficultyFilter, techFilter]);
+
+  if (loading || checkingProfile) {
+    return (
+      <BackgroundThemeProvider>
+        <BackgroundCanvas />
+        <div className="min-h-screen bg-transparent flex items-center justify-center relative">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-8 h-8 border-2 border-[#dc2626] border-t-transparent rounded-full animate-spin" />
+            <p className="text-[#8b949e] text-sm">Loading dashboard…</p>
+          </div>
+        </div>
+      </BackgroundThemeProvider>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <BackgroundThemeProvider>
