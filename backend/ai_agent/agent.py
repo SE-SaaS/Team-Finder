@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.agents import create_agent
@@ -21,7 +21,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langchain_community.utilities import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 
-from system_prompt import SYSTEM_PROMPT
+from .system_prompt import SYSTEM_PROMPT
 
 # Load environment variables
 load_dotenv()
@@ -341,20 +341,20 @@ Visit https://roadmap.sh to explore all roadmaps!"""
 
 async def create_university_assistant():
     """Create and configure the University Career Assistant AI Agent."""
-    zai_api_key = os.getenv("ZAI_API_KEY")
+    anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
     database_url = os.getenv("DATABASE_URL")
 
-    if not zai_api_key:
-        raise ValueError("ZAI_API_KEY must be set in .env file")
+    if not anthropic_api_key:
+        raise ValueError("ANTHROPIC_API_KEY must be set in .env file")
     if not database_url:
         raise ValueError("DATABASE_URL must be set in .env file")
 
-    # Initialize LLM
-    llm = ChatOpenAI(
-        model="glm-4.7",
+    # Initialize Claude LLM
+    llm = ChatAnthropic(
+        model="claude-sonnet-4-20250514",  # Latest Claude Sonnet 4
         temperature=0.0,
-        base_url="https://api.z.ai/api/coding/paas/v4",
-        api_key=zai_api_key
+        api_key=anthropic_api_key,
+        max_tokens=4096
     )
 
     # Create SQLDatabase connection
@@ -406,7 +406,7 @@ async def run_agent_terminal():
     """Run the agent in terminal mode for interactive conversations."""
     print("=" * 60)
     print("University Career Assistant AI")
-    print("Powered by Z.AI and LangGraph")
+    print("Powered by Claude (Anthropic) and LangGraph")
     print("SQLDatabaseToolkit + Custom Tools")
     print("=" * 60)
     print("\nType 'exit' or 'quit' to end the conversation.")

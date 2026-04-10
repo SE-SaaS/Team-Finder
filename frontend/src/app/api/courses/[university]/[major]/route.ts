@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
+import { logger } from '@/lib/logger';
 
 /**
  * ISR Configuration: Cache courses for 24 hours
@@ -52,7 +53,7 @@ export async function GET(
       .order('code', { ascending: true });
 
     if (error) {
-      console.error('Supabase error fetching courses:', error);
+      logger.error('Supabase error fetching courses:', error);
       return NextResponse.json(
         { error: 'Failed to fetch courses' },
         { status: 500 }
@@ -69,7 +70,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error in courses API:', error);
+    logger.error('Error in courses API:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

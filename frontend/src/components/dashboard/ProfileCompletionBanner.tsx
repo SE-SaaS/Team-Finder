@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
+import { logger } from '@/lib/logger';
 
 export default function ProfileCompletionBanner() {
   const { user } = useAuth();
@@ -37,15 +39,15 @@ export default function ProfileCompletionBanner() {
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id);
 
-        // Profile is complete if they have major, year, at least 1 course, and at least 3 skills
-        const isComplete = !!(
-          profile?.major &&
-          profile?.year &&
-          (coursesCount ?? 0) > 0 &&
-          (skillsCount ?? 0) >= 3
-        );
+        // Use shared validation function for consistency
+        const isComplete = checkProfileComplete({
+          major: profile?.major,
+          year: profile?.year,
+          skillsCount: skillsCount ?? 0,
+          coursesCount: coursesCount ?? 0,
+        });
 
-        console.log('Profile completion check:', {
+        logger.log('Profile completion check:', {
           major: profile?.major,
           year: profile?.year,
           coursesCount,
@@ -55,7 +57,7 @@ export default function ProfileCompletionBanner() {
 
         setIsProfileComplete(isComplete);
       } catch (error) {
-        console.error('Error checking profile completion:', error);
+        logger.error('Error checking profile completion:', error);
         setIsProfileComplete(false);
       } finally {
         setLoading(false);

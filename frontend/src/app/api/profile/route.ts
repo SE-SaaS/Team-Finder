@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/auth/serverAuth';
 import { createClient } from '@/lib/supabaseServer';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/profile
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
   // Get authenticated user
   const user = await getUserFromRequest(req);
 
-  console.log('[API /profile POST] User:', user ? `${user.id} (${user.email})` : 'null');
+  logger.log('[API /profile POST] User:', user ? `${user.id} (${user.email})` : 'null');
 
   if (!user) {
     return NextResponse.json({
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
     });
 
   if (error) {
-    console.error('Profile error:', error);
+    logger.error('Profile error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
@@ -87,7 +88,7 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (error) {
-    console.error('Profile error:', error);
+    logger.error('Profile error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

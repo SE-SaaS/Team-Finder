@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { logger } from '@/lib/logger';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -34,7 +35,7 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired - required for Server Components
   const { data: { user } } = await supabase.auth.getUser();
 
-  console.log('[Middleware]', request.nextUrl.pathname, 'User:', user ? user.email : 'null');
+  logger.log('[Middleware]', request.nextUrl.pathname, 'User:', user ? user.email : 'null');
 
   return response;
 }
