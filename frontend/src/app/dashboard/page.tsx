@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,9 @@ import ProfileCompletionBanner from '@/components/dashboard/ProfileCompletionBan
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 import ThemeToggle from '@/components/dashboard/background/ThemeToggle';
 import { BackgroundThemeProvider } from '@/contexts/BackgroundThemeContext';
+import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
+import { logger } from '@/lib/logger';
+import AIChat from '@/components/dashboard/AIChat';
 
 interface Project {
   id: string;
@@ -33,6 +36,7 @@ interface ProfileStats {
   year: number | null;
   name: string | null;
   skillsCount: number;
+  coursesCount: number;
   university: string | null;
   semester?: number | null;
 }
@@ -201,7 +205,7 @@ export default function Dashboard() {
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [checkingProfile, setCheckingProfile]     = useState(true);
   const [profileStats, setProfileStats]           = useState<ProfileStats>({
-    major: null, year: null, name: null, skillsCount: 0, university: null,
+    major: null, year: null, name: null, skillsCount: 0, coursesCount: 0, university: null,
   });
   const [universityProjects, setUniversityProjects] = useState<Project[]>([]);
   const [externalProjects, setExternalProjects]     = useState<Project[]>([]);
@@ -228,22 +232,30 @@ export default function Dashboard() {
           .from('profiles').select('major, year, name, university, semester').eq('id', user.id).single();
         const { count: skillsCount } = await supabase
           .from('user_skills').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-        const count = skillsCount ?? 0;
-        setProfileStats({
+        const { count: coursesCount } = await supabase
+          .from('user_courses').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+
+        const stats = {
           major: profile?.major ?? null,
           year: profile?.year ?? null,
           name: profile?.name ?? null,
-          skillsCount: count,
+          skillsCount: skillsCount ?? 0,
+          coursesCount: coursesCount ?? 0,
           university: profile?.university ?? null,
           semester: profile?.semester ?? null,
-        });
-        const isComplete = !!(profile?.major && profile?.year && count >= 3);
+        };
+
+        setProfileStats(stats);
+
+        // Use shared validation function
+        const isComplete = checkProfileComplete(stats);
         setIsProfileComplete(isComplete);
 
-        console.log('👤 Profile Check:', {
+        logger.log('👤 Profile Check:', {
           major: profile?.major,
           year: profile?.year,
-          skills: count,
+          skills: skillsCount ?? 0,
+          courses: coursesCount ?? 0,
           isComplete
         });
       } catch { setIsProfileComplete(false); }
@@ -260,7 +272,7 @@ export default function Dashboard() {
       }
 
       try {
-        console.log('📥 Fetching projects...');
+        logger.log('📥 Fetching projects...');
 
         const [uniResult, extResult] = await Promise.all([
           supabase
@@ -278,12 +290,12 @@ export default function Dashboard() {
             .limit(10),
         ]);
 
-        console.log(`✅ University: ${uniResult.data?.length ?? 0}, External: ${extResult.data?.length ?? 0}`);
+        logger.log(`✅ University: ${uniResult.data?.length ?? 0}, External: ${extResult.data?.length ?? 0}`);
 
         setUniversityProjects(uniResult.data ?? []);
         setExternalProjects(extResult.data ?? []);
       } catch (error) {
-        console.error('❌ Error fetching projects:', error);
+        logger.error('❌ Error fetching projects:', error);
       } finally {
         setLoadingProjects(false);
       }
@@ -312,7 +324,7 @@ export default function Dashboard() {
         setMyProjects(myResult.data ?? []);
         setTrendingProjects(trendingResult.data ?? []);
       } catch (e) {
-        console.error('Error fetching my/trending projects:', e);
+        logger.error('Error fetching my/trending projects:', e);
       }
     }
     fetchMyAndTrending();
@@ -348,7 +360,7 @@ export default function Dashboard() {
           setAllCourses(coursesData || []);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        logger.error('Error fetching user data:', error);
       }
     }
 
@@ -381,22 +393,28 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const baseProjects = activeTab === 'university' ? universityProjects
-    : activeTab === 'external' ? externalProjects
-    : myProjects;
+  // Memoize base projects selection
+  const baseProjects = useMemo(() => {
+    return activeTab === 'university' ? universityProjects
+      : activeTab === 'external' ? externalProjects
+      : myProjects;
+  }, [activeTab, universityProjects, externalProjects, myProjects]);
 
-  const filteredProjects = baseProjects.filter(p => {
-    const q = searchQuery.toLowerCase();
-    if (q && !p.title.toLowerCase().includes(q) &&
-        !p.description.toLowerCase().includes(q) &&
-        !(p.tech_stack ?? p.tags ?? []).some(t => t.toLowerCase().includes(q))) return false;
-    if (difficultyFilter && p.difficulty !== difficultyFilter) return false;
-    if (techFilter) {
-      const tags = p.tech_stack ?? p.tags ?? [];
-      if (!tags.some(t => t.toLowerCase().includes(techFilter.toLowerCase()))) return false;
-    }
-    return true;
-  });
+  // Memoize filtered projects for performance
+  const filteredProjects = useMemo(() => {
+    return baseProjects.filter(p => {
+      const q = searchQuery.toLowerCase();
+      if (q && !p.title.toLowerCase().includes(q) &&
+          !p.description.toLowerCase().includes(q) &&
+          !(p.tech_stack ?? p.tags ?? []).some(t => t.toLowerCase().includes(q))) return false;
+      if (difficultyFilter && p.difficulty !== difficultyFilter) return false;
+      if (techFilter) {
+        const tags = p.tech_stack ?? p.tags ?? [];
+        if (!tags.some(t => t.toLowerCase().includes(techFilter.toLowerCase()))) return false;
+      }
+      return true;
+    });
+  }, [baseProjects, searchQuery, difficultyFilter, techFilter]);
 
   return (
     <BackgroundThemeProvider>
@@ -658,9 +676,11 @@ export default function Dashboard() {
                   <p className="text-[#8b949e] text-sm">Complete your profile to see projects</p>
                 </div>
               ) : loadingProjects ? (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
-                  padding: 60, color: "#555", fontSize: 12 }}>
-                  Loading...
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-[#58a6ff] border-t-transparent rounded-full animate-spin" />
+                    <p className="text-[#8b949e] text-sm">Loading projects...</p>
+                  </div>
                 </div>
               ) : filteredProjects.length === 0 ? (
                 <div className="px-4 py-12 text-center">
@@ -929,6 +949,9 @@ export default function Dashboard() {
           background: rgba(88, 166, 255, 0.5);
         }
       `}</style>
+
+      {/* AI Chat Assistant */}
+      <AIChat />
     </BackgroundThemeProvider>
   );
 }

@@ -1,10 +1,10 @@
 /**
  * Computes cosine similarity between two vectors
- * @param {number[]} vA - binary array[38]
- * @param {number[]} vB - binary array[38]
- * @returns {number} 0.0-1.0
+ * @param vA - Binary skill vector (typically length 38)
+ * @param vB - Binary skill vector (typically length 38)
+ * @returns Similarity score between 0.0 and 1.0
  */
-export function cosineSimilarity(vA, vB) {
+export function cosineSimilarity(vA: number[], vB: number[]): number {
   // Edge case: all zeros
   if (vA.every(v => v === 0) || vB.every(v => v === 0)) {
     return 0;

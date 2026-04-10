@@ -5,6 +5,7 @@ import { SKILL_LOCKS } from '@/data/skillLocks';
 import { ALL_SKILLS, getSkillCategory } from '@/lib/skills';
 import SkillPill from '@/lib/SkillPill';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 
 interface Step3Props {
   data: Partial<ProfileData>;
@@ -37,7 +38,7 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
         const response = await fetch(`/api/courses/${university}/${major}`);
         if (response.ok) setCourses(await response.json());
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        logger.error('Error fetching courses:', error);
       } finally {
         setLoading(false);
       }
@@ -61,8 +62,11 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
   }, [courses, data.completedCourses, yearNum]);
 
   // Auto-select unlocked skills — uses refs to avoid stale closure
+  // Track if we've already auto-selected to prevent race conditions
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
+
   useEffect(() => {
-    if (unlockedSkillNames.length === 0) return;
+    if (unlockedSkillNames.length === 0 || hasAutoSelected) return;
 
     const currentSkills = dataRef.current.skills || [];
     const merged = Array.from(new Set([...currentSkills, ...unlockedSkillNames]));
@@ -71,8 +75,9 @@ export default function Step3_SkillSelector({ data, onChange, onNext, onBack }: 
 
     if (isDifferent) {
       onChangeRef.current({ ...dataRef.current, skills: merged });
+      setHasAutoSelected(true);
     }
-  }, [unlockedSkillNames]);
+  }, [unlockedSkillNames, hasAutoSelected]);
 
   const lockedSkillNames = useMemo((): string[] => {
     return ALL_SKILLS.filter(skill => !unlockedSkillNames.includes(skill));
