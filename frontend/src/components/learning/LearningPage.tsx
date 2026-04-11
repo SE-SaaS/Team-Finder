@@ -2,18 +2,19 @@ import SectionTabs from "@/components/shared/SectionTabs"
 import CourseCatalog from "./courses/CourseCatalog"
 import DevToolsHub from "./devtools/DevToolsHub"
 import PersonalizedPath from "./path/PersonalizedPath"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useCourses } from "@/hooks/useCourses"
 
 export default function LearningPage() {
   const [tab, setTab] = useState("Courses")
-  const { courses } = useCourses()
+  const { courses, loading } = useCourses()
 
-  const TABS = [
+  // Memoize tabs to prevent recalculation on every render
+  const TABS = useMemo(() => [
     { label: "Courses",    count: courses.length },
     { label: "Dev Tools",  count: 10 },
     { label: "My Path" },
-  ]
+  ], [courses.length])
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%",
@@ -32,7 +33,7 @@ export default function LearningPage() {
 
       {/* Content */}
       <div style={{ flex: 1, overflow: "auto" }}>
-        {tab === "Courses"   && <CourseCatalog />}
+        {tab === "Courses"   && <CourseCatalog courses={courses} loading={loading} />}
         {tab === "Dev Tools" && <DevToolsHub />}
         {tab === "My Path"   && <PersonalizedPath />}
       </div>

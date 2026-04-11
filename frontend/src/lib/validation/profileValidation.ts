@@ -28,7 +28,6 @@ export function validateYear(year: string): ValidationResult {
 export function validateStep1(data: {
   major: string
   specialization: string
-  year: string
 }): Record<string, string> {
   const errors: Record<string, string> = {}
 
@@ -39,9 +38,6 @@ export function validateStep1(data: {
     const specResult = validateSpecialization(data.major, data.specialization)
     if (!specResult.isValid) errors.specialization = specResult.error!
   }
-
-  const yearResult = validateYear(data.year)
-  if (!yearResult.isValid) errors.year = yearResult.error!
 
   return errors
 }

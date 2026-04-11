@@ -1,359 +1,455 @@
 'use client';
 
-/**
- * Profile Wizard - Main Controller
- * 7-Step Onboarding Flow with Supabase + localStorage Draft Persistence
- */
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import type { ProfileData } from '@/types/profile';
-import { loadDraft, saveDraft, clearDraft } from '@/components/profile/utils/profileStorage';
-import { saveProfile, saveUserCourses, saveUserSkills } from '@/lib/profileApi';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+import { ALL_SKILLS } from '@/lib/skills';
+import { MAJORS } from '@/data/majors';
 
-// Step Components (to be created)
-import Step1_BasicInfo from '@/components/profile/steps/Step1_BasicInfo';
-import Step2_YearCourses from '@/components/profile/steps/Step2_YearCourses';
-import Step3_SkillSelector from '@/components/profile/steps/Step3_SkillSelector';
-import Step4_RoadmapImport from '@/components/profile/steps/Step4_RoadmapImport';
-import Step5_SkillExams from '@/components/profile/steps/Step5_SkillExams';
-import Step6_Availability from '@/components/profile/steps/Step6_Availability';
-import Step7_Bio from '@/components/profile/steps/Step7_Bio';
+type Section = 'year' | 'courses' | 'skills' | 'availability' | 'specialization';
 
-export default function ProfileWizard() {
+export default function ProfileEditPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [showDraftModal, setShowDraftModal] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  const [activeSection, setActiveSection] = useState<Section>('year');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  // Profile data state
-  const [profileData, setProfileData] = useState<Partial<ProfileData>>({
-    university: '',
-    major: '',
-    year: undefined,
-    semester: undefined,
-    completedCourses: [],
-    skills: [],
-    roadmapVerified: [],
-    examResults: {},
-    availability: undefined,
-    bio: '',
-    avatar: '',
-    avatarColor: '',
-  });
+  // Profile state
+  const [profile, setProfile] = useState<any>(null);
+  const [year, setYear] = useState<string>('');
+  const [semester, setSemester] = useState<number>(1);
+  const [skills, setSkills] = useState<string[]>([]);
+  const [courses, setCourses] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<number>(20);
+  const [specialization, setSpecialization] = useState('');
 
-  // ============================================
-  // AUTH PROTECTION
-  // ============================================
+  // Available courses from database
+  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+
+  // Redirect if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       router.push('/auth/login');
     }
-  }, [user, loading, router]);
+  }, [user, authLoading, router]);
 
-  // ============================================
-  // DRAFT RECOVERY ON MOUNT - DISABLED
-  // ============================================
-  // useEffect(() => {
-  //   if (!user) return;
-  //   const draft = loadDraft(user.id);
-  //   if (draft && draft.currentStep > 1) setShowDraftModal(true);
-  // }, [user]);
-
-  const handleResumeDraft = () => {
-    if (!user) return;
-    const draft = loadDraft(user.id);
-    if (draft) {
-      setProfileData(draft.data);
-      setCurrentStep(draft.currentStep);
-    }
-    setShowDraftModal(false);
-  };
-
-  const handleStartFresh = () => {
-    clearDraft();
-    setShowDraftModal(false);
-  };
-
-  // ============================================
-  // AUTO-SAVE ON DATA CHANGE
-  // ============================================
+  // Load profile data
   useEffect(() => {
-    if (!user || currentStep <= 1) return;
-    saveDraft(profileData, currentStep, user.id);
-  }, [profileData, currentStep, user]);
-
-  // ============================================
-  // NAVIGATION
-  // ============================================
-  const goToStep = (step: number) => {
-    if (step >= 1 && step <= 7) {
-      setCurrentStep(step);
-    }
-  };
-
-  const nextStep = () => {
-    if (currentStep < 7) {
-      // Step 4 (Roadmap.sh) is a future feature — skip it silently
-      const next = currentStep === 3 ? 5 : currentStep + 1;
-      setCurrentStep(next);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      // Skip step 4 going backwards too
-      const prev = currentStep === 5 ? 3 : currentStep - 1;
-      setCurrentStep(prev);
-    }
-  };
-
-  // ============================================
-  // VALIDATION
-  // ============================================
-  const canProceed = (): boolean => {
-    switch (currentStep) {
-      case 1:
-        return !!(profileData.university && profileData.major && profileData.specialization);
-      case 2: // Year & Courses
-        return !!(profileData.year && profileData.semester);
-      case 3: // Skill Selector
-        return (profileData.skills?.length ?? 0) >= 3;
-      case 4: // Roadmap.sh (auto-skip)
-        return true;
-      case 5: // Skill Exams (optional)
-        return true;
-      case 6: // Availability
-        return !!profileData.availability;
-      case 7: // Bio (optional)
-        return true;
-      default:
-        return false;
-    }
-  };
-
-  // ============================================
-  // SUBMIT
-  // ============================================
-  const handleSubmit = async () => {
     if (!user) return;
+
+    async function loadProfile() {
+      try {
+        // Get profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) throw profileError;
+        setProfile(profileData);
+        setYear(profileData.year || '');
+        setSemester(profileData.semester || 1);
+        setAvailability(profileData.availability || 20);
+        setSpecialization(profileData.specialization || '');
+
+        // Get user skills
+        const { data: skillsData } = await supabase
+          .from('user_skills')
+          .select('skill_name')
+          .eq('user_id', user.id);
+
+        setSkills(skillsData?.map(s => s.skill_name) || []);
+
+        // Get completed courses
+        const { data: coursesData } = await supabase
+          .from('user_courses')
+          .select('course_id')
+          .eq('user_id', user.id);
+
+        setCourses(coursesData?.map(c => c.course_id) || []);
+
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProfile();
+  }, [user]);
+
+  // Load courses when year changes
+  useEffect(() => {
+    if (!profile || !year) return;
+
+    async function loadCourses() {
+      try {
+        const yearNum = parseInt(year.charAt(0));
+        const { data: coursesDb } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('university', profile.university === 'University of Jordan' ? 'JU' : 'HU')
+          .eq('major', profile.major)
+          .lte('year', yearNum) // Load courses up to current year
+          .order('year', { ascending: true })
+          .order('semester', { ascending: true })
+          .limit(1000);
+
+        console.log(`Loaded ${coursesDb?.length || 0} courses for year ${year}`);
+        setAvailableCourses(coursesDb || []);
+      } catch (error) {
+        console.error('Error loading courses:', error);
+      }
+    }
+
+    loadCourses();
+  }, [year, profile]);
+
+  const handleSkillToggle = (skill: string) => {
+    setSkills(prev =>
+      prev.includes(skill)
+        ? prev.filter(s => s !== skill)
+        : [...prev, skill]
+    );
+  };
+
+  const handleCourseToggle = (courseId: string) => {
+    setCourses(prev =>
+      prev.includes(courseId)
+        ? prev.filter(c => c !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
 
     try {
-      // Save profile (basic info, availability, bio, avatar)
-      await saveProfile(user.id, profileData);
-      
-      // Save completed courses from Step 2
-      if (profileData.completedCourses && profileData.completedCourses.length > 0) {
-        await saveUserCourses(user.id, profileData.completedCourses);
-        
+      // Save year, semester, availability and specialization to profile
+      await supabase
+        .from('profiles')
+        .update({
+          year,
+          semester,
+          availability,
+          specialization: specialization || null
+        })
+        .eq('id', user.id);
+
+      // Save skills
+      await supabase.from('user_skills').delete().eq('user_id', user.id);
+      if (skills.length > 0) {
+        await supabase.from('user_skills').insert(
+          skills.map(skill => ({ user_id: user.id, skill_name: skill }))
+        );
       }
 
-      // Save selected skills from Step 3 (now as number[] IDs)
-      if (profileData.skills && profileData.skills.length > 0) {
-        await saveUserSkills(user.id, profileData.skills);
-        
+      // Save courses
+      await supabase.from('user_courses').delete().eq('user_id', user.id);
+      if (courses.length > 0) {
+        await supabase.from('user_courses').insert(
+          courses.map(courseId => ({ user_id: user.id, course_id: courseId }))
+        );
       }
 
-      // Clear draft from localStorage
-      clearDraft();
-
-      // Redirect to dashboard
+      alert('Profile updated successfully!');
       router.push('/dashboard');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to save profile. Please try again.');
-      // Do NOT navigate - keep user on wizard to retry
+      console.error('Error saving profile:', error);
+      alert('Failed to save profile. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
-  // ============================================
-  // PROGRESS BAR
-  // ============================================
-  const renderProgressBar = () => {
-    const steps = [
-      { num: 1, name: 'Basic Info' },
-      { num: 2, name: 'Year & Courses' },
-      { num: 3, name: 'Skills' },
-      { num: 4, name: 'Roadmap.sh' },
-      { num: 5, name: 'Exams' },
-      { num: 6, name: 'Availability' },
-      { num: 7, name: 'Bio' },
-    ];
-
+  if (authLoading || loading || !user) {
     return (
-      <div className="flex items-center justify-center gap-2 mb-12">
-        {steps.map((step, idx) => (
-          <div key={step.num} className="flex items-center">
-            {/* Circle */}
-            <button
-              onClick={() => goToStep(step.num)}
-              disabled={step.num > currentStep}
-              className={`
-                w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
-                transition-all duration-300
-                ${
-                  step.num === currentStep
-                    ? 'bg-[#4455ff] text-white scale-110 shadow-[0_0_20px_rgba(68,85,255,0.5)]'
-                    : step.num < currentStep
-                    ? 'bg-[#4455ff]/30 text-white cursor-pointer hover:bg-[#4455ff]/50'
-                    : 'bg-white/10 text-white/30 cursor-not-allowed'
-                }
-              `}
-            >
-              {step.num}
-            </button>
-
-            {/* Connector Line */}
-            {idx < steps.length - 1 && (
-              <div
-                className={`
-                  w-8 h-[2px] mx-1 transition-all duration-300
-                  ${step.num < currentStep ? 'bg-[#4455ff]/50' : 'bg-white/10'}
-                `}
-              />
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
-  // ============================================
-  // RENDER CURRENT STEP
-  // ============================================
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <Step1_BasicInfo
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-          />
-        );
-      case 2:
-        return (
-          <Step2_YearCourses
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 3:
-        return (
-          <Step3_SkillSelector
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 4:
-        return (
-          <Step4_RoadmapImport
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 5:
-        return (
-          <Step5_SkillExams
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 6:
-        return (
-          <Step6_Availability
-            data={profileData}
-            onChange={setProfileData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        );
-      case 7:
-        return (
-          <Step7_Bio
-            data={profileData}
-            onChange={setProfileData}
-            onSubmit={handleSubmit}
-            onBack={prevStep}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  // Show loading while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <div className="text-[#8b949e]">Loading...</div>
       </div>
     );
   }
 
-  // Don't render if not authenticated (will redirect)
-  if (!user) {
-    return null;
-  }
+  const majorInfo = profile?.major ? MAJORS[profile.major] : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#08080e] to-[#0f0f18] relative overflow-hidden">
+    <div className="min-h-screen bg-black">
       {/* Starfield Background */}
-      <div className="fixed inset-0 -z-10 bg-black overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="stars stars-blue"></div>
         <div className="stars stars-red"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Create Your Profile</h1>
-          <p className="text-white/60">Complete your profile to start matching with teams</p>
+      {/* Header */}
+      <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-20">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-3">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="text-white font-medium">Back to Dashboard</span>
+            </Link>
+
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white font-medium px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-8 relative z-10">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Edit Profile</h1>
+          <p className="text-gray-400">Update your skills, courses, and availability</p>
         </div>
 
-        {/* Progress Bar */}
-        {renderProgressBar()}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar Navigation */}
+          <aside className="lg:col-span-1">
+            <nav className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-4 space-y-1 sticky top-24">
+              {[
+                { id: 'year', label: 'Year & Semester', icon: '📅' },
+                { id: 'courses', label: 'Courses', icon: '📚' },
+                { id: 'skills', label: 'Skills', icon: '🎯' },
+                { id: 'availability', label: 'Availability', icon: '⏰' },
+                { id: 'specialization', label: 'Specialization', icon: '🎓' },
+              ].map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id as Section)}
+                  className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                    activeSection === section.id
+                      ? 'bg-[#dc2626] text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
+                >
+                  <span className="mr-2">{section.icon}</span>
+                  {section.label}
+                </button>
+              ))}
+            </nav>
+          </aside>
 
-        {/* Current Step */}
-        <div className="bg-[#16161f] rounded-xl p-8 shadow-xl border border-white/10">
-          {renderStep()}
-        </div>
-      </div>
+          {/* Content Area */}
+          <div className="lg:col-span-3">
+            <div className="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
 
-      {/* Draft Recovery Modal */}
-      {showDraftModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#16161f] rounded-xl p-8 max-w-md w-full mx-4 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-4">Continue Where You Left Off?</h2>
-            <p className="text-white/70 mb-6">
-              We found a saved draft of your profile. Would you like to resume where you left off?
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={handleStartFresh}
-                className="flex-1 px-6 py-3 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-all"
-              >
-                Start Fresh
-              </button>
-              <button
-                onClick={handleResumeDraft}
-                className="flex-1 px-6 py-3 rounded-lg bg-[#4455ff] text-white hover:bg-[#5566ff] transition-all shadow-[0_0_20px_rgba(68,85,255,0.3)]"
-              >
-                Resume Draft
-              </button>
+              {/* Year & Semester Section */}
+              {activeSection === 'year' && (
+                <div>
+                  <h2 className="text-xl font-semibold text-white mb-4">Academic Year & Semester</h2>
+                  <p className="text-sm text-gray-400 mb-6">
+                    Select your current academic year and semester. This determines which courses are available.
+                  </p>
+
+                  {/* Year Selection */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-white mb-3">
+                      Current Academic Year <span className="text-[#dc2626]">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {(['1st', '2nd', '3rd', '4th'] as const).map((yr) => (
+                        <button
+                          key={yr}
+                          onClick={() => setYear(yr)}
+                          className={`px-6 py-4 rounded-lg font-semibold transition-all ${
+                            year === yr
+                              ? 'bg-[#dc2626] text-white shadow-lg'
+                              : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-[#dc2626] hover:text-white'
+                          }`}
+                        >
+                          {yr} Year
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Semester Selection */}
+                  {year && (
+                    <div>
+                      <label className="block text-sm font-medium text-white mb-3">
+                        Current Semester <span className="text-[#dc2626]">*</span>
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[1, 2].map((sem) => (
+                          <button
+                            key={sem}
+                            onClick={() => setSemester(sem)}
+                            className={`px-6 py-4 rounded-lg font-semibold transition-all ${
+                              semester === sem
+                                ? 'bg-[#dc2626] text-white shadow-lg'
+                                : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-[#dc2626] hover:text-white'
+                            }`}
+                          >
+                            Semester {sem}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {year && semester && (
+                    <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                      <p className="text-sm text-blue-200">
+                        ℹ️ You're in <strong>{year} Year, Semester {semester}</strong>.
+                        Courses up to this point will be available in the Courses section.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Skills Section */}
+              {activeSection === 'skills' && (
+                <div>
+                  <h2 className="text-xl font-semibold text-white mb-4">Your Skills</h2>
+                  <p className="text-sm text-gray-400 mb-6">
+                    Select the skills you're proficient in. These will be used to match you with projects.
+                  </p>
+                  <div className="flex flex-wrap gap-2 max-h-[500px] overflow-y-auto p-4 bg-black border border-gray-800 rounded-lg">
+                    {ALL_SKILLS.map((skill) => (
+                      <button
+                        key={skill}
+                        onClick={() => handleSkillToggle(skill)}
+                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                          skills.includes(skill)
+                            ? 'bg-[#dc2626] text-white border-2 border-[#b91c1c]'
+                            : 'bg-gray-800 text-gray-300 border-2 border-gray-700 hover:border-[#dc2626]'
+                        }`}
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-xs text-gray-400">
+                    {skills.length} skill{skills.length !== 1 ? 's' : ''} selected
+                  </p>
+                </div>
+              )}
+
+              {/* Courses Section */}
+              {activeSection === 'courses' && (
+                <div>
+                  <h2 className="text-xl font-semibold text-white mb-4">Completed Courses</h2>
+                  <p className="text-sm text-gray-400 mb-6">
+                    Mark the courses you've completed. This helps unlock skills and improve matching.
+                  </p>
+                  {availableCourses.length === 0 ? (
+                    <div className="text-center py-12 text-gray-400">
+                      No courses available. Make sure your major is set in basic info.
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                      {availableCourses.map((course) => (
+                        <button
+                          key={course.id}
+                          onClick={() => handleCourseToggle(course.id)}
+                          className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                            courses.includes(course.id)
+                              ? 'bg-[#dc2626]/20 border-2 border-[#dc2626] text-white'
+                              : 'bg-black border border-gray-800 text-gray-400 hover:border-[#dc2626] hover:text-white'
+                          }`}
+                        >
+                          <div className="font-medium">{course.code} - {course.name}</div>
+                          {course.unlocks_skills && course.unlocks_skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {course.unlocks_skills.map((skill: string) => (
+                                <span
+                                  key={skill}
+                                  className="text-xs px-2 py-0.5 rounded bg-[#dc2626]/20 text-[#dc2626] border border-[#dc2626]/30"
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <p className="mt-4 text-xs text-gray-400">
+                    {courses.length} course{courses.length !== 1 ? 's' : ''} completed
+                  </p>
+                </div>
+              )}
+
+              {/* Availability Section */}
+              {activeSection === 'availability' && (
+                <div>
+                  <h2 className="text-xl font-semibold text-white mb-4">Weekly Availability</h2>
+                  <p className="text-sm text-gray-400 mb-6">
+                    How many hours per week can you dedicate to projects?
+                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-white mb-2">
+                        Hours per week: <span className="text-[#dc2626] font-bold">{availability}</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="5"
+                        max="40"
+                        step="5"
+                        value={availability}
+                        onChange={(e) => setAvailability(parseInt(e.target.value))}
+                        className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#dc2626]"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>5 hrs</span>
+                        <span>20 hrs</span>
+                        <span>40 hrs</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Specialization Section */}
+              {activeSection === 'specialization' && (
+                <div>
+                  <h2 className="text-xl font-semibold text-white mb-4">Specialization</h2>
+                  <p className="text-sm text-gray-400 mb-6">
+                    Choose your area of focus within your major.
+                  </p>
+                  {majorInfo ? (
+                    <div className="space-y-2">
+                      {majorInfo.specializations.map((spec) => (
+                        <button
+                          key={spec}
+                          onClick={() => setSpecialization(spec)}
+                          className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                            specialization === spec
+                              ? 'bg-[#dc2626] text-white border-2 border-[#b91c1c]'
+                              : 'bg-black border border-gray-800 text-gray-400 hover:border-[#dc2626] hover:text-white'
+                          }`}
+                        >
+                          {spec}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-gray-400">
+                      Major not set. Please update your basic info first.
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           </div>
         </div>
-      )}
-    </main>
+      </main>
+    </div>
   );
 }

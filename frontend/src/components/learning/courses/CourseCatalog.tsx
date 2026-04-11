@@ -2,19 +2,26 @@ import { useState, useMemo } from "react"
 import SectionTabs from "@/components/shared/SectionTabs"
 import CourseCard from "./CourseCard"
 import CourseDetailModal from "./CourseDetailModal"
-import { useCourses } from "@/hooks/useCourses"
+import { useProgress } from "@/hooks/useProgress"
 import type { UniversityCourse, Difficulty } from "@/types"
 
 const DIFFICULTIES: ("All" | Difficulty)[] = ["All", "Beginner", "Intermediate", "Advanced"]
 const YEARS = [0, 1, 2, 3, 4] // 0 = All
 
-export default function CourseCatalog() {
-  const { courses, loading } = useCourses()
+interface CourseCatalogProps {
+  courses: UniversityCourse[]
+  loading: boolean
+}
+
+export default function CourseCatalog({ courses, loading }: CourseCatalogProps) {
   const [uniTab, setUniTab]         = useState("Both")
   const [year, setYear]             = useState(0)
   const [diff, setDiff]             = useState<"All" | Difficulty>("All")
   const [search, setSearch]         = useState("")
   const [selected, setSelected]     = useState<UniversityCourse | null>(null)
+
+  // Load progress once at parent level instead of in every card
+  const { isComplete } = useProgress()
 
   const filtered = useMemo(() => courses.filter(c => {
     const matchUni  = uniTab === "Both" || c.university === uniTab
@@ -26,10 +33,11 @@ export default function CourseCatalog() {
     return matchUni && matchYear && matchDiff && matchQ
   }), [courses, uniTab, year, diff, search])
 
-  const tabsWithCount = ["Both", "JU", "HU"].map(label => ({
+  // Memoize tab counts to prevent recalculation on every render
+  const tabsWithCount = useMemo(() => ["Both", "JU", "HU"].map(label => ({
     label,
     count: courses.filter(c => label === "Both" || c.university === label).length,
-  }))
+  })), [courses])
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
@@ -95,7 +103,7 @@ export default function CourseCatalog() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
           gap: 10, padding: 16 }}>
           {filtered.map(c => (
-            <CourseCard key={c.id} course={c} onClick={setSelected} />
+            <CourseCard key={c.id} course={c} onClick={setSelected} isComplete={isComplete(c.id)} />
           ))}
         </div>
       ) : (
