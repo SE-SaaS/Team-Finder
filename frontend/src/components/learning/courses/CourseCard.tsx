@@ -1,10 +1,10 @@
-import ProgressBar from "@/components/shared/ProgressBar"
-import { useProgress } from "@/hooks/useProgress"
+import { memo } from "react"
 import type { UniversityCourse } from "@/types"
 
 interface CourseCardProps {
   course: UniversityCourse
   onClick: (course: UniversityCourse) => void
+  isComplete: boolean
 }
 
 const DIFF_STYLE: Record<string, { bg: string; color: string }> = {
@@ -19,9 +19,7 @@ const STATUS_ICON: Record<string, string> = {
   completed: "✅",
 }
 
-export default function CourseCard({ course, onClick }: CourseCardProps) {
-  const { isComplete } = useProgress()
-  const done = isComplete(course.id)
+function CourseCard({ course, onClick, isComplete: done }: CourseCardProps) {
   const diff = DIFF_STYLE[course.difficulty]
 
   return (
@@ -30,13 +28,33 @@ export default function CourseCard({ course, onClick }: CourseCardProps) {
       style={{
         background: "#1e1e1e",
         border: `1px solid ${done ? "#1a4f30" : "#2a2a2a"}`,
-        borderRadius: 8, padding: 12,
+        borderRadius: 8,
+        padding: 12,
         cursor: course.status === "locked" ? "not-allowed" : "pointer",
         opacity: course.status === "locked" ? 0.5 : 1,
-        transition: "all .14s",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        boxShadow: done
+          ? "0 4px 6px -1px rgba(62, 240, 122, 0.1), 0 2px 4px -1px rgba(62, 240, 122, 0.06)"
+          : "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
       }}
-      onMouseEnter={e => { if (course.status !== "locked") (e.currentTarget as HTMLDivElement).style.borderColor = "#363636" }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = done ? "#1a4f30" : "#2a2a2a" }}
+      onMouseEnter={e => {
+        if (course.status !== "locked") {
+          const el = e.currentTarget as HTMLDivElement
+          el.style.borderColor = done ? "#3ef07a" : "#363636"
+          el.style.transform = "translateY(-4px)"
+          el.style.boxShadow = done
+            ? "0 20px 25px -5px rgba(62, 240, 122, 0.2), 0 10px 10px -5px rgba(62, 240, 122, 0.1)"
+            : "0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)"
+        }
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLDivElement
+        el.style.borderColor = done ? "#1a4f30" : "#2a2a2a"
+        el.style.transform = "translateY(0)"
+        el.style.boxShadow = done
+          ? "0 4px 6px -1px rgba(62, 240, 122, 0.1), 0 2px 4px -1px rgba(62, 240, 122, 0.06)"
+          : "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+      }}
     >
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
@@ -84,3 +102,6 @@ export default function CourseCard({ course, onClick }: CourseCardProps) {
     </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders when filtering/searching
+export default memo(CourseCard)

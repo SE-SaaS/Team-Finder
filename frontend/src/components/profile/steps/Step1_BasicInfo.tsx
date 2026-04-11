@@ -62,7 +62,6 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
     const newErrors = validateStep1({
       major: data.major || '',
       specialization: data.specialization || '',
-      year: data.year || '',
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -167,47 +166,15 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
         )}
       </div>
 
-      {/* Year Dropdown */}
-      <div>
-        <label className="block text-sm font-medium text-white/70 mb-2">
-          Academic Year <span className="text-[#e8294a]">*</span>
-        </label>
-        <select
-          value={data.year || ''}
-          onChange={(e) => handleChange('year', e.target.value)}
-          className={`
-            w-full px-4 py-3 rounded-lg bg-[#0f0f18] border text-white
-            transition-all cursor-pointer
-            focus:outline-none focus:ring-2
-            ${
-              errors.year
-                ? 'border-[#e8294a] focus:ring-[#e8294a]/50'
-                : 'border-white/10 focus:border-[#4455ff] focus:ring-[#4455ff]/50'
-            }
-          `}
-        >
-          <option value="" className="bg-[#16161f]">Select your year</option>
-          <option value="1st" className="bg-[#16161f]">1st Year</option>
-          <option value="2nd" className="bg-[#16161f]">2nd Year</option>
-          <option value="3rd" className="bg-[#16161f]">3rd Year</option>
-          <option value="4th" className="bg-[#16161f]">4th Year</option>
-        </select>
-        {errors.year && (
-          <p className="mt-2 text-sm text-[#e8294a] flex items-center gap-1">
-            <span>⚠</span> {errors.year}
-          </p>
-        )}
-      </div>
-
       {/* Navigation */}
       <div className="flex justify-end pt-6">
         <button
           onClick={handleNext}
-          disabled={!data.major || !data.specialization || !data.year}
+          disabled={!data.major || !data.specialization}
           className={`
             px-8 py-3 rounded-lg font-semibold transition-all
             ${
-              data.major && data.specialization && data.year
+              data.major && data.specialization
                 ? 'bg-[#4455ff] text-white hover:bg-[#5566ff] shadow-[0_0_20px_rgba(68,85,255,0.3)] hover:shadow-[0_0_30px_rgba(68,85,255,0.5)]'
                 : 'bg-white/10 text-white/30 cursor-not-allowed'
             }
