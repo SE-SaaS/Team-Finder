@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team-Finder — Workflow Diagram</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d0d0d;
+      color: #e5e5e5;
+      min-height: 100vh;
+      padding: 40px 32px;
+    }
+
+    header {
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .section {
+      margin-bottom: 56px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 20px;
+      padding-left: 2px;
+    }
+
+    .diagram-wrap {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 6px;
+      padding: 36px 24px;
+      overflow-x: auto;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Override Mermaid SVG styles for monochrome look */
+    .mermaid svg {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Team-Finder — Workflow Diagram</h1>
+  <p>Core platform flows · University of Jordan &amp; Hashemite University</p>
+</header>
+
+<!-- ── 1. Core Matching Flow ─────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">01 · Core Matching Flow</div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    A([User]) --> B[First Input\nValidator]
+    B --> C{Valid?}
+    C -- No --> D[Enter Skills\n& Availability]
+    D --> C
+    C -- Yes --> E[Project Views]
+    E --> F((Project\nSelector))
+    F --> G{Cosine\nAlgo}
+    G --> H((Pj Skills =\nSt Skills))
+    H --> I{Valid?}
+    I -- If Not Valid --> D
+    I -- Valid --> J[Join Team]
+
+    style A fill:#1a1a1a,stroke:#444,color:#ccc
+    style B fill:#1a1a1a,stroke:#444,color:#ccc
+    style C fill:#1a1a1a,stroke:#444,color:#ccc
+    style D fill:#1a1a1a,stroke:#333,color:#999,stroke-dasharray:4 3
+    style E fill:#1a1a1a,stroke:#444,color:#ccc
+    style F fill:#1a1a1a,stroke:#444,color:#ccc
+    style G fill:#1a1a1a,stroke:#444,color:#ccc
+    style H fill:#1a1a1a,stroke:#444,color:#ccc
+    style I fill:#1a1a1a,stroke:#444,color:#ccc
+    style J fill:#1a1a1a,stroke:#666,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- ── 2. Profile Setup Flow ─────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">02 · Profile Setup (7-Step Wizard)</div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    S1[Step 1\nUniversity & Major] --> S2[Step 2\nSelect Courses]
+    S2 --> S3[Step 3\nGitHub Import]
+    S3 --> S4[Step 4\nSkill Selection]
+    S4 --> S5[Step 5\nAssessments]
+    S5 --> S6[Step 6\nAvailability]
+    S6 --> S7[Step 7\nBio & Avatar]
+    S7 --> SUB[Submit\nto Supabase]
+    SUB --> DASH([Dashboard])
+
+    S3 -.->|auto-detect skills| S4
+
+    style S1 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S2 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S3 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S4 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S5 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S6 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style S7 fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style SUB fill:#1a1a1a,stroke:#555,color:#ccc
+    style DASH fill:#1a1a1a,stroke:#666,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- ── 3. AI Chat Agent Flow ─────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">03 · AI Chat Agent</div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    U([User Message]) --> API[POST /api/chat\nFastAPI]
+    API --> AG((LangGraph\nAgent))
+    AG --> RD{Read\nor Write?}
+    RD -- Read --> SQL[SQL Toolkit\nAll Tables]
+    RD -- Write --> WT[Write Tools\nuser_courses\nuser_skills]
+    SQL --> DB[(Supabase\nPostgres)]
+    WT --> DB
+    DB --> AG
+    AG --> R([Response])
+
+    style U fill:#1a1a1a,stroke:#444,color:#ccc
+    style API fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style AG fill:#1a1a1a,stroke:#555,color:#ccc
+    style RD fill:#1a1a1a,stroke:#444,color:#ccc
+    style SQL fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style WT fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style DB fill:#1a1a1a,stroke:#555,color:#ccc
+    style R fill:#1a1a1a,stroke:#666,color:#fff
+    </div>
+  </div>
+</div>
+
+<!-- ── 4. Data Pipeline ───────────────────────────────────────────────── -->
+<div class="section">
+  <div class="section-label">04 · External Data Pipeline</div>
+  <div class="diagram-wrap">
+    <div class="mermaid">
+flowchart LR
+    CLI([Prefetcher CLI]) --> SRC{Sources}
+    SRC --> GH[GitHub]
+    SRC --> GL[GitLab]
+    SRC --> KG[Kaggle]
+    SRC --> HF[HuggingFace]
+    SRC --> CT[CTFtime\n+9 more]
+    GH & GL & KG & HF & CT --> SI[Infer Skills]
+    SI --> GEN[Generate SQL]
+    GEN --> DB[(projects table\nSupabase)]
+
+    style CLI fill:#1a1a1a,stroke:#444,color:#ccc
+    style SRC fill:#1a1a1a,stroke:#444,color:#ccc
+    style GH fill:#1a1a1a,stroke:#3a3a3a,color:#999
+    style GL fill:#1a1a1a,stroke:#3a3a3a,color:#999
+    style KG fill:#1a1a1a,stroke:#3a3a3a,color:#999
+    style HF fill:#1a1a1a,stroke:#3a3a3a,color:#999
+    style CT fill:#1a1a1a,stroke:#3a3a3a,color:#999
+    style SI fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style GEN fill:#1a1a1a,stroke:#3a3a3a,color:#ccc
+    style DB fill:#1a1a1a,stroke:#555,color:#fff
+    </div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      background: "#141414",
+      primaryColor: "#1a1a1a",
+      primaryTextColor: "#cccccc",
+      primaryBorderColor: "#444444",
+      lineColor: "#555555",
+      secondaryColor: "#1a1a1a",
+      tertiaryColor: "#1a1a1a",
+      edgeLabelBackground: "#141414",
+      fontSize: "14px",
+    },
+    flowchart: {
+      curve: "basis",
+      padding: 20,
+    },
+  });
+</script>
+
+</body>
+</html>

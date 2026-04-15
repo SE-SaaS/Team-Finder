@@ -4,87 +4,80 @@
 
 ## Overview
 
-Team-Finder is a university student team-matching platform that helps students find project collaborators based on skills, courses, and availability. The system includes profile management, skill assessment, project importing, and team matching capabilities.
+Team-Finder is a university student team-matching platform for the University of Jordan and Hashemite University. Students build profiles with completed courses, skills, and availability, and a client-side scoring engine surfaces the best-matched collaborators. An AI assistant (LangGraph + Claude) lets students explore and update their data through natural conversation.
 
 ## Documentation Structure
 
-### 📚 Core Documentation
+### Core Documentation
 
-1. **[Function Documentation](./FUNCTION_DOCUMENTATION.md)**
-   - Comprehensive documentation of every function in the repository
-   - Organized by module and functionality
-   - Includes parameters, return types, and usage examples
-   - Documents data flows and database operations
+1. **[BLUEPRINT.md](./BLUEPRINT.md)** — Full architecture reference. Start here.
+   - Technology stack and repo layout
+   - Request flow, page inventory, API routes
+   - Match algorithm, profile wizard, AI agent
+   - Database schema, security model, design decisions
 
-2. **[Workflow Diagram](./WORKFLOW_DIAGRAM.md)**
-   - Visual representations of system architecture
+2. **[Function Documentation](./FUNCTION_DOCUMENTATION.md)** — Per-function API reference
+   - Organized by module
+   - Parameters, return types, usage examples
+   - Data flows and database operations
+
+3. **[Workflow Diagram](./WORKFLOW_DIAGRAM.md)** — Visual architecture
    - Sequence diagrams for key user flows
    - Data pipeline visualizations
    - Component interaction maps
 
-### 📖 Additional Documentation
+### Additional Documentation
 
-3. **[Bug Fixes - Skill System](./BUG_FIXES_SKILL_SYSTEM.md)**
-   - Historical bug fixes and solutions
-   - Skill system improvements
+4. **[Bug Fixes - Skill System](./BUG_FIXES_SKILL_SYSTEM.md)** — Historical fixes and skill system improvements
 
-4. **[Skills Update README](./SKILLS_UPDATE_README.md)**
-   - Skill system update documentation
+5. **[Skills Update README](./SKILLS_UPDATE_README.md)** — Skill data update notes
 
-5. **[Apply Migration](./APPLY_MIGRATION.md)**
-   - Database migration instructions
+6. **[Apply Migration](./APPLY_MIGRATION.md)** — Database migration instructions
 
 ## Quick Start
 
 ### For Developers
 
-1. **Understanding the codebase**: Start with [Function Documentation](./FUNCTION_DOCUMENTATION.md)
-2. **Understanding workflows**: Review [Workflow Diagram](./WORKFLOW_DIAGRAM.md)
-3. **Setting up**: Check main README.md for environment setup
+1. **Understanding the architecture**: Start with [BLUEPRINT.md](./BLUEPRINT.md)
+2. **Understanding function details**: Review [Function Documentation](./FUNCTION_DOCUMENTATION.md)
+3. **Understanding workflows**: Review [Workflow Diagram](./WORKFLOW_DIAGRAM.md)
+4. **Setting up**: Check [root README.md](../README.md) for environment setup
 
 ### For Contributors
 
-1. Read the function documentation to understand existing patterns
-2. Follow the established architecture shown in workflow diagrams
-3. Maintain documentation when adding new features
+1. Read the Blueprint to understand the overall architecture and security rules
+2. Follow the patterns in FUNCTION_DOCUMENTATION.md when adding new code
+3. Update BLUEPRINT.md (routes, schema tables) when adding pages, API routes, or migrations
 
 ## System Architecture
 
 ### Technology Stack
 
-- **Frontend**: Next.js 14, React, TypeScript, TailwindCSS
-- **Backend**: Next.js API Routes, Supabase
-- **Database**: PostgreSQL (via Supabase)
-- **Authentication**: Supabase Auth
-- **Data Generation**: Node.js, TypeScript
-- **External APIs**: GitHub, GitLab, Kaggle, HuggingFace, LeetCode, and more
+- **Frontend**: Next.js 14 (App Router), React 18, TypeScript, TailwindCSS, Framer Motion
+- **Backend**: Python FastAPI + LangGraph AI agent (Claude Sonnet)
+- **Database**: PostgreSQL via Supabase (RLS on all tables)
+- **Authentication**: Supabase Auth (university email gated)
+- **Data Generation**: TypeScript CLI seeding from 13+ external APIs
 
 ### Project Structure
 
 ```
 Team-Finder/
-├── frontend/                  # Next.js frontend application
-│   ├── src/
-│   │   ├── app/              # Next.js app router pages
-│   │   │   ├── api/          # API routes
-│   │   │   ├── auth/         # Authentication pages
-│   │   │   ├── dashboard/    # Dashboard page
-│   │   │   └── profile/      # Profile wizard
-│   │   ├── components/       # React components
-│   │   ├── contexts/         # React contexts
-│   │   ├── lib/              # Utilities and helpers
-│   │   ├── utils/            # Utility functions
-│   │   ├── types/            # TypeScript types
-│   │   └── data/             # Static data
-│   └── public/               # Static assets
-├── backend/                   # Backend utilities
-│   └── migrate_user_metadata.js
-├── data/                      # Data generation tools
-│   └── generators/
-│       ├── prefetcher-ts/    # Project prefetcher
-│       └── api-wrapper/      # External API wrapper
-├── supabase/                  # Supabase configuration
-│   └── migrations/           # Database migrations
+├── frontend/                  # Next.js 14 app (port 3002)
+│   └── src/
+│       ├── app/               # App Router pages + API routes
+│       ├── algorithm/         # Client-side match scoring engine
+│       ├── components/        # React components (wizard, dashboard, …)
+│       ├── contexts/          # AuthContext
+│       ├── lib/               # Supabase clients, validation helpers
+│       └── constants/         # Match algorithm weights
+├── backend/                   # FastAPI + LangGraph AI agent (port 8000)
+│   ├── app/                   # Routes, schemas, services
+│   └── ai_agent/              # LangGraph agent + system prompt
+├── supabase/
+│   └── migrations/            # SQL migration files
+├── data/
+│   └── generators/            # TypeScript CLI for seeding external projects
 └── docs/                      # Documentation (this folder)
 ```
 
@@ -124,21 +117,18 @@ Team-Finder/
 - Major-specific project curation
 - Automated categorization and tagging
 
-## API Documentation
+## API Reference
 
-### Authentication Endpoints
+### Next.js API Routes (Frontend)
 
-- `POST /api/auth/signup` - User registration
-- `GET /auth/callback` - OAuth callback
+- `POST /api/auth/signup` — User registration (sets university metadata)
+- `GET /api/profile` — Get current user's profile
+- `POST /api/profile` — Create or update user profile
+- `GET /api/courses/[university]/[major]` — Get courses for the profile wizard
 
-### Profile Endpoints
+### FastAPI Backend
 
-- `GET /api/profile` - Get current user's profile
-- `POST /api/profile` - Create/update user profile
-
-### Course Endpoints
-
-- `GET /api/courses/[university]/[major]` - Get courses by university and major
+- `POST /api/chat` — AI assistant chat endpoint (LangGraph + Claude Sonnet)
 
 ## Database Schema
 
@@ -332,12 +322,11 @@ When adding new code:
 ## Roadmap
 
 ### Planned Features
-- Team matching algorithm
-- Real-time messaging
-- Project proposals
-- Skill endorsements
-- Team analytics
-- External project integration
+- Real-time messaging between matched students
+- Project proposals and team invitations
+- Skill endorsements from teammates
+- Team analytics dashboard
+- Expanded external project integrations
 
 ## Support
 
@@ -358,7 +347,9 @@ See [LICENSE](../LICENSE) file in root directory.
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
+| [BLUEPRINT.md](./BLUEPRINT.md) | Full architecture reference | Developers, Architects |
 | [FUNCTION_DOCUMENTATION.md](./FUNCTION_DOCUMENTATION.md) | Comprehensive function reference | Developers, Contributors |
+| [FUNCTION_INVENTORY.md](./FUNCTION_INVENTORY.md) | Flat list of all functions | Developers |
 | [WORKFLOW_DIAGRAM.md](./WORKFLOW_DIAGRAM.md) | Visual architecture and flows | Developers, Architects |
 | [BUG_FIXES_SKILL_SYSTEM.md](./BUG_FIXES_SKILL_SYSTEM.md) | Historical bug fixes | Developers |
 | [SKILLS_UPDATE_README.md](./SKILLS_UPDATE_README.md) | Skill system updates | Developers |
@@ -366,6 +357,6 @@ See [LICENSE](../LICENSE) file in root directory.
 
 ---
 
-**Last Updated**: 2026-04-08  
-**Version**: 1.0.0  
+**Last Updated**: 2026-04-15
+**Version**: 1.1.0
 **Maintainer**: Team-Finder Development Team
