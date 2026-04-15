@@ -99,7 +99,7 @@ export default function ProfileEditPage() {
           .order('semester', { ascending: true })
           .limit(1000);
 
-        console.log(`Loaded ${coursesDb?.length || 0} courses for year ${year}`);
+       
         setAvailableCourses(coursesDb || []);
       } catch (error) {
         console.error('Error loading courses:', error);
