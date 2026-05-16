@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team-Finder — Interactive Workflow</title>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #111111;
+      --surface2: #161616;
+      --border: #1e1e1e;
+      --border2: #2a2a2a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --text-muted: #444;
+      --accent: #4a9eff;
+      --accent-glow: rgba(74,158,255,0.18);
+      --accent-dim: rgba(74,158,255,0.06);
+      --green: #3ddc84;
+      --node: #161616;
+      --node-border: #333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Dot grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, #252525 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 28px 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .hdr-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #fff;
+    }
+
+    .hdr-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      background: rgba(61,220,132,0.06);
+      border: 1px solid rgba(61,220,132,0.18);
+      padding: 5px 12px;
+      border-radius: 3px;
+    }
+
+    .badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 1px;
+      margin-bottom: 16px;
+      background: var(--border);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 3px;
+      width: fit-content;
+    }
+
+    .tab-btn {
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 18px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--text-dim); }
+
+    .tab-btn.active {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border2);
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tool-btn {
+      font-family: inherit;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+      padding: 5px 12px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s;
+    }
+
+    .tool-btn:hover {
+      border-color: #3a3a3a;
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    .tool-btn.danger:hover {
+      border-color: rgba(255,80,80,0.4);
+      color: #ff6060;
+    }
+
+    .sep { width: 1px; height: 18px; background: var(--border2); margin: 0 2px; }
+
+    .hints {
+      margin-left: auto;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .hint-item {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    kbd {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+
+    /* ── Path label ── */
+    .path-bar {
+      height: 24px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .path-info {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+
+    .path-info.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Diagram panel ── */
+    .diagram-panel {
+      display: none;
+    }
+
+    .diagram-panel.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .cy-shell {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Corner label */
+    .cy-shell::before {
+      content: attr(data-label);
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .cy-canvas {
+      width: 100%;
+      height: 540px;
+    }
+
+    /* ── Label editor ── */
+    #editor-overlay {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      transform: translate(-50%, -50%);
+      pointer-events: all;
+    }
+
+    #editor-wrap {
+      background: #0d1117;
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      padding: 2px;
+      box-shadow: 0 0 0 1px rgba(74,158,255,0.1), 0 8px 32px rgba(0,0,0,0.8), 0 0 20px var(--accent-glow);
+    }
+
+    #editor-input {
+      font-family: inherit;
+      font-size: 11px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      padding: 7px 12px;
+      outline: none;
+      min-width: 140px;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+
+    #editor-hint {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 3px 10px 6px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      color: var(--text-dim);
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      padding: 8px 16px;
+      border-radius: 4px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all 0.18s;
+      pointer-events: none;
+      z-index: 3000;
+    }
+
+    #toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #toast.ok { border-color: rgba(61,220,132,0.25); color: var(--green); }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <header>
+    <div>
+      <div class="hdr-title">Team-Finder — Workflow Diagram</div>
+      <div class="hdr-sub">Core platform flows · University of Jordan &amp; Hashemite University</div>
+    </div>
+    <span class="badge">Interactive</span>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="0">01 · Core Matching</button>
+    <button class="tab-btn" data-tab="1">02 · Profile Setup</button>
+    <button class="tab-btn" data-tab="2">03 · AI Chat Agent</button>
+    <button class="tab-btn" data-tab="3">04 · Data Pipeline</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="tool-btn" id="btn-fit">Fit</button>
+    <button class="tool-btn" id="btn-zin">Zoom +</button>
+    <button class="tool-btn" id="btn-zout">Zoom −</button>
+    <div class="sep"></div>
+    <button class="tool-btn" id="btn-clear">Clear Highlight</button>
+    <button class="tool-btn" id="btn-relayout">Reset Layout</button>
+    <div class="hints">
+      <span class="hint-item"><kbd>click</kbd> highlight path</span>
+      <span class="hint-item"><kbd>dbl-click</kbd> edit label</span>
+      <span class="hint-item"><kbd>drag</kbd> move node</span>
+    </div>
+  </div>
+
+  <div class="path-bar">
+    <span class="path-info" id="path-info">● path highlighted — click node again or press Clear Highlight to reset</span>
+  </div>
+
+  <!-- 4 diagram panels -->
+  <div class="diagram-panel active" data-panel="0">
+    <div class="cy-shell" data-label="01 · Core Matching Flow">
+      <div class="cy-canvas" id="cy0"></div>
+    </div>
+  </div>
+  <div class="diagram-panel" data-panel="1">
+    <div class="cy-shell" data-label="02 · Profile Setup — 7-Step Wizard">
+      <div class="cy-canvas" id="cy1"></div>
+    </div>
+  </div>
+  <div class="diagram-panel" data-panel="2">
+    <div class="cy-shell" data-label="03 · AI Chat Agent">
+      <div class="cy-canvas" id="cy2"></div>
+    </div>
+  </div>
+  <div class="diagram-panel" data-panel="3">
+    <div class="cy-shell" data-label="04 · External Data Pipeline">
+      <div class="cy-canvas" id="cy3"></div>
+    </div>
+  </div>
+
+</div><!-- .app -->
+
+<!-- Label editor -->
+<div id="editor-overlay">
+  <div id="editor-wrap">
+    <input id="editor-input" type="text" autocomplete="off" spellcheck="false" />
+    <div id="editor-hint">Enter · confirm &nbsp;·&nbsp; Esc · cancel</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// Register dagre layout
+// ─────────────────────────────────────────────────────────────────
+cytoscape.use(cytoscapeDagre);
+
+// ─────────────────────────────────────────────────────────────────
+// Graph data
+// ─────────────────────────────────────────────────────────────────
+const DIAGRAMS = [
+
+  // ── 0: Core Matching Flow ────────────────────────────────────
+  {
+    nodes: [
+      { id:'A',  label:'User',                   kind:'pill'   },
+      { id:'B',  label:'First Input\nValidator', kind:'rect'   },
+      { id:'C',  label:'Valid?',                 kind:'diamond'},
+      { id:'D',  label:'Enter Skills\n& Availability', kind:'dash' },
+      { id:'E',  label:'Project Views',          kind:'rect'   },
+      { id:'F',  label:'Project\nSelector',      kind:'circle' },
+      { id:'G',  label:'Cosine\nAlgo',           kind:'diamond'},
+      { id:'H',  label:'Pj Skills =\nSt Skills', kind:'circle' },
+      { id:'I',  label:'Valid?',                 kind:'diamond'},
+      { id:'J',  label:'Join Team',              kind:'end'    },
+    ],
+    edges: [
+      { id:'e1',  s:'A', t:'B' },
+      { id:'e2',  s:'B', t:'C' },
+      { id:'e3',  s:'C', t:'D', label:'No'  },
+      { id:'e4',  s:'D', t:'C' },
+      { id:'e5',  s:'C', t:'E', label:'Yes' },
+      { id:'e6',  s:'E', t:'F' },
+      { id:'e7',  s:'F', t:'G' },
+      { id:'e8',  s:'G', t:'H' },
+      { id:'e9',  s:'H', t:'I' },
+      { id:'e10', s:'I', t:'D', label:'Not Valid' },
+      { id:'e11', s:'I', t:'J', label:'Valid' },
+    ]
+  },
+
+  // ── 1: Profile Setup ────────────────────────────────────────
+  {
+    nodes: [
+      { id:'S1',   label:'Step 1\nUniversity & Major', kind:'rect' },
+      { id:'S2',   label:'Step 2\nSelect Courses',     kind:'rect' },
+      { id:'S3',   label:'Step 3\nGitHub Import',      kind:'rect' },
+      { id:'S4',   label:'Step 4\nSkill Selection',    kind:'rect' },
+      { id:'S5',   label:'Step 5\nAssessments',        kind:'rect' },
+      { id:'S6',   label:'Step 6\nAvailability',       kind:'rect' },
+      { id:'S7',   label:'Step 7\nBio & Avatar',       kind:'rect' },
+      { id:'SUB',  label:'Submit\nto Supabase',        kind:'rect' },
+      { id:'DASH', label:'Dashboard',                  kind:'end'  },
+    ],
+    edges: [
+      { id:'e1', s:'S1',  t:'S2' },
+      { id:'e2', s:'S2',  t:'S3' },
+      { id:'e3', s:'S3',  t:'S4' },
+      { id:'e4', s:'S4',  t:'S5' },
+      { id:'e5', s:'S5',  t:'S6' },
+      { id:'e6', s:'S6',  t:'S7' },
+      { id:'e7', s:'S7',  t:'SUB' },
+      { id:'e8', s:'SUB', t:'DASH' },
+      { id:'e9', s:'S3',  t:'S4', label:'auto-detect skills', dash:true },
+    ]
+  },
+
+  // ── 2: AI Chat Agent ─────────────────────────────────────────
+  {
+    nodes: [
+      { id:'U',   label:'User Message',           kind:'pill'   },
+      { id:'API', label:'POST /api/chat\nFastAPI', kind:'rect'   },
+      { id:'AG',  label:'LangGraph\nAgent',        kind:'circle' },
+      { id:'RD',  label:'Read\nor Write?',         kind:'diamond'},
+      { id:'SQL', label:'SQL Toolkit\nAll Tables', kind:'rect'   },
+      { id:'WT',  label:'Write Tools\nuser_courses\nuser_skills', kind:'rect' },
+      { id:'DB',  label:'Supabase\nPostgres',      kind:'db'     },
+      { id:'R',   label:'Response',                kind:'end'    },
+    ],
+    edges: [
+      { id:'e1', s:'U',   t:'API' },
+      { id:'e2', s:'API', t:'AG'  },
+      { id:'e3', s:'AG',  t:'RD'  },
+      { id:'e4', s:'RD',  t:'SQL', label:'Read'  },
+      { id:'e5', s:'RD',  t:'WT',  label:'Write' },
+      { id:'e6', s:'SQL', t:'DB'  },
+      { id:'e7', s:'WT',  t:'DB'  },
+      { id:'e8', s:'DB',  t:'AG'  },
+      { id:'e9', s:'AG',  t:'R'   },
+    ]
+  },
+
+  // ── 3: Data Pipeline ─────────────────────────────────────────
+  {
+    nodes: [
+      { id:'CLI', label:'Prefetcher CLI',          kind:'pill'   },
+      { id:'SRC', label:'Sources',                 kind:'diamond'},
+      { id:'GH',  label:'GitHub',                  kind:'src'    },
+      { id:'GL',  label:'GitLab',                  kind:'src'    },
+      { id:'KG',  label:'Kaggle',                  kind:'src'    },
+      { id:'HF',  label:'HuggingFace',             kind:'src'    },
+      { id:'CT',  label:'CTFtime\n+9 more',        kind:'src'    },
+      { id:'SI',  label:'Infer Skills',            kind:'rect'   },
+      { id:'GEN', label:'Generate SQL',            kind:'rect'   },
+      { id:'DB',  label:'projects table\nSupabase',kind:'db'     },
+    ],
+    edges: [
+      { id:'e1',  s:'CLI', t:'SRC' },
+      { id:'e2',  s:'SRC', t:'GH'  },
+      { id:'e3',  s:'SRC', t:'GL'  },
+      { id:'e4',  s:'SRC', t:'KG'  },
+      { id:'e5',  s:'SRC', t:'HF'  },
+      { id:'e6',  s:'SRC', t:'CT'  },
+      { id:'e7',  s:'GH',  t:'SI'  },
+      { id:'e8',  s:'GL',  t:'SI'  },
+      { id:'e9',  s:'KG',  t:'SI'  },
+      { id:'e10', s:'HF',  t:'SI'  },
+      { id:'e11', s:'CT',  t:'SI'  },
+      { id:'e12', s:'SI',  t:'GEN' },
+      { id:'e13', s:'GEN', t:'DB'  },
+    ]
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────
+// Cytoscape stylesheet
+// ─────────────────────────────────────────────────────────────────
+const CY_STYLE = [
+  // ── Base node ──
+  {
+    selector: 'node',
+    style: {
+      'background-color': '#161616',
+      'border-color': '#333',
+      'border-width': 1,
+      'color': '#b8b8b8',
+      'label': 'data(label)',
+      'text-valign': 'center',
+      'text-halign': 'center',
+      'font-family': 'SF Mono, Cascadia Code, Fira Code, Consolas, monospace',
+      'font-size': '10.5px',
+      'text-wrap': 'wrap',
+      'text-max-width': '110px',
+      'shape': 'roundrectangle',
+      'padding': '12px',
+      'min-width': '70px',
+      'min-height': '32px',
+      'transition-property': 'background-color, border-color, border-width, opacity',
+      'transition-duration': '0.15s',
+    }
+  },
+  // ── pill (start) ──
+  {
+    selector: 'node[kind="pill"]',
+    style: {
+      'shape': 'roundrectangle',
+      'border-color': '#3a3a3a',
+      'color': '#999',
+    }
+  },
+  // ── end node ──
+  {
+    selector: 'node[kind="end"]',
+    style: {
+      'shape': 'roundrectangle',
+      'border-color': '#555',
+      'border-width': 1.5,
+      'color': '#e0e0e0',
+    }
+  },
+  // ── diamond ──
+  {
+    selector: 'node[kind="diamond"]',
+    style: {
+      'shape': 'diamond',
+      'min-width': '80px',
+      'min-height': '55px',
+      'font-size': '10px',
+    }
+  },
+  // ── circle ──
+  {
+    selector: 'node[kind="circle"]',
+    style: {
+      'shape': 'ellipse',
+      'min-width': '80px',
+      'min-height': '60px',
+    }
+  },
+  // ── db (barrel) ──
+  {
+    selector: 'node[kind="db"]',
+    style: {
+      'shape': 'barrel',
+      'border-color': '#555',
+      'border-width': 1.5,
+      'color': '#e0e0e0',
+      'min-width': '90px',
+      'min-height': '55px',
+    }
+  },
+  // ── dash (dashed border) ──
+  {
+    selector: 'node[kind="dash"]',
+    style: {
+      'border-style': 'dashed',
+      'border-color': '#2a2a2a',
+      'color': '#666',
+    }
+  },
+  // ── source node (dim) ──
+  {
+    selector: 'node[kind="src"]',
+    style: {
+      'border-color': '#2a2a2a',
+      'color': '#666',
+    }
+  },
+
+  // ── Base edge ──
+  {
+    selector: 'edge',
+    style: {
+      'width': 1,
+      'line-color': '#333',
+      'target-arrow-color': '#444',
+      'target-arrow-shape': 'triangle',
+      'arrow-scale': 0.75,
+      'curve-style': 'bezier',
+      'label': 'data(label)',
+      'font-family': 'SF Mono, Cascadia Code, Fira Code, monospace',
+      'font-size': '9px',
+      'color': '#555',
+      'text-background-color': '#111',
+      'text-background-opacity': 1,
+      'text-background-padding': '3px',
+      'text-border-color': '#222',
+      'text-border-opacity': 1,
+      'text-border-width': 1,
+      'transition-property': 'line-color, target-arrow-color, width, opacity',
+      'transition-duration': '0.15s',
+    }
+  },
+  // ── dashed edge ──
+  {
+    selector: 'edge[?dash]',
+    style: {
+      'line-style': 'dashed',
+      'line-dash-pattern': [6, 4],
+      'line-color': '#2a2a2a',
+      'target-arrow-color': '#333',
+    }
+  },
+
+  // ── HIGHLIGHTED node ──
+  {
+    selector: 'node.hl',
+    style: {
+      'background-color': '#0a1929',
+      'border-color': '#4a9eff',
+      'border-width': 3,
+      'color': '#ffffff',
+      'overlay-color': '#4a9eff',
+      'overlay-padding': 6,
+      'overlay-opacity': 0.08,
+    }
+  },
+  // ── HIGHLIGHTED edge ──
+  {
+    selector: 'edge.hl',
+    style: {
+      'line-color': '#4a9eff',
+      'target-arrow-color': '#4a9eff',
+      'width': 2.5,
+      'color': '#7ab8ff',
+    }
+  },
+  // ── DIMMED ──
+  {
+    selector: '.dim',
+    style: { 'opacity': 0.12 }
+  },
+  // ── selected ──
+  {
+    selector: 'node:selected',
+    style: {
+      'border-color': '#6ab0ff',
+      'border-width': 2,
+    }
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────
+// Utils
+// ─────────────────────────────────────────────────────────────────
+let toastTimer;
+
+function toast(msg, ok = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = ok ? 'visible ok' : 'visible';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ''; }, 2000);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Build elements array from shorthand data
+// ─────────────────────────────────────────────────────────────────
+function buildElements(data) {
+  const nodes = data.nodes.map(n => ({
+    data: { id: n.id, label: n.label, kind: n.kind }
+  }));
+  const edges = data.edges.map(e => ({
+    data: {
+      id: e.id,
+      source: e.s,
+      target: e.t,
+      label: e.label || '',
+      dash: e.dash ? true : undefined
+    }
+  }));
+  return [...nodes, ...edges];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Cytoscape instances
+// ─────────────────────────────────────────────────────────────────
+const cyMap = {};
+const initDone = [false, false, false, false];
+let activeIdx = 0;
+
+function getActiveCy() { return cyMap[activeIdx]; }
+
+// ─── Highlight logic ──────────────────────────────────────────────
+let hlNode = null;
+
+function highlight(cy, node) {
+  clearHighlight(cy, true);
+  hlNode = node;
+
+  const eles = cy.elements();
+  eles.addClass('dim');
+
+  // The node itself + its connected edges + neighbor nodes
+  const hood = node.closedNeighborhood();
+  hood.removeClass('dim').addClass('hl');
+  node.removeClass('dim').addClass('hl');
+
+  document.getElementById('path-info').classList.add('visible');
+}
+
+function clearHighlight(cy, silent = false) {
+  cy.elements().removeClass('dim').removeClass('hl');
+  hlNode = null;
+  if (!silent) {
+    document.getElementById('path-info').classList.remove('visible');
+  }
+}
+
+// ─── Label editor ─────────────────────────────────────────────────
+let editNode = null;
+let editCy   = null;
+
+function openEditor(cy, node) {
+  editNode = node;
+  editCy   = cy;
+
+  const pos  = node.renderedPosition();
+  const rect = cy.container().getBoundingClientRect();
+  const overlay = document.getElementById('editor-overlay');
+  const input   = document.getElementById('editor-input');
+
+  overlay.style.left = (rect.left + pos.x) + 'px';
+  overlay.style.top  = (rect.top  + pos.y) + 'px';
+  overlay.style.display = 'block';
+
+  // Show current label; replace literal newline with space for editing comfort
+  input.value = node.data('label').replace(/\n/g, ' / ');
+  input.focus();
+  input.select();
+}
+
+function commitEditor() {
+  const input = document.getElementById('editor-input');
+  const val   = input.value.trim();
+  if (val && editNode) {
+    // Turn ' / ' back into newline
+    const newLabel = val.replace(/\s*\/\s*/g, '\n');
+    editNode.data('label', newLabel);
+    toast('Label updated ✓', true);
+  }
+  closeEditor();
+}
+
+function closeEditor() {
+  document.getElementById('editor-overlay').style.display = 'none';
+  editNode = null;
+  editCy   = null;
+}
+
+document.getElementById('editor-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter')  { e.preventDefault(); commitEditor(); }
+  if (e.key === 'Escape') { closeEditor(); }
+});
+
+document.getElementById('editor-input').addEventListener('blur', () => {
+  // Small delay so Enter key can commit first
+  setTimeout(closeEditor, 120);
+});
+
+// ─── Init a single diagram ─────────────────────────────────────────
+function initDiagram(idx) {
+  if (initDone[idx]) return;
+  initDone[idx] = true;
+
+  const cy = cytoscape({
+    container: document.getElementById(`cy${idx}`),
+    elements:  buildElements(DIAGRAMS[idx]),
+    style:     CY_STYLE,
+    layout: {
+      name:     'dagre',
+      rankDir:  'LR',
+      padding:  50,
+      nodeSep:  55,
+      rankSep:  85,
+      edgeSep:  15,
+      animate:  false,
+    },
+    minZoom: 0.25,
+    maxZoom: 4,
+    selectionType: 'single',
+  });
+
+  // ── Click node → highlight ──
+  cy.on('tap', 'node', function(evt) {
+    const node = evt.target;
+    if (hlNode && hlNode.id() === node.id()) {
+      clearHighlight(cy);
+    } else {
+      highlight(cy, node);
+    }
+  });
+
+  // ── Click background → clear ──
+  cy.on('tap', function(evt) {
+    if (evt.target === cy) clearHighlight(cy);
+  });
+
+  // ── Double-click → edit label ──
+  cy.on('dblclick', 'node', function(evt) {
+    openEditor(cy, evt.target);
+  });
+
+  cyMap[idx] = cy;
+}
+
+// ─── Activate tab ──────────────────────────────────────────────────
+function activateTab(idx) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.diagram-panel').forEach((p, i) => {
+    p.classList.toggle('active', i === idx);
+  });
+
+  // Clear highlight in old cy
+  if (cyMap[activeIdx]) clearHighlight(cyMap[activeIdx]);
+
+  activeIdx = idx;
+  initDiagram(idx);
+}
+
+// ─── Toolbar ──────────────────────────────────────────────────────
+document.getElementById('btn-fit').addEventListener('click', () => {
+  const cy = getActiveCy();
+  if (cy) cy.fit(undefined, 50);
+});
+
+document.getElementById('btn-zin').addEventListener('click', () => {
+  const cy = getActiveCy();
+  if (!cy) return;
+  cy.zoom({ level: cy.zoom() * 1.25, renderedPosition: { x: cy.width()/2, y: cy.height()/2 } });
+});
+
+document.getElementById('btn-zout').addEventListener('click', () => {
+  const cy = getActiveCy();
+  if (!cy) return;
+  cy.zoom({ level: cy.zoom() * 0.8, renderedPosition: { x: cy.width()/2, y: cy.height()/2 } });
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  const cy = getActiveCy();
+  if (cy) clearHighlight(cy);
+});
+
+document.getElementById('btn-relayout').addEventListener('click', () => {
+  const cy = getActiveCy();
+  if (!cy) return;
+  clearHighlight(cy);
+  cy.layout({
+    name:     'dagre',
+    rankDir:  'LR',
+    padding:  50,
+    nodeSep:  55,
+    rankSep:  85,
+    edgeSep:  15,
+    animate:  true,
+    animationDuration: 350,
+    animationEasing: 'ease-in-out-cubic',
+  }).run();
+  toast('Layout reset');
+});
+
+// ─── Tab buttons ──────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+  btn.addEventListener('click', () => activateTab(i));
+});
+
+// ─── Boot ─────────────────────────────────────────────────────────
+activateTab(0);
+</script>
+</body>
+</html>
