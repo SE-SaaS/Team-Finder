@@ -49,7 +49,7 @@ export default function CourseCatalog({ courses, loading, defaultUniversity, def
   )
 
   return (
-    <div style={{ background: "#0c0c0c", minHeight: "100%", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ background: "transparent", minHeight: "100%", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
 
       {/* University Tabs */}
       <SectionTabs tabs={tabsWithCount} active={uniTab} onChange={setUniTab} />

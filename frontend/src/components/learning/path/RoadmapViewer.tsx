@@ -63,7 +63,7 @@ export default function RoadmapViewer({ roadmap }: RoadmapViewerProps) {
   const onNodeClick = useCallback(() => {}, []) // handled inside custom node
 
   return (
-    <div style={{ display: "flex", height: "100%", background: "#0c0c0c" }}>
+    <div style={{ display: "flex", height: "100%", background: "transparent" }}>
 
       {/* ReactFlow Canvas */}
       <div style={{ flex: 1 }}>
@@ -77,7 +77,7 @@ export default function RoadmapViewer({ roadmap }: RoadmapViewerProps) {
           minZoom={0.3}
           maxZoom={1.5}
           proOptions={{ hideAttribution: true }}
-          style={{ background: "#0c0c0c" }}
+          style={{ background: "transparent" }}
         >
           <Background
             variant={BackgroundVariant.Dots}

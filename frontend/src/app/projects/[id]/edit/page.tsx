@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
+import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -125,7 +126,8 @@ export default function EditProjectPage() {
 
   if (authLoading || (loading && !notFound && !forbidden)) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-[#8b949e]">Loading...</div>
       </div>
     );
@@ -133,7 +135,8 @@ export default function EditProjectPage() {
 
   if (forbidden) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-center">
           <p className="text-[#f85149] font-medium mb-2">Access Denied</p>
           <p className="text-[#8b949e] text-sm mb-4">You are not the owner of this project.</p>
@@ -145,7 +148,8 @@ export default function EditProjectPage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-center">
           <p className="text-[#8b949e] mb-4">Project not found</p>
           <Link href="/projects" className="text-[#58a6ff] hover:underline text-sm">← Back to Projects</Link>
@@ -155,7 +159,8 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
+    <div className="min-h-screen">
+      <BackgroundCanvas />
       {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">

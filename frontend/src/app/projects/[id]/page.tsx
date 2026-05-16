@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
 interface Project {
   id: string;
@@ -109,7 +110,8 @@ export default function ProjectDetailPage() {
 
   if (authLoading || loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-[#8b949e]">Loading...</div>
       </div>
     );
@@ -117,7 +119,8 @@ export default function ProjectDetailPage() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-center">
           <p className="text-[#8b949e] mb-4">Project not found</p>
           <Link href="/projects" className="text-[#58a6ff] hover:underline">
@@ -132,7 +135,8 @@ export default function ProjectDetailPage() {
   const spotsRemaining = project.team_size - teamMembers.length;
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
+    <div className="min-h-screen">
+      <BackgroundCanvas />
       {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-6xl mx-auto px-6 py-4">

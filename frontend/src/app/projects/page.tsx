@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
 interface Project {
   id: string;
@@ -20,7 +21,7 @@ interface Project {
 
 export default function ProjectsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0d1117] flex items-center justify-center"><div className="text-[#8b949e]">Loading...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-[#8b949e]">Loading...</div></div>}>
       <ProjectsContent />
     </Suspense>
   );
@@ -80,14 +81,16 @@ function ProjectsContent() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-[#8b949e]">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
+    <div className="min-h-screen">
+      <BackgroundCanvas />
       {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">

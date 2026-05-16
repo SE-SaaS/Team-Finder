@@ -8,7 +8,6 @@ import { supabase } from '@/lib/supabase';
 
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 import ThemeToggle from '@/components/dashboard/background/ThemeToggle';
-import { BackgroundThemeProvider } from '@/contexts/BackgroundThemeContext';
 import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
 import { logger } from '@/lib/logger';
 import AIChat from '@/components/dashboard/AIChat';
@@ -414,7 +413,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
 
   if (loading || checkingProfile) {
     return (
-      <BackgroundThemeProvider>
+      <>
         <BackgroundCanvas />
         <div className="min-h-screen bg-transparent flex items-center justify-center relative z-10">
           <div className="flex flex-col items-center gap-4">
@@ -422,14 +421,14 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
             <p className="text-[#8b949e] text-sm">Loading dashboard…</p>
           </div>
         </div>
-      </BackgroundThemeProvider>
+      </>
     );
   }
 
   if (!user) return null;
 
   return (
-    <BackgroundThemeProvider>
+    <>
       <BackgroundCanvas />
       <div className="min-h-screen bg-transparent text-[#c9d1d9] relative z-10">
 
@@ -975,6 +974,6 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
 
       {/* AI Chat Assistant */}
       <AIChat />
-    </BackgroundThemeProvider>
+    </>
   );
 }

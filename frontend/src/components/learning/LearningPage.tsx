@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useCourses } from "@/hooks/useCourses"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import BackgroundCanvas from "@/components/dashboard/background/BackgroundCanvas"
 
 export default function LearningPage() {
   const [tab, setTab] = useState("Courses")
@@ -45,9 +46,10 @@ export default function LearningPage() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%",
-      background: "#0c0c0c", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
+      background: "transparent", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
+      <BackgroundCanvas />
 
-      <div style={{ padding: "14px 18px 0", background: "#0c0c0c" }}>
+      <div style={{ padding: "14px 18px 0", background: "transparent" }}>
         <Link
           href="/dashboard"
           style={{ display: "inline-flex", alignItems: "center", gap: 5,

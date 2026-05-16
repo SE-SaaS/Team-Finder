@@ -53,7 +53,7 @@ export default function BackgroundCanvas() {
 
   return (
     <div
-      className="fixed inset-0 z-0 pointer-events-none overflow-hidden transition-all duration-700"
+      className="fixed inset-0 -z-10 pointer-events-none overflow-hidden transition-all duration-700"
       style={style}
     />
   );

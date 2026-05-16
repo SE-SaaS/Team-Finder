@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
+import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -108,14 +109,16 @@ export default function CreateProjectPage() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <BackgroundCanvas />
         <div className="text-[#8b949e]">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
+    <div className="min-h-screen">
+      <BackgroundCanvas />
       {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-4xl mx-auto px-6 py-4">
