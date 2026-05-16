@@ -42,7 +42,6 @@ app.add_middleware(
 )
 
 REQUIRED_ENV_VARS = [
-    "SUPABASE_JWT_SECRET",
     "NEXT_PUBLIC_SUPABASE_URL",
     "DATABASE_URL",
     "ANTHROPIC_API_KEY",

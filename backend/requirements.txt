@@ -23,5 +23,6 @@ langgraph-checkpoint-postgres>=2.0.0
 fastapi>=0.109.0
 uvicorn>=0.27.0
 
-# JWT verification for Supabase auth
+# JWT verification for Supabase auth (RS256/ES256 needs cryptography)
 PyJWT>=2.8.0
+cryptography>=42.0.0

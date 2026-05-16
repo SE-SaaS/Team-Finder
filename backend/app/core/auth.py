@@ -1,20 +1,44 @@
 """
 Supabase JWT verification for FastAPI.
 
-Verifies the `Authorization: Bearer <token>` header against SUPABASE_JWT_SECRET
-and returns the authenticated user's UUID. This is the single source of truth
-for user identity on the Python backend — never trust a user_id from the
-request body.
+Verifies the `Authorization: Bearer <token>` header against Supabase's
+asymmetric signing keys (RS256 / ES256), fetched from the project's JWKS
+endpoint at `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`.
+
+This is the single source of truth for user identity on the Python backend
+— never trust a user_id from the request body.
 """
 
 import os
 import jwt
+from jwt import PyJWKClient, PyJWKClientError
 from fastapi import Header, HTTPException, status
 
 UNIVERSITY_DOMAINS = {
     "ju.edu.jo": "University of Jordan",
     "hu.edu.jo": "Hashemite University",
 }
+
+_SUPPORTED_ALGORITHMS = ["RS256", "ES256"]
+
+_jwks_client: PyJWKClient | None = None
+
+
+def _get_jwks_client() -> PyJWKClient:
+    global _jwks_client
+    if _jwks_client is None:
+        supabase_url = os.getenv("NEXT_PUBLIC_SUPABASE_URL", "").rstrip("/")
+        if not supabase_url:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Server auth is not configured",
+            )
+        _jwks_client = PyJWKClient(
+            f"{supabase_url}/auth/v1/.well-known/jwks.json",
+            cache_keys=True,
+            lifespan=300,
+        )
+    return _jwks_client
 
 
 class AuthenticatedUser:
@@ -33,13 +57,6 @@ async def verify_supabase_jwt(
 
     Returns the authenticated user. Raises 401 on any failure.
     """
-    secret = os.getenv("SUPABASE_JWT_SECRET")
-    if not secret:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Server auth is not configured",
-        )
-
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,17 +69,18 @@ async def verify_supabase_jwt(
     issuer = f"{supabase_url}/auth/v1"
 
     try:
+        signing_key = _get_jwks_client().get_signing_key_from_jwt(token)
         claims = jwt.decode(
             token,
-            secret,
-            algorithms=["HS256"],
+            signing_key.key,
+            algorithms=_SUPPORTED_ALGORITHMS,
             audience="authenticated",
             issuer=issuer,
             options={"require": ["sub", "exp", "iss"]},
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
+    except (jwt.InvalidTokenError, PyJWKClientError):
         raise HTTPException(status_code=401, detail="Invalid token")
 
     user_id = claims.get("sub")
