@@ -152,3 +152,6 @@ frontend/public/chaosxbg.png
 Majors/
 temp_pages/
 course_extraction/hu_extracted/
+
+# Raw data files (PDFs, large binaries)
+data/raw/
