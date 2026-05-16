@@ -4,9 +4,8 @@
 
 @layer base {
   body {
-    background-color: #000000;
+    background-color: transparent;
     color: #ffffff;
-    /* Custom clean scrollbar */
   }
 
   /* Minimal custom dark scrollbar */
@@ -49,26 +48,30 @@
 
 .stars-blue {
   background-image:
-    radial-gradient(2px 2px at 20% 30%, #4455ff, transparent),
-    radial-gradient(2px 2px at 60% 70%, #6b7fff, transparent),
-    radial-gradient(1px 1px at 50% 50%, #4455ff, transparent),
-    radial-gradient(1px 1px at 80% 10%, #8899ff, transparent),
-    radial-gradient(2px 2px at 10% 60%, #4455ff, transparent),
-    radial-gradient(1px 1px at 40% 20%, #5566ff, transparent),
-    radial-gradient(2px 2px at 75% 85%, #3344ee, transparent),
-    radial-gradient(1px 1px at 25% 45%, #6677ff, transparent);
+    radial-gradient(3px 3px at 20% 30%, #6b7fff, transparent),
+    radial-gradient(2px 2px at 60% 70%, #4455ff, transparent),
+    radial-gradient(3px 3px at 50% 50%, #5566ff, transparent),
+    radial-gradient(2px 2px at 80% 10%, #8899ff, transparent),
+    radial-gradient(3px 3px at 10% 60%, #4455ff, transparent),
+    radial-gradient(2px 2px at 40% 20%, #7788ff, transparent),
+    radial-gradient(3px 3px at 75% 85%, #3344ee, transparent),
+    radial-gradient(2px 2px at 25% 45%, #6677ff, transparent),
+    radial-gradient(2px 2px at 90% 55%, #5566ff, transparent),
+    radial-gradient(3px 3px at 35% 90%, #4466ff, transparent);
   animation-delay: 0s;
 }
 
 .stars-red {
   background-image:
-    radial-gradient(2px 2px at 40% 60%, #cc1144, transparent),
+    radial-gradient(3px 3px at 40% 60%, #cc1144, transparent),
     radial-gradient(2px 2px at 70% 20%, #ff3366, transparent),
-    radial-gradient(1px 1px at 30% 80%, #cc1144, transparent),
-    radial-gradient(1px 1px at 90% 40%, #dd2255, transparent),
-    radial-gradient(2px 2px at 50% 10%, #cc1144, transparent),
-    radial-gradient(1px 1px at 15% 90%, #ee2255, transparent),
-    radial-gradient(2px 2px at 85% 55%, #bb0033, transparent),
-    radial-gradient(1px 1px at 35% 25%, #ff1144, transparent);
+    radial-gradient(3px 3px at 30% 80%, #dd1144, transparent),
+    radial-gradient(2px 2px at 90% 40%, #dd2255, transparent),
+    radial-gradient(3px 3px at 50% 10%, #cc1144, transparent),
+    radial-gradient(2px 2px at 15% 90%, #ee2255, transparent),
+    radial-gradient(3px 3px at 85% 55%, #bb0033, transparent),
+    radial-gradient(2px 2px at 35% 25%, #ff1144, transparent),
+    radial-gradient(2px 2px at 65% 40%, #cc0033, transparent),
+    radial-gradient(3px 3px at 5%  35%, #ff2244, transparent);
   animation-delay: 1.5s;
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -8,6 +9,7 @@ interface Message {
 }
 
 export default function AIChat() {
+  const { session } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -26,18 +28,28 @@ export default function AIChat() {
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
+    if (!session?.access_token) {
+      setMessages(prev => [
+        ...prev,
+        { role: 'assistant', content: 'Please sign in to use the Career Assistant.' },
+      ]);
+      return;
+    }
+
     const userMessage = input.trim();
     setInput('');
     setLoading(true);
 
-    // Add user message to UI
     const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
     setMessages(newMessages);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           message: userMessage,
           thread_id: threadId,
@@ -51,12 +63,10 @@ export default function AIChat() {
 
       const data = await response.json();
 
-      // Update thread ID if new
       if (!threadId) {
         setThreadId(data.thread_id);
       }
 
-      // Add assistant response
       setMessages([...newMessages, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Chat error:', error);
@@ -64,7 +74,7 @@ export default function AIChat() {
         ...newMessages,
         {
           role: 'assistant',
-          content: '❌ Sorry, I encountered an error. Please make sure the backend server is running on port 8000.',
+          content: 'Sorry, I encountered an error. Please try again.',
         },
       ]);
     } finally {
@@ -72,7 +82,7 @@ export default function AIChat() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -83,7 +93,7 @@ export default function AIChat() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-50"
+        className="fixed bottom-6 left-6 w-14 h-14 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-50"
         title="Open AI Assistant"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +109,7 @@ export default function AIChat() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl flex flex-col z-50">
+    <div className="fixed bottom-6 left-6 w-96 h-[600px] bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl flex flex-col z-50">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#30363d] bg-[#0d1117]">
         <div className="flex items-center gap-2">
@@ -173,7 +183,7 @@ export default function AIChat() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={loading}
             className="flex-1 bg-[#0d1117] border border-[#30363d] rounded-md px-3 py-2 text-sm text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#58a6ff] disabled:opacity-50"

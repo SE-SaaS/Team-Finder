@@ -416,7 +416,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
     return (
       <BackgroundThemeProvider>
         <BackgroundCanvas />
-        <div className="min-h-screen bg-transparent flex items-center justify-center relative">
+        <div className="min-h-screen bg-transparent flex items-center justify-center relative z-10">
           <div className="flex flex-col items-center gap-4">
             <div className="w-8 h-8 border-2 border-[#dc2626] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#8b949e] text-sm">Loading dashboard…</p>
@@ -431,8 +431,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
   return (
     <BackgroundThemeProvider>
       <BackgroundCanvas />
-      <div className="min-h-screen bg-transparent text-[#c9d1d9] relative">
-        <ProfileCompletionBanner />
+      <div className="min-h-screen bg-transparent text-[#c9d1d9] relative z-10">
 
       {/* ── Top Nav (GitHub Style - Fully Responsive) ── */}
       <header className="sticky top-0 z-40 bg-[#161b22] border-b border-[#30363d]">

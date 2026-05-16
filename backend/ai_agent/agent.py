@@ -1,326 +1,624 @@
 """
 University Career Assistant AI Agent
-Built with LangGraph and powered by Z.AI
-Uses SQLDatabaseToolkit for flexible database queries
+Built with LangGraph and Claude (Anthropic)
 """
 
 import os
 import asyncio
 import uuid
+import threading
+from contextlib import contextmanager
+from typing import Optional, List
 from dotenv import load_dotenv
-import requests
-from bs4 import BeautifulSoup
 import psycopg2
+from psycopg2 import pool as pg_pool
 from psycopg2.extras import RealDictCursor
 
 from langchain_anthropic import ChatAnthropic
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.runnables import RunnableConfig
 from langchain.agents import create_agent
-from langgraph.checkpoint.memory import MemorySaver
-from langchain_community.utilities import SQLDatabase
-from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from .system_prompt import SYSTEM_PROMPT
 
-# Load environment variables
 load_dotenv()
 
-# Database connection for custom tools
-_db_connection = None
+# ==================== Major Plans — load once at startup ====================
 
-def get_db_connection():
-    """Get or create database connection for custom write operations."""
-    global _db_connection
-    if _db_connection is None or _db_connection.closed:
-        database_url = os.getenv("DATABASE_URL")
-        if not database_url:
-            raise ValueError("DATABASE_URL must be set in .env file")
-        _db_connection = psycopg2.connect(database_url)
-    return _db_connection
+_VALID_MAJOR_CODES = frozenset({
+    "AI_JU", "BIT_JU", "CIS_JU", "CS_JU", "CYS_JU", "DS_JU",
+    "BIT_HU", "CIS_HU", "CS_HU", "CYS_HU", "DSAI_HU", "SWE_HU",
+})
 
 
-# ==================== Custom Write Tools (user_courses, user_skills only) ====================
+def _load_major_plans() -> dict:
+    try:
+        import importlib.util
+        plans_path = os.path.join(os.path.dirname(__file__), "..", "majors_plans", "plans.py")
+        plans_path = os.path.abspath(plans_path)
+        spec = importlib.util.spec_from_file_location("majors_plans", plans_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return {code: getattr(mod, code) for code in _VALID_MAJOR_CODES if hasattr(mod, code)}
+    except Exception as e:
+        print(f"Warning: Could not load major plans: {e}")
+        return {}
+
+
+_MAJOR_PLANS = _load_major_plans()
+
+# ==================== Connection Pool + Context Manager ====================
+
+_pool: "pg_pool.ThreadedConnectionPool | None" = None
+_pool_lock = threading.Lock()
+
+
+def _get_pool() -> "pg_pool.ThreadedConnectionPool":
+    global _pool
+    if _pool is None:
+        with _pool_lock:
+            if _pool is None:
+                database_url = os.getenv("DATABASE_URL")
+                if not database_url:
+                    raise ValueError("DATABASE_URL must be set in .env file")
+                _pool = pg_pool.ThreadedConnectionPool(1, 10, database_url)
+    return _pool
+
+
+@contextmanager
+def get_db_cursor():
+    """
+    Yield a RealDictCursor from the connection pool.
+    Commits on clean exit, rolls back on exception, always closes
+    the cursor and returns the connection to the pool.
+    """
+    p = _get_pool()
+    conn = p.getconn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        yield cur
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        cur.close()
+        p.putconn(conn)
+
+
+# ==================== Write Tools (user_courses, user_skills, learning_progress) ====================
 
 @tool
-def add_course_to_student(email: str, course_code: str) -> str:
+def add_course_to_student(course_code: str, config: RunnableConfig) -> str:
     """
-    Add a completed course to a student's record.
+    Add a completed course to the current student's record.
     IMPORTANT: This is the ONLY way to add courses to user_courses table.
 
     Args:
-        email: Student's email address
         course_code: Course code (e.g., 'CS101')
 
     Returns:
         Success or error message
     """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
     try:
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        with get_db_cursor() as cur:
+            cur.execute("SELECT code, name FROM courses WHERE code = %s", (course_code,))
+            course = cur.fetchone()
+            if not course:
+                return f"Course '{course_code}' not found"
 
-        # Get user_id
-        cur.execute("SELECT id FROM profiles WHERE email = %s", (email,))
-        profile = cur.fetchone()
-        if not profile:
-            cur.close()
-            return "Student not found"
-        user_id = profile['id']
+            cur.execute("""
+                INSERT INTO user_courses (user_id, course_code, course_name)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id, course_code) DO NOTHING
+            """, (user_id, course['code'], course['name']))
 
-        # Get course_id
-        cur.execute("SELECT id FROM courses WHERE code = %s", (course_code,))
-        course = cur.fetchone()
-        if not course:
-            cur.close()
-            return f"Course '{course_code}' not found"
-        course_id = course['id']
-
-        # Add to user_courses
-        cur.execute("""
-            INSERT INTO user_courses (user_id, course_id)
-            VALUES (%s, %s)
-            ON CONFLICT (user_id, course_id) DO NOTHING
-        """, (user_id, course_id))
-
-        conn.commit()
-        cur.close()
-
-        return f"✓ Successfully added course '{course_code}' to student's completed courses"
-
+        return f"Successfully added course '{course_code}' to your completed courses"
     except Exception as e:
-        conn.rollback()
         return f"Error: {str(e)}"
 
 
 @tool
-def remove_course_from_student(email: str, course_code: str) -> str:
+def remove_course_from_student(course_code: str, config: RunnableConfig) -> str:
     """
-    Remove a course from a student's completed courses.
+    Remove a course from the current student's completed courses.
     IMPORTANT: This is the ONLY way to remove courses from user_courses table.
 
     Args:
-        email: Student's email address
         course_code: Course code to remove
 
     Returns:
         Success or error message
     """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
     try:
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        with get_db_cursor() as cur:
+            cur.execute("SELECT code FROM courses WHERE code = %s", (course_code,))
+            course = cur.fetchone()
+            if not course:
+                return f"Course '{course_code}' not found"
 
-        # Get user_id
-        cur.execute("SELECT id FROM profiles WHERE email = %s", (email,))
-        profile = cur.fetchone()
-        if not profile:
-            cur.close()
-            return "Student not found"
-        user_id = profile['id']
-
-        # Get course_id
-        cur.execute("SELECT id FROM courses WHERE code = %s", (course_code,))
-        course = cur.fetchone()
-        if not course:
-            cur.close()
-            return f"Course '{course_code}' not found"
-        course_id = course['id']
-
-        # Remove from user_courses
-        cur.execute("""
-            DELETE FROM user_courses
-            WHERE user_id = %s AND course_id = %s
-        """, (user_id, course_id))
-
-        conn.commit()
-        rows_deleted = cur.rowcount
-        cur.close()
+            cur.execute("""
+                DELETE FROM user_courses
+                WHERE user_id = %s AND course_code = %s
+            """, (user_id, course_code))
+            rows_deleted = cur.rowcount
 
         if rows_deleted > 0:
-            return f"✓ Successfully removed course '{course_code}' from student's records"
+            return f"Successfully removed course '{course_code}' from your records"
         else:
-            return f"Course '{course_code}' was not in student's completed courses"
-
+            return f"Course '{course_code}' was not in your completed courses"
     except Exception as e:
-        conn.rollback()
         return f"Error: {str(e)}"
 
 
 @tool
-def add_skill_to_student(email: str, skill_name: str) -> str:
+def add_skill_to_student(skill_name: str, config: RunnableConfig) -> str:
     """
-    Add a skill to a student's profile.
+    Add a skill to the current student's profile.
     IMPORTANT: This is the ONLY way to add skills to user_skills table.
 
     Args:
-        email: Student's email address
         skill_name: Name of the skill to add
 
     Returns:
         Success or error message
     """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
     try:
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        with get_db_cursor() as cur:
+            cur.execute("SELECT name FROM skills WHERE name ILIKE %s", (skill_name,))
+            skill = cur.fetchone()
+            if not skill:
+                return f"Skill '{skill_name}' not found in the system"
 
-        # Get user_id
-        cur.execute("SELECT id FROM profiles WHERE email = %s", (email,))
-        profile = cur.fetchone()
-        if not profile:
-            cur.close()
-            return "Student not found"
-        user_id = profile['id']
+            cur.execute("""
+                INSERT INTO user_skills (user_id, skill_name)
+                VALUES (%s, %s)
+                ON CONFLICT (user_id, skill_name) DO NOTHING
+            """, (user_id, skill['name']))
 
-        # Get skill_id
-        cur.execute("SELECT id FROM skills WHERE name ILIKE %s", (skill_name,))
-        skill = cur.fetchone()
-        if not skill:
-            cur.close()
-            return f"Skill '{skill_name}' not found in the system"
-        skill_id = skill['id']
-
-        # Add to user_skills
-        cur.execute("""
-            INSERT INTO user_skills (user_id, skill_id)
-            VALUES (%s, %s)
-            ON CONFLICT (user_id, skill_id) DO NOTHING
-        """, (user_id, skill_id))
-
-        conn.commit()
-        cur.close()
-
-        return f"✓ Successfully added skill '{skill_name}' to student's profile"
-
+        return f"Successfully added skill '{skill_name}' to your profile"
     except Exception as e:
-        conn.rollback()
         return f"Error: {str(e)}"
 
 
 @tool
-def remove_skill_from_student(email: str, skill_name: str) -> str:
+def remove_skill_from_student(skill_name: str, config: RunnableConfig) -> str:
     """
-    Remove a skill from a student's profile.
+    Remove a skill from the current student's profile.
     IMPORTANT: This is the ONLY way to remove skills from user_skills table.
 
     Args:
-        email: Student's email address
         skill_name: Name of the skill to remove
 
     Returns:
         Success or error message
     """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
     try:
-        conn = get_db_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        with get_db_cursor() as cur:
+            cur.execute("SELECT name FROM skills WHERE name ILIKE %s", (skill_name,))
+            skill = cur.fetchone()
+            if not skill:
+                return f"Skill '{skill_name}' not found"
 
-        # Get user_id
-        cur.execute("SELECT id FROM profiles WHERE email = %s", (email,))
-        profile = cur.fetchone()
-        if not profile:
-            cur.close()
-            return "Student not found"
-        user_id = profile['id']
-
-        # Get skill_id
-        cur.execute("SELECT id FROM skills WHERE name ILIKE %s", (skill_name,))
-        skill = cur.fetchone()
-        if not skill:
-            cur.close()
-            return f"Skill '{skill_name}' not found"
-        skill_id = skill['id']
-
-        # Remove from user_skills
-        cur.execute("""
-            DELETE FROM user_skills
-            WHERE user_id = %s AND skill_id = %s
-        """, (user_id, skill_id))
-
-        conn.commit()
-        rows_deleted = cur.rowcount
-        cur.close()
+            cur.execute("""
+                DELETE FROM user_skills
+                WHERE user_id = %s AND skill_name = %s
+            """, (user_id, skill['name']))
+            rows_deleted = cur.rowcount
 
         if rows_deleted > 0:
-            return f"✓ Successfully removed skill '{skill_name}' from student's profile"
+            return f"Successfully removed skill '{skill_name}' from your profile"
         else:
-            return f"Skill '{skill_name}' was not in student's profile"
-
+            return f"Skill '{skill_name}' was not in your profile"
     except Exception as e:
-        conn.rollback()
         return f"Error: {str(e)}"
-    
+
+
+# ==================== Profile Tools ====================
+
+@tool
+def get_my_profile(config: RunnableConfig) -> str:
+    """
+    Load the current student's full profile: personal info, completed courses,
+    skills, and assessment scores. Call this whenever you need to know anything
+    about the student beyond their user ID.
+
+    Returns:
+        Structured text with the student's complete academic profile.
+    """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
+    try:
+        with get_db_cursor() as cur:
+            cur.execute("""
+                SELECT full_name, email, university, major, year, bio, availability
+                FROM profiles WHERE id = %s
+            """, (user_id,))
+            profile = cur.fetchone()
+            if not profile:
+                return "Profile not found for this user."
+
+            cur.execute("""
+                SELECT course_name AS name, course_code AS code
+                FROM user_courses
+                WHERE user_id = %s
+                ORDER BY course_name
+            """, (user_id,))
+            courses = cur.fetchall()
+
+            cur.execute("""
+                SELECT us.skill_name AS name, sp.rating
+                FROM user_skills us
+                LEFT JOIN skills s ON s.name ILIKE us.skill_name
+                LEFT JOIN skill_proficiencies sp
+                    ON sp.skill_id = s.id AND sp.user_id = us.user_id
+                WHERE us.user_id = %s
+                ORDER BY us.skill_name
+            """, (user_id,))
+            skills = cur.fetchall()
+
+            cur.execute("""
+                SELECT s.name AS skill, ar.score, ar.retake_count
+                FROM assessment_results ar
+                JOIN skills s ON s.id = ar.skill_id
+                WHERE ar.user_id = %s
+                ORDER BY ar.score DESC
+            """, (user_id,))
+            assessments = cur.fetchall()
+
+        lines = [
+            f"Name: {profile['full_name']}",
+            f"Email: {profile['email']}",
+            f"University: {profile['university']}",
+            f"Major: {profile['major']}",
+            f"Year: {profile['year']}",
+            f"Availability: {profile['availability']}",
+            "",
+            f"Completed Courses ({len(courses)}):",
+        ]
+        for c in courses:
+            lines.append(f"  - {c['name']} ({c['code']})")
+
+        lines.append(f"\nSkills ({len(skills)}):")
+        for s in skills:
+            rating = f"  [rating: {s['rating']}/100]" if s['rating'] else ""
+            lines.append(f"  - {s['name']}{rating}")
+
+        lines.append(f"\nAssessment Results ({len(assessments)}):")
+        for a in assessments:
+            lines.append(f"  - {a['skill']}: {a['score']}/100 (retakes: {a['retake_count']})")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error loading profile: {str(e)}"
+
+
+@tool
+def get_learning_progress(config: RunnableConfig) -> str:
+    """
+    Get the current student's learning progress — all roadmap nodes and courses
+    they have marked complete on the Learning page.
+
+    Returns:
+        List of completed item IDs grouped by type (node / course).
+    """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
+    try:
+        with get_db_cursor() as cur:
+            cur.execute("""
+                SELECT item_id, item_type, completed_at
+                FROM learning_progress
+                WHERE user_id = %s
+                ORDER BY item_type, completed_at
+            """, (user_id,))
+            rows = cur.fetchall()
+
+        if not rows:
+            return "No learning progress recorded yet."
+
+        nodes = [r for r in rows if r['item_type'] == 'node']
+        courses = [r for r in rows if r['item_type'] == 'course']
+
+        lines = [f"Learning Progress ({len(rows)} items completed):"]
+        if nodes:
+            lines.append(f"\nRoadmap Nodes ({len(nodes)}):")
+            for r in nodes:
+                lines.append(f"  - {r['item_id']}")
+        if courses:
+            lines.append(f"\nCourses ({len(courses)}):")
+            for r in courses:
+                lines.append(f"  - {r['item_id']}")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error loading learning progress: {str(e)}"
+
+
+@tool
+def mark_learning_item_complete(item_id: str, item_type: str, config: RunnableConfig) -> str:
+    """
+    Mark a roadmap node or learning course as complete for the current student.
+
+    Args:
+        item_id: The ID of the node or course to mark complete
+        item_type: Either 'node' (roadmap node) or 'course' (learning course)
+
+    Returns:
+        Success or error message
+    """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+
+    if item_type not in ('node', 'course'):
+        return "Error: item_type must be 'node' or 'course'"
+
+    try:
+        with get_db_cursor() as cur:
+            cur.execute("""
+                INSERT INTO learning_progress (user_id, item_id, item_type)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id, item_id) DO NOTHING
+            """, (user_id, item_id, item_type))
+
+        return f"Marked '{item_id}' as complete"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+# ==================== Read Tools ====================
+
+@tool
+def search_courses(
+    university: str,
+    major: Optional[str] = None,
+    keyword: Optional[str] = None,
+) -> str:
+    """
+    Search the university course catalog.
+
+    Args:
+        university: 'University of Jordan' or 'Hashemite University'
+        major: filter by major name (optional)
+        keyword: partial match on course name or code (optional)
+
+    Returns:
+        Matching courses grouped by major.
+    """
+    try:
+        with get_db_cursor() as cur:
+            query = "SELECT code, name, major FROM courses WHERE university = %s"
+            params: list = [university]
+            if major:
+                query += " AND major ILIKE %s"
+                params.append(f"%{major}%")
+            if keyword:
+                query += " AND (name ILIKE %s OR code ILIKE %s)"
+                params.extend([f"%{keyword}%", f"%{keyword}%"])
+            query += " ORDER BY major, code LIMIT 100"
+            cur.execute(query, params)
+            rows = cur.fetchall()
+
+        if not rows:
+            return "No courses found matching the criteria."
+
+        lines = [f"Courses ({len(rows)} found):"]
+        current_major = None
+        for r in rows:
+            if r['major'] != current_major:
+                current_major = r['major']
+                lines.append(f"\n{current_major}:")
+            lines.append(f"  {r['code']} - {r['name']}")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error searching courses: {str(e)}"
+
+
+@tool
+def search_skills_catalog(keyword: Optional[str] = None) -> str:
+    """
+    Search the master skills catalog by name.
+
+    Args:
+        keyword: partial skill name to search (optional; returns all if omitted)
+
+    Returns:
+        Comma-separated list of matching skill names.
+    """
+    try:
+        with get_db_cursor() as cur:
+            if keyword:
+                cur.execute(
+                    "SELECT name FROM skills WHERE name ILIKE %s ORDER BY name LIMIT 50",
+                    (f"%{keyword}%",),
+                )
+            else:
+                cur.execute("SELECT name FROM skills ORDER BY name LIMIT 100")
+            rows = cur.fetchall()
+
+        if not rows:
+            return "No skills found."
+        return "Skills: " + ", ".join(r['name'] for r in rows)
+    except Exception as e:
+        return f"Error searching skills: {str(e)}"
+
+
+@tool
+def get_available_projects(
+    university: Optional[str] = None,
+    required_skill: Optional[str] = None,
+) -> str:
+    """
+    Browse open projects, optionally filtered by university or required skill.
+
+    Args:
+        university: filter by university (optional)
+        required_skill: filter to projects that need this skill (optional)
+
+    Returns:
+        Project titles, descriptions, difficulty, and required skills.
+    """
+    try:
+        with get_db_cursor() as cur:
+            query = """
+                SELECT title, description, difficulty, tech_stack, skills_needed, university
+                FROM projects
+                WHERE status = 'open'
+            """
+            params: list = []
+            if university:
+                query += " AND university = %s"
+                params.append(university)
+            if required_skill:
+                query += " AND %s = ANY(skills_needed)"
+                params.append(required_skill)
+            query += " ORDER BY title LIMIT 20"
+            cur.execute(query, params or None)
+            rows = cur.fetchall()
+
+        if not rows:
+            return "No open projects found matching the criteria."
+
+        lines = [f"Open Projects ({len(rows)} found):"]
+        for r in rows:
+            lines.append(f"\n{r['title']} [{r['difficulty']}]  ({r['university']})")
+            lines.append(f"  {r['description']}")
+            if r['tech_stack']:
+                lines.append(f"  Tech: {', '.join(r['tech_stack'])}")
+            if r['skills_needed']:
+                lines.append(f"  Skills needed: {', '.join(r['skills_needed'])}")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error fetching projects: {str(e)}"
+
+
+@tool
+def find_teammates(
+    skill_names: List[str],
+    university: Optional[str] = None,
+    config: RunnableConfig = ...,
+) -> str:
+    """
+    Find students at the same university who have specific skills.
+    Returns name, major, year, availability, and matching skills only.
+    Never returns email or contact info.
+
+    Args:
+        skill_names: list of required skill names to search for
+        university: filter by university (defaults to the current user's university)
+
+    Returns:
+        Matching students with public profile info.
+    """
+    user_id = (config.get("configurable") or {}).get("user_id")
+    if not user_id:
+        return "Error: No authenticated user in context."
+    if not skill_names:
+        return "Error: Provide at least one skill name."
+
+    try:
+        with get_db_cursor() as cur:
+            if not university:
+                cur.execute("SELECT university FROM profiles WHERE id = %s", (user_id,))
+                row = cur.fetchone()
+                university = row['university'] if row else None
+
+            skill_lower = [s.lower() for s in skill_names]
+            placeholders = ",".join(["%s"] * len(skill_lower))
+            cur.execute(f"""
+                SELECT
+                    p.full_name AS name,
+                    p.major,
+                    p.year,
+                    p.availability,
+                    array_agg(DISTINCT us.skill_name ORDER BY us.skill_name) AS matched_skills
+                FROM profiles p
+                JOIN user_skills us ON us.user_id = p.id
+                WHERE p.id != %s
+                  AND p.university = %s
+                  AND LOWER(us.skill_name) = ANY(ARRAY[{placeholders}]::text[])
+                GROUP BY p.id, p.full_name, p.major, p.year, p.availability
+                ORDER BY p.full_name
+                LIMIT 10
+            """, [user_id, university] + skill_lower)
+            rows = cur.fetchall()
+
+        if not rows:
+            return f"No teammates found with skills: {', '.join(skill_names)}"
+
+        lines = [f"Potential Teammates ({len(rows)} found):"]
+        for r in rows:
+            lines.append(f"\n{r['name']} - {r['major']}, Year {r['year']}")
+            lines.append(f"  Availability: {r['availability']}")
+            lines.append(f"  Matching skills: {', '.join(r['matched_skills'])}")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Error finding teammates: {str(e)}"
+
+
+# ==================== Utility Tools ====================
 
 @tool
 def get_major_plan(major_code: str) -> str:
     """
-    Fetch a university major's course plan.
+    Fetch a university major's full course plan.
 
     Args:
-        major_code: The major plan code (e.g., 'AI_JU', 'CS_JU')
+        major_code: One of AI_JU, BIT_JU, CIS_JU, CS_JU, CYS_JU, DS_JU,
+                    BIT_HU, CIS_HU, CS_HU, CYS_HU, DSAI_HU, SWE_HU
 
     Returns:
-        The full major plan as text, or an error message if not found
+        The full major plan as text, or an error message if not found.
     """
-    try:
-        import importlib.util
-        import os
+    if major_code not in _VALID_MAJOR_CODES:
+        valid = ", ".join(sorted(_VALID_MAJOR_CODES))
+        return f"Unknown major code '{major_code}'. Valid codes are: {valid}"
+    plan = _MAJOR_PLANS.get(major_code)
+    if plan is None:
+        return f"Major plan '{major_code}' could not be loaded. Check server logs."
+    return plan
 
-        plans_path = os.path.join(os.path.dirname(__file__), "..", "..", "majors_plans", "plans.py")
-        plans_path = os.path.abspath(plans_path)
-
-        spec = importlib.util.spec_from_file_location("plans", plans_path)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-
-        plan = getattr(mod, major_code, None)
-        if plan is None:
-            return f"Major plan '{major_code}' not found in plans.py"
-        return plan
-    except Exception as e:
-        return f"Error loading major plan: {str(e)}"
-
-
-
-# ==================== Web Scraping Tools ====================
 
 @tool
 def search_roadmap(career_path: str) -> str:
     """
-    Search for career roadmaps on roadmap.sh.
+    Return the roadmap.sh URL for a given career or technology path.
 
     Args:
         career_path: The career or technology to search for (e.g., "frontend", "backend", "devops", "python")
 
     Returns:
-        Information about the roadmap and its URL
+        The direct URL to the roadmap
     """
-    try:
-        roadmap_slug = career_path.lower().replace(" ", "-")
-        url = f"https://roadmap.sh/{roadmap_slug}"
-
-        response = requests.get(url, timeout=10)
-
-        if response.status_code == 404:
-            return f"Roadmap for '{career_path}' not found. Visit https://roadmap.sh to explore available roadmaps."
-
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        title = soup.find('title')
-        title_text = title.get_text() if title else f"{career_path.title()} Roadmap"
-
-        description = soup.find('meta', attrs={'name': 'description'})
-        desc_text = description.get('content') if description else "A comprehensive learning path"
-
-        return f"""Found roadmap for {career_path}!
-
-Title: {title_text}
-Description: {desc_text}
-
-URL: {url}
-
-This roadmap provides a comprehensive learning path for {career_path}."""
-
-    except Exception as e:
-        return f"Error: {str(e)}"
+    slug = career_path.lower().strip().replace(" ", "-")
+    return (
+        f"Here is the roadmap for '{career_path}':\n"
+        f"https://roadmap.sh/{slug}\n\n"
+        f"Share this link with the student so they can explore the full interactive roadmap."
+    )
 
 
 @tool
@@ -349,52 +647,55 @@ async def create_university_assistant():
     if not database_url:
         raise ValueError("DATABASE_URL must be set in .env file")
 
-    # Initialize Claude LLM
     llm = ChatAnthropic(
-        model="claude-sonnet-4-20250514",  # Latest Claude Sonnet 4
+        model="claude-sonnet-4-20250514",
         temperature=0.0,
         api_key=anthropic_api_key,
         max_tokens=4096
     )
 
-    # Create SQLDatabase connection
-    print("Connecting to database...")
-    db = SQLDatabase.from_uri(database_url)
+    profile_tools = [
+        get_my_profile,
+        get_learning_progress,
+        mark_learning_item_complete,
+    ]
 
-    # Create SQL toolkit (auto-generates query tools)
-    print("Initializing SQLDatabaseToolkit...")
-    sql_toolkit = SQLDatabaseToolkit(db=db, llm=llm)
-    sql_tools = sql_toolkit.get_tools()
+    read_tools = [
+        search_courses,
+        search_skills_catalog,
+        get_available_projects,
+        find_teammates,
+    ]
 
-    # Custom write tools
-    custom_tools = [
+    write_tools = [
         add_course_to_student,
         remove_course_from_student,
         add_skill_to_student,
         remove_skill_from_student,
-        get_major_plan,
     ]
 
-    # Roadmap tools
-    roadmap_tools = [
+    utility_tools = [
+        get_major_plan,
         search_roadmap,
         get_available_roadmaps,
     ]
 
-    # Combine all tools
-    all_tools = sql_tools + custom_tools + roadmap_tools
+    all_tools = profile_tools + read_tools + write_tools + utility_tools
 
-    print(f"\n✓ Loaded {len(all_tools)} tools:")
-    print(f"  - {len(sql_tools)} SQL query tools (auto-generated)")
-    print(f"  - {len(custom_tools)} custom write tools (user_courses, user_skills)")
-    print(f"  - {len(roadmap_tools)} roadmap search tools")
+    print(f"\nLoaded {len(all_tools)} tools:")
+    print(f"  - {len(profile_tools)} profile/progress tools")
+    print(f"  - {len(read_tools)} allowlisted read tools")
+    print(f"  - {len(write_tools)} write tools (user_courses, user_skills)")
+    print(f"  - {len(utility_tools)} utility tools")
 
-    # Create agent
+    checkpointer = AsyncPostgresSaver.from_conn_string(database_url)
+    await checkpointer.setup()
+
     agent = create_agent(
         model=llm,
         tools=all_tools,
         system_prompt=SYSTEM_PROMPT,
-        checkpointer=MemorySaver()
+        checkpointer=checkpointer
     )
 
     return agent
@@ -407,7 +708,6 @@ async def run_agent_terminal():
     print("=" * 60)
     print("University Career Assistant AI")
     print("Powered by Claude (Anthropic) and LangGraph")
-    print("SQLDatabaseToolkit + Custom Tools")
     print("=" * 60)
     print("\nType 'exit' or 'quit' to end the conversation.")
     print("Type 'clear' to start a new conversation.\n")
@@ -415,7 +715,7 @@ async def run_agent_terminal():
     try:
         agent = await create_university_assistant()
     except Exception as e:
-        print(f"\n✗ Failed to initialize agent: {e}")
+        print(f"\nFailed to initialize agent: {e}")
         print("Please check your .env configuration\n")
         return
 
@@ -433,9 +733,10 @@ async def run_agent_terminal():
                 continue
 
             if user_input.lower() in ['exit', 'quit']:
-                print("\nThank you for using University Career Assistant AI. Goodbye!")
-                if _db_connection and not _db_connection.closed:
-                    _db_connection.close()
+                print("\nGoodbye!")
+                p = _pool
+                if p:
+                    p.closeall()
                 break
 
             if user_input.lower() == 'clear':
