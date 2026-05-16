@@ -59,24 +59,26 @@ export default function CourseDetailModal({ course, onClose }: CourseDetailModal
         </p>
 
         {/* Book */}
-        <section style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em",
-            color: "#555", marginBottom: 10, fontWeight: 700 }}>📖 Course Book</h3>
-          <div style={{ background: "#1e1e1e", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12,
-            display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{course.book.title}</div>
-              <div style={{ fontSize: 10, color: "#555" }}>
-                {course.book.type === "free-pdf" ? "✅ Free PDF" : course.book.type === "paid" ? "💳 Paid" : "🏛 Library"}
+        {course.book?.title && (
+          <section style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em",
+              color: "#555", marginBottom: 10, fontWeight: 700 }}>📖 Course Book</h3>
+            <div style={{ background: "#1e1e1e", border: "1px solid #2a2a2a", borderRadius: 8, padding: 12,
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 2 }}>{course.book.title}</div>
+                <div style={{ fontSize: 10, color: "#555" }}>
+                  {course.book.type === "free-pdf" ? "✅ Free PDF" : course.book.type === "paid" ? "💳 Paid" : "🏛 Library"}
+                </div>
               </div>
+              <a href={course.book.url} target="_blank" rel="noopener noreferrer"
+                style={{ padding: "5px 12px", borderRadius: 6, background: "#0a2018",
+                  border: "1px solid #1a4f30", color: "#3ef07a", fontSize: 11, textDecoration: "none" }}>
+                Open →
+              </a>
             </div>
-            <a href={course.book.url} target="_blank" rel="noopener noreferrer"
-              style={{ padding: "5px 12px", borderRadius: 6, background: "#0a2018",
-                border: "1px solid #1a4f30", color: "#3ef07a", fontSize: 11, textDecoration: "none" }}>
-              Open →
-            </a>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Resources grouped by type */}
         {(Object.entries(grouped) as [ResourceType, typeof course.resources][]).map(([type, items]) => (

@@ -1,10 +1,12 @@
 import { memo } from "react"
 import type { UniversityCourse } from "@/types"
+import type { CourseStatus as UnlockStatus } from "@/hooks/useUnlocks"
 
 interface CourseCardProps {
   course: UniversityCourse
   onClick: (course: UniversityCourse) => void
-  isComplete: boolean
+  status: UnlockStatus
+  lockReason?: string
 }
 
 const DIFF_STYLE: Record<string, { bg: string; color: string }> = {
@@ -13,32 +15,36 @@ const DIFF_STYLE: Record<string, { bg: string; color: string }> = {
   Advanced:     { bg: "#2b1515", color: "#ef4444" },
 }
 
-const STATUS_ICON: Record<string, string> = {
-  locked:    "🔒",
-  available: "📖",
-  completed: "✅",
+const STATUS_ICON: Record<UnlockStatus, string> = {
+  "locked-year":   "🔒",
+  "locked-prereq": "🔒",
+  available:       "📖",
+  completed:       "✅",
 }
 
-function CourseCard({ course, onClick, isComplete: done }: CourseCardProps) {
+function CourseCard({ course, onClick, status, lockReason }: CourseCardProps) {
   const diff = DIFF_STYLE[course.difficulty]
+  const done = status === "completed"
+  const locked = status === "locked-year" || status === "locked-prereq"
 
   return (
     <div
-      onClick={() => course.status !== "locked" && onClick(course)}
+      onClick={() => !locked && onClick(course)}
+      title={locked ? lockReason : undefined}
       style={{
         background: "#1e1e1e",
         border: `1px solid ${done ? "#1a4f30" : "#2a2a2a"}`,
         borderRadius: 8,
         padding: 12,
-        cursor: course.status === "locked" ? "not-allowed" : "pointer",
-        opacity: course.status === "locked" ? 0.5 : 1,
+        cursor: locked ? "not-allowed" : "pointer",
+        opacity: locked ? 0.5 : 1,
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         boxShadow: done
           ? "0 4px 6px -1px rgba(62, 240, 122, 0.1), 0 2px 4px -1px rgba(62, 240, 122, 0.06)"
           : "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
       }}
       onMouseEnter={e => {
-        if (course.status !== "locked") {
+        if (!locked) {
           const el = e.currentTarget as HTMLDivElement
           el.style.borderColor = done ? "#3ef07a" : "#363636"
           el.style.transform = "translateY(-4px)"
@@ -61,7 +67,7 @@ function CourseCard({ course, onClick, isComplete: done }: CourseCardProps) {
         <span style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.4, flex: 1, marginRight: 6 }}>
           {course.name}
         </span>
-        <span style={{ fontSize: 14 }}>{STATUS_ICON[course.status]}</span>
+        <span style={{ fontSize: 14 }}>{STATUS_ICON[status]}</span>
       </div>
 
       {/* Meta */}

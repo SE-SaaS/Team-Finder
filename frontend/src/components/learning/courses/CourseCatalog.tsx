@@ -2,44 +2,46 @@ import { useState, useMemo } from "react"
 import SectionTabs from "@/components/shared/SectionTabs"
 import CourseCard from "./CourseCard"
 import CourseDetailModal from "./CourseDetailModal"
-import { useProgress } from "@/hooks/useProgress"
+import { useUnlocks } from "@/hooks/useUnlocks"
 import type { UniversityCourse, Difficulty } from "@/types"
 
 const DIFFICULTIES: ("All" | Difficulty)[] = ["All", "Beginner", "Intermediate", "Advanced"]
-const YEARS = [0, 1, 2, 3, 4] // 0 = All
+const YEARS: (1 | 2 | 3 | 4)[] = [1, 2, 3, 4]
 
 interface CourseCatalogProps {
   courses: UniversityCourse[]
   loading: boolean
-  defaultUniversity?: string
+  userUniversity: "JU" | "HU"
   defaultYear?: number
 }
 
-export default function CourseCatalog({ courses, loading, defaultUniversity, defaultYear }: CourseCatalogProps) {
-  const [uniTab, setUniTab]         = useState(defaultUniversity ?? "Both")
-  const [year, setYear]             = useState(defaultYear ?? 0)
+export default function CourseCatalog({ courses, loading, userUniversity, defaultYear }: CourseCatalogProps) {
+  const clampedDefaultYear = Math.min(Math.max(defaultYear ?? 1, 1), 4) as 1 | 2 | 3 | 4
+  const [uniTab, setUniTab]         = useState<"JU" | "HU" | "EXT">(userUniversity)
+  const [year, setYear]             = useState<1 | 2 | 3 | 4>(clampedDefaultYear)
+  const [cumulative, setCumulative] = useState(false)
   const [diff, setDiff]             = useState<"All" | Difficulty>("All")
   const [search, setSearch]         = useState("")
   const [selected, setSelected]     = useState<UniversityCourse | null>(null)
 
-  // Load progress once at parent level instead of in every card
-  const { isComplete } = useProgress()
+  // Compute unlocks once for the whole catalog
+  const { courseStatus, lockReason } = useUnlocks({ courses, userYear: defaultYear })
 
   const filtered = useMemo(() => courses.filter(c => {
-    const matchUni  = uniTab === "Both" || c.university === uniTab
-    const matchYear = year === 0 || c.year === year
+    const matchUni  = c.university === uniTab
+    const matchYear = cumulative ? c.year <= year : c.year === year
     const matchDiff = diff === "All" || c.difficulty === diff
     const matchQ    = !search
       || c.name.toLowerCase().includes(search.toLowerCase())
       || c.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
     return matchUni && matchYear && matchDiff && matchQ
-  }), [courses, uniTab, year, diff, search])
+  }), [courses, uniTab, year, cumulative, diff, search])
 
-  // Memoize tab counts to prevent recalculation on every render
-  const tabsWithCount = useMemo(() => ["Both", "JU", "HU"].map(label => ({
-    label,
-    count: courses.filter(c => label === "Both" || c.university === label).length,
-  })), [courses])
+  // Tabs: user's own uni + External MOOCs
+  const tabsWithCount = useMemo(() => ([
+    { label: userUniversity, count: courses.filter(c => c.university === userUniversity).length },
+    { label: "EXT",          count: courses.filter(c => c.university === "EXT").length },
+  ]), [courses, userUniversity])
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
@@ -52,7 +54,7 @@ export default function CourseCatalog({ courses, loading, defaultUniversity, def
     <div style={{ background: "transparent", minHeight: "100%", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
 
       {/* University Tabs */}
-      <SectionTabs tabs={tabsWithCount} active={uniTab} onChange={setUniTab} />
+      <SectionTabs tabs={tabsWithCount} active={uniTab} onChange={t => setUniTab(t as "JU" | "HU" | "EXT")} />
 
       {/* Filters */}
       <div style={{ padding: "10px 16px", borderBottom: "1px solid #2a2a2a",
@@ -76,9 +78,18 @@ export default function CourseCatalog({ courses, loading, defaultUniversity, def
                 background: year === y ? "#0a2018" : "#1e1e1e",
                 border: `1px solid ${year === y ? "#3ef07a" : "#2a2a2a"}`,
                 color: year === y ? "#3ef07a" : "#909090" }}>
-              {y === 0 ? "All Years" : `Y${y}`}
+              {cumulative ? `Through Y${y}` : `Y${y}`}
             </button>
           ))}
+          <button onClick={() => setCumulative(c => !c)}
+            title={cumulative ? "Show only the selected year" : "Show all years up to the selected year"}
+            style={{ padding: "3px 9px", borderRadius: 20, fontSize: 11,
+              cursor: "pointer", fontFamily: "inherit",
+              background: cumulative ? "#0a2018" : "#1e1e1e",
+              border: `1px solid ${cumulative ? "#3ef07a" : "#2a2a2a"}`,
+              color: cumulative ? "#3ef07a" : "#909090" }}>
+            Cumulative
+          </button>
         </div>
 
         {/* Difficulty */}
@@ -95,9 +106,6 @@ export default function CourseCatalog({ courses, loading, defaultUniversity, def
           ))}
         </div>
 
-        <span style={{ fontSize: 10, color: "#555", marginLeft: "auto" }}>
-          {filtered.length} course{filtered.length !== 1 ? "s" : ""}
-        </span>
       </div>
 
       {/* Grid */}
@@ -105,7 +113,8 @@ export default function CourseCatalog({ courses, loading, defaultUniversity, def
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
           gap: 10, padding: 16 }}>
           {filtered.map(c => (
-            <CourseCard key={c.id} course={c} onClick={setSelected} isComplete={isComplete(c.id)} />
+            <CourseCard key={c.id} course={c} onClick={setSelected}
+              status={courseStatus(c)} lockReason={lockReason(c)} />
           ))}
         </div>
       ) : (

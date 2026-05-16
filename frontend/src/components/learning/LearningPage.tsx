@@ -3,32 +3,39 @@ import CourseCatalog from "./courses/CourseCatalog"
 import DevToolsHub from "./devtools/DevToolsHub"
 import PersonalizedPath from "./path/PersonalizedPath"
 import { useState, useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useCourses } from "@/hooks/useCourses"
+import { useAuth } from "@/contexts/AuthContext"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import BackgroundCanvas from "@/components/dashboard/background/BackgroundCanvas"
 
 export default function LearningPage() {
+  const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
   const [tab, setTab] = useState("Courses")
-  const [defaultUni, setDefaultUni]       = useState<string | undefined>(undefined)
+  const [userUni, setUserUni]             = useState<"JU" | "HU" | undefined>(undefined)
   const [defaultYear, setDefaultYear]     = useState<number | undefined>(undefined)
   const [profileReady, setProfileReady]   = useState(false)
 
   const { courses, loading } = useCourses()
 
   useEffect(() => {
+    if (!authLoading && !user) router.push("/auth/login")
+  }, [user, authLoading, router])
+
+  useEffect(() => {
+    if (!user) return
     async function loadProfile() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
         const { data } = await supabase
           .from("profiles")
           .select("university, year")
-          .eq("id", user.id)
+          .eq("id", user!.id)
           .single()
         if (data) {
-          if (data.university === "University of Jordan") setDefaultUni("JU")
-          else if (data.university === "Hashemite University") setDefaultUni("HU")
+          if (data.university === "University of Jordan") setUserUni("JU")
+          else if (data.university === "Hashemite University") setUserUni("HU")
           if (data.year) setDefaultYear(data.year)
         }
       } finally {
@@ -36,7 +43,7 @@ export default function LearningPage() {
       }
     }
     loadProfile()
-  }, [])
+  }, [user])
 
   const TABS = useMemo(() => [
     { label: "Courses",   count: courses.length },
@@ -70,13 +77,18 @@ export default function LearningPage() {
       </div>
 
       <div style={{ flex: 1, overflow: "auto" }}>
-        {tab === "Courses" && profileReady && (
+        {tab === "Courses" && profileReady && userUni && (
           <CourseCatalog
             courses={courses}
             loading={loading}
-            defaultUniversity={defaultUni}
+            userUniversity={userUni}
             defaultYear={defaultYear}
           />
+        )}
+        {tab === "Courses" && profileReady && !userUni && (
+          <div style={{ padding: 40, color: "#909090", fontSize: 12, textAlign: "center" }}>
+            Your profile is missing a university. <Link href="/profile" style={{ color: "#3ef07a" }}>Complete your profile</Link> to see courses.
+          </div>
         )}
         {tab === "Dev Tools" && <DevToolsHub />}
         {tab === "My Path"   && <PersonalizedPath />}

@@ -15,9 +15,10 @@ export interface CourseBook {
   url: string
   type: "free-pdf" | "paid" | "library"
 }
+export type CourseAffiliation = University | "EXT"
 export interface UniversityCourse {
   id: string
-  university: University
+  university: CourseAffiliation
   year: 1 | 2 | 3 | 4
   semester: 1 | 2
   name: string
@@ -27,6 +28,7 @@ export interface UniversityCourse {
   resources: CourseResource[]
   skills: string[]
   status: CourseStatus
+  prerequisite_ids?: string[]
 }
 
 // ─── Roadmap ────────────────────────────────────────
