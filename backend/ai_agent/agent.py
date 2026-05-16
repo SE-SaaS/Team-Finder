@@ -20,6 +20,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langchain.agents import create_agent
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from psycopg_pool import AsyncConnectionPool
 
 from .system_prompt import SYSTEM_PROMPT
 
@@ -688,7 +689,15 @@ async def create_university_assistant():
     print(f"  - {len(write_tools)} write tools (user_courses, user_skills)")
     print(f"  - {len(utility_tools)} utility tools")
 
-    checkpointer = AsyncPostgresSaver.from_conn_string(database_url)
+    db_pool = AsyncConnectionPool(
+        conninfo=database_url,
+        max_size=10,
+        open=False,
+        kwargs={"autocommit": True, "prepare_threshold": 0},
+    )
+    await db_pool.open()
+
+    checkpointer = AsyncPostgresSaver(db_pool)
     await checkpointer.setup()
 
     agent = create_agent(
