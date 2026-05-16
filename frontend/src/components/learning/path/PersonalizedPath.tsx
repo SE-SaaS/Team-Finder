@@ -3,14 +3,12 @@ import GoalSelector from "./GoalSelector"
 import RoadmapViewer from "./RoadmapViewer"
 import ProgressBar from "@/components/shared/ProgressBar"
 import { useRoadmap } from "@/hooks/useRoadmap"
-import { useProgress } from "@/hooks/useProgress"
 import { useRoadmaps } from "@/hooks/useRoadmaps"
 
 export default function PersonalizedPath() {
   const [goalId, setGoalId] = useState<string | null>(null)
   const { roadmaps, loading } = useRoadmaps()
   const { roadmap, progressPercent, completedNodes } = useRoadmap(goalId ?? "", roadmaps)
-  const { markComplete } = useProgress()
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
@@ -49,11 +47,7 @@ export default function PersonalizedPath() {
 
       {/* Roadmap canvas */}
       <div style={{ flex: 1, overflow: "hidden" }}>
-        <RoadmapViewer
-          roadmap={roadmap}
-          completedNodes={completedNodes.map(n => n.id)}
-          onMarkComplete={markComplete}
-        />
+        <RoadmapViewer roadmap={roadmap} />
       </div>
     </div>
   )

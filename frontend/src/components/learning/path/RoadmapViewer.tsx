@@ -11,7 +11,6 @@ import "@xyflow/react/dist/style.css"
 import { RoadmapNodeComponent } from "./RoadmapNode"
 import NodeDetailPanel from "./NodeDetailPanel"
 import { useProgress } from "@/hooks/useProgress"
-import { useRoadmap } from "@/hooks/useRoadmap"
 import type { Roadmap, RoadmapNode } from "@/types"
 
 const NODE_TYPES = { roadmapNode: RoadmapNodeComponent }
@@ -23,7 +22,11 @@ interface RoadmapViewerProps {
 export default function RoadmapViewer({ roadmap }: RoadmapViewerProps) {
   const [selectedNode, setSelectedNode] = useState<RoadmapNode | null>(null)
   const { isComplete } = useProgress()
-  const { isNodeLocked } = useRoadmap(roadmap.id)
+
+  const isNodeLocked = useCallback(
+    (node: RoadmapNode) => node.dependsOn.some(depId => !isComplete(depId)),
+    [isComplete]
+  )
 
   // Transform roadmap nodes → ReactFlow nodes
   const rfNodes: Node[] = useMemo(() =>

@@ -11,20 +11,21 @@ interface Project {
   title: string;
   description: string;
   type: 'university' | 'external';
-  status: 'open' | 'in-progress' | 'completed';
-  required_skills: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  status: 'open' | 'in_progress' | 'completed' | 'closed';
+  tech_stack: string[];
+  skills_needed?: string[];
   team_size: number;
-  current_members: number;
-  owner_id: string;
+  creator_id: string;
   created_at: string;
 }
 
 interface TeamMember {
   id: string;
-  name: string;
-  email: string;
-  major: string;
-  year: string;
+  name: string | null;
+  email: string | null;
+  major: string | null;
+  year: string | null;
 }
 
 export default function ProjectDetailPage() {
@@ -67,7 +68,7 @@ export default function ProjectDetailPage() {
         const { data: ownerData, error: ownerError } = await supabase
           .from('profiles')
           .select('id, name, email, major, year')
-          .eq('id', projectData.owner_id)
+          .eq('id', projectData.creator_id)
           .single();
 
         if (!ownerError && ownerData) {
@@ -75,7 +76,7 @@ export default function ProjectDetailPage() {
         }
 
         // Check if current user is a member
-        setIsMember(projectData.owner_id === user.id);
+        setIsMember(projectData.creator_id === user!.id);
 
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -127,8 +128,8 @@ export default function ProjectDetailPage() {
     );
   }
 
-  const isOwner = project.owner_id === user.id;
-  const spotsRemaining = project.team_size - project.current_members;
+  const isOwner = project.creator_id === user!.id;
+  const spotsRemaining = project.team_size - teamMembers.length;
 
   return (
     <div className="min-h-screen bg-[#0d1117]">
@@ -180,12 +181,12 @@ export default function ProjectDetailPage() {
                   className={`px-3 py-1 rounded-full ${
                     project.status === 'open'
                       ? 'bg-[#238636]/10 text-[#3fb950]'
-                      : project.status === 'in-progress'
+                      : project.status === 'in_progress'
                       ? 'bg-[#9e6a03]/10 text-[#d29922]'
                       : 'bg-[#8b949e]/10 text-[#8b949e]'
                   }`}
                 >
-                  {project.status === 'open' ? '🟢 Open for Members' : project.status === 'in-progress' ? '🟡 In Progress' : '✅ Completed'}
+                  {project.status === 'open' ? '🟢 Open for Members' : project.status === 'in_progress' ? '🟡 In Progress' : '✅ Completed'}
                 </div>
                 <span>
                   Created {new Date(project.created_at).toLocaleDateString()}
@@ -203,7 +204,7 @@ export default function ProjectDetailPage() {
             <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
               <h2 className="text-lg font-semibold text-[#f0f6fc] mb-3">Required Skills</h2>
               <div className="flex flex-wrap gap-2">
-                {project.required_skills.map((skill, idx) => (
+                {(project.tech_stack ?? []).map((skill: string, idx: number) => (
                   <span
                     key={idx}
                     className="px-3 py-1.5 rounded-md text-sm font-medium bg-[#238636]/10 text-[#3fb950] border border-[#238636]/30"
@@ -217,21 +218,23 @@ export default function ProjectDetailPage() {
             {/* Team Members */}
             <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
               <h2 className="text-lg font-semibold text-[#f0f6fc] mb-4">
-                Team Members ({project.current_members}/{project.team_size})
+                Team Members ({teamMembers.length}/{project.team_size})
               </h2>
               <div className="space-y-3">
                 {teamMembers.map((member) => (
                   <div key={member.id} className="flex items-center gap-3 p-3 bg-[#0d1117] rounded-lg border border-[#30363d]">
-                    <div className="w-10 h-10 bg-[#58a6ff] rounded-full flex items-center justify-center text-white font-bold">
-                      {member.name.charAt(0)}
+                    <div className="w-10 h-10 bg-[#58a6ff] rounded-full flex items-center justify-center text-white font-bold uppercase">
+                      {(member.name || member.email)?.charAt(0) ?? '?'}
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-[#f0f6fc]">{member.name}</div>
+                      <div className="font-medium text-[#f0f6fc]">
+                        {member.name || member.email?.split('@')[0] || 'Unknown'}
+                      </div>
                       <div className="text-sm text-[#8b949e]">
                         {member.major} · Year {member.year}
                       </div>
                     </div>
-                    {member.id === project.owner_id && (
+                    {member.id === project.creator_id && (
                       <span className="px-2 py-1 text-xs rounded bg-[#9e6a03]/10 text-[#d29922]">
                         Owner
                       </span>
@@ -268,7 +271,7 @@ export default function ProjectDetailPage() {
 
             {project.status !== 'open' && (
               <div className="w-full bg-[#8b949e]/10 border border-[#8b949e]/30 text-[#8b949e] font-medium py-3 rounded-lg text-center">
-                {project.status === 'in-progress' ? 'Project in progress' : 'Project completed'}
+                {project.status === 'in_progress' ? 'Project in progress' : 'Project completed'}
               </div>
             )}
 
@@ -282,7 +285,7 @@ export default function ProjectDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[#8b949e]">Current Members</span>
-                  <span className="text-sm font-medium text-[#f0f6fc]">{project.current_members}</span>
+                  <span className="text-sm font-medium text-[#f0f6fc]">{teamMembers.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[#8b949e]">Spots Remaining</span>
@@ -290,7 +293,7 @@ export default function ProjectDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-[#8b949e]">Required Skills</span>
-                  <span className="text-sm font-medium text-[#f0f6fc]">{project.required_skills.length}</span>
+                  <span className="text-sm font-medium text-[#f0f6fc]">{project.tech_stack?.length ?? 0}</span>
                 </div>
               </div>
             </div>

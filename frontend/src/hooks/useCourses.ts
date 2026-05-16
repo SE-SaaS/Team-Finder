@@ -16,7 +16,6 @@ export function useCourses() {
         const data = await res.json()
         setCourses(data)
       } catch {
-        // Fallback to local data
         setCourses([...juCourses, ...huCourses])
         setError("Using local data — DB unavailable")
       } finally {

@@ -69,8 +69,7 @@ export function isProfileComplete(profile: ProfileCompletionCheck): boolean {
   return !!(
     profile.major &&
     profile.year &&
-    profile.skillsCount >= 3 &&
-    (profile.coursesCount ?? 0) > 0
+    profile.skillsCount >= 3
   );
 }
 
@@ -82,12 +81,11 @@ export function isProfileComplete(profile: ProfileCompletionCheck): boolean {
  */
 export function getProfileCompletionPercentage(profile: ProfileCompletionCheck): number {
   let completed = 0;
-  const total = 4;
+  const total = 3;
 
   if (profile.major) completed++;
   if (profile.year) completed++;
   if (profile.skillsCount >= 3) completed++;
-  if ((profile.coursesCount ?? 0) > 0) completed++;
 
   return Math.round((completed / total) * 100);
 }
@@ -104,7 +102,6 @@ export function getMissingRequirements(profile: ProfileCompletionCheck): string[
   if (!profile.major) missing.push('Select your major');
   if (!profile.year) missing.push('Set your year');
   if (profile.skillsCount < 3) missing.push(`Add ${3 - profile.skillsCount} more skill${3 - profile.skillsCount === 1 ? '' : 's'}`);
-  if ((profile.coursesCount ?? 0) === 0) missing.push('Add at least 1 completed course');
 
   return missing;
 }

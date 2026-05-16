@@ -7,113 +7,95 @@ import { supabase } from '@/lib/supabase';
 import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
 import { logger } from '@/lib/logger';
 
+const DISMISSED_KEY = 'profile_banner_dismissed';
+
 export default function ProfileCompletionBanner() {
   const { user } = useAuth();
-  const [isProfileComplete, setIsProfileComplete] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [isComplete, setIsComplete] = useState(true);
+  const [loading,    setLoading]    = useState(true);
+  const [dismissed,  setDismissed]  = useState(false);
 
   useEffect(() => {
-    async function checkProfileCompletion() {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    // Restore dismiss state for this session
+    if (sessionStorage.getItem(DISMISSED_KEY) === '1') {
+      setDismissed(true);
+    }
+  }, []);
 
+  useEffect(() => {
+    async function check() {
+      if (!user) { setLoading(false); return; }
       try {
-        // Check if profile exists and has required fields
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('major, year, semester')
-          .eq('id', user.id)
-          .single();
-
-        // Check if user has completed courses
-        const { count: coursesCount } = await supabase
-          .from('user_courses')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
-
-        // Check if user has skills
+          .from('profiles').select('major, year, semester').eq('id', user.id).single();
         const { count: skillsCount } = await supabase
-          .from('user_skills')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id);
+          .from('user_skills').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+        const { count: coursesCount } = await supabase
+          .from('user_courses').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
 
-        // Use shared validation function for consistency
-        const isComplete = checkProfileComplete({
+        setIsComplete(checkProfileComplete({
           major: profile?.major,
           year: profile?.year,
           skillsCount: skillsCount ?? 0,
           coursesCount: coursesCount ?? 0,
-        });
-
-        logger.log('Profile completion check:', {
-          major: profile?.major,
-          year: profile?.year,
-          coursesCount,
-          skillsCount,
-          isComplete
-        });
-
-        setIsProfileComplete(isComplete);
-      } catch (error) {
-        logger.error('Error checking profile completion:', error);
-        setIsProfileComplete(false);
+        }));
+      } catch (e) {
+        logger.error('Error checking profile completion:', e);
+        setIsComplete(false);
       } finally {
         setLoading(false);
       }
     }
-
-    checkProfileCompletion();
+    check();
   }, [user]);
 
-  if (loading || isProfileComplete) return null;
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDismissed(true);
+    sessionStorage.setItem(DISMISSED_KEY, '1');
+  };
+
+  if (loading || isComplete || dismissed) return null;
 
   return (
     <div className="fixed top-4 right-4 z-50 max-w-sm">
-      <Link href="/profile">
-        <div className="bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white px-6 py-4 rounded-lg shadow-2xl border border-red-400/20 hover:scale-105 transition-transform cursor-pointer">
-          <div className="flex items-start gap-3">
+      <div className="relative bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white rounded-lg shadow-2xl border border-red-400/20">
+
+        <Link href="/profile" className="block px-6 py-4 hover:opacity-90 transition-opacity">
+          <div className="flex items-start gap-3 pr-4">
             <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-sm mb-1">Complete Your Profile</h3>
-              <p className="text-xs text-white/90">
+              <p className="text-xs text-white/85">
                 Finish your profile to unlock all features and start matching with teams!
               </p>
-              <div className="mt-2 text-xs font-semibold text-white/80 flex items-center gap-1">
+              <div className="mt-2 text-xs font-semibold text-white/75 flex items-center gap-1">
                 <span>Complete now</span>
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+
+        {/* Dismiss button — after Link in DOM so it stacks on top */}
+        <button
+          onClick={handleDismiss}
+          aria-label="Dismiss"
+          className="absolute top-2 right-2 z-10 w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/30 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

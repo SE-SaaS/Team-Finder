@@ -11,11 +11,13 @@ const YEARS = [0, 1, 2, 3, 4] // 0 = All
 interface CourseCatalogProps {
   courses: UniversityCourse[]
   loading: boolean
+  defaultUniversity?: string
+  defaultYear?: number
 }
 
-export default function CourseCatalog({ courses, loading }: CourseCatalogProps) {
-  const [uniTab, setUniTab]         = useState("Both")
-  const [year, setYear]             = useState(0)
+export default function CourseCatalog({ courses, loading, defaultUniversity, defaultYear }: CourseCatalogProps) {
+  const [uniTab, setUniTab]         = useState(defaultUniversity ?? "Both")
+  const [year, setYear]             = useState(defaultYear ?? 0)
   const [diff, setDiff]             = useState<"All" | Difficulty>("All")
   const [search, setSearch]         = useState("")
   const [selected, setSelected]     = useState<UniversityCourse | null>(null)

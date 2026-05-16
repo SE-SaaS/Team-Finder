@@ -1,24 +1,26 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
-/**
- * Hook for managing learning progress
- * Tracks completed nodes/courses in localStorage
- */
 export function useProgress() {
   const [progress, setProgress] = useState<Record<string, boolean>>(
-    () => JSON.parse(localStorage.getItem("ph_progress") ?? "{}")
+    () => typeof window === 'undefined'
+      ? {}
+      : JSON.parse(localStorage.getItem("ph_progress") ?? "{}")
   );
 
-  const markComplete = (id: string) => {
-    const updated = { ...progress, [id]: true };
-    setProgress(updated);
-    localStorage.setItem("ph_progress", JSON.stringify(updated));
-  };
+  const markComplete = useCallback((id: string) => {
+    setProgress(prev => {
+      const updated = { ...prev, [id]: true };
+      localStorage.setItem("ph_progress", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  const isComplete = (id: string): boolean => !!progress[id];
+  const isComplete = useCallback((id: string): boolean => !!progress[id], [progress]);
 
-  const completedCount = (ids: string[]): number =>
-    ids.filter(id => progress[id]).length;
+  const completedCount = useCallback(
+    (ids: string[]): number => ids.filter(id => progress[id]).length,
+    [progress]
+  );
 
   return { markComplete, isComplete, completedCount };
 }

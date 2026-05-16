@@ -15,7 +15,8 @@ export default function CreateProjectPage() {
     title: '',
     description: '',
     type: 'university' as 'university' | 'external',
-    required_skills: [] as string[],
+    difficulty: '' as '' | 'beginner' | 'intermediate' | 'advanced',
+    tech_stack: [] as string[],
     team_size: 3,
   });
 
@@ -32,13 +33,11 @@ export default function CreateProjectPage() {
   const handleSkillToggle = (skill: string) => {
     setFormData(prev => ({
       ...prev,
-      required_skills: prev.required_skills.includes(skill)
-        ? prev.required_skills.filter(s => s !== skill)
-        : [...prev.required_skills, skill]
+      tech_stack: prev.tech_stack.includes(skill)
+        ? prev.tech_stack.filter(s => s !== skill)
+        : [...prev.tech_stack, skill]
     }));
-    if (errors.required_skills) {
-      setErrors({ ...errors, required_skills: '' });
-    }
+    if (errors.tech_stack) setErrors({ ...errors, tech_stack: '' });
   };
 
   const validate = (): boolean => {
@@ -56,8 +55,12 @@ export default function CreateProjectPage() {
       newErrors.description = 'Description must be at least 20 characters';
     }
 
-    if (formData.required_skills.length === 0) {
-      newErrors.required_skills = 'Select at least one required skill';
+    if (!formData.difficulty) {
+      newErrors.difficulty = 'Select a difficulty level';
+    }
+
+    if (formData.tech_stack.length === 0) {
+      newErrors.tech_stack = 'Select at least one skill';
     }
 
     if (formData.team_size < 2 || formData.team_size > 10) {
@@ -82,11 +85,11 @@ export default function CreateProjectPage() {
           title: formData.title.trim(),
           description: formData.description.trim(),
           type: formData.type,
-          required_skills: formData.required_skills,
+          difficulty: formData.difficulty,
+          tech_stack: formData.tech_stack,
           team_size: formData.team_size,
-          current_members: 1, // Creator is first member
           status: 'open',
-          owner_id: user.id,
+          creator_id: user.id,
         })
         .select()
         .single();
@@ -200,6 +203,37 @@ export default function CreateProjectPage() {
             </div>
           </div>
 
+          {/* Difficulty */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
+              Difficulty <span className="text-[#f85149]">*</span>
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { value: 'beginner',     label: '🟢 Beginner',     desc: 'Entry level' },
+                { value: 'intermediate', label: '🟡 Intermediate',  desc: 'Some experience needed' },
+                { value: 'advanced',     label: '🔴 Advanced',      desc: 'Expert level' },
+              ] as const).map(({ value, label, desc }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, difficulty: value })}
+                  className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
+                    formData.difficulty === value
+                      ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
+                      : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
+                  }`}
+                >
+                  <div className="font-semibold text-sm mb-0.5">{label}</div>
+                  <div className="text-xs opacity-70">{desc}</div>
+                </button>
+              ))}
+            </div>
+            {errors.difficulty && (
+              <p className="mt-2 text-sm text-[#f85149]">{errors.difficulty}</p>
+            )}
+          </div>
+
           {/* Team Size */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
@@ -232,7 +266,7 @@ export default function CreateProjectPage() {
                   type="button"
                   onClick={() => handleSkillToggle(skill)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                    formData.required_skills.includes(skill)
+                    formData.tech_stack.includes(skill)
                       ? 'bg-[#238636] text-white border-2 border-[#2ea043]'
                       : 'bg-[#21262d] text-[#c9d1d9] border-2 border-[#30363d] hover:border-[#58a6ff]'
                   }`}
@@ -241,11 +275,11 @@ export default function CreateProjectPage() {
                 </button>
               ))}
             </div>
-            {errors.required_skills && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.required_skills}</p>
+            {errors.tech_stack && (
+              <p className="mt-2 text-sm text-[#f85149]">{errors.tech_stack}</p>
             )}
             <p className="mt-2 text-xs text-[#8b949e]">
-              {formData.required_skills.length} skill{formData.required_skills.length !== 1 ? 's' : ''} selected
+              {formData.tech_stack.length} skill{formData.tech_stack.length !== 1 ? 's' : ''} selected
             </p>
           </div>
 
