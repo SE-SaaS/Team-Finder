@@ -103,7 +103,7 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-semibold text-[#f0f6fc] mb-4">8. Disclaimers</h2>
             <p>
-              TeamFinder is provided "as is" without warranties of any kind. We do not guarantee:
+              TeamFinder is provided &quot;as is&quot; without warranties of any kind. We do not guarantee:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4 mt-4">
               <li>Successful team formation or project completion</li>

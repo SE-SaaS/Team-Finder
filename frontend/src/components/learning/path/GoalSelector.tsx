@@ -30,7 +30,7 @@ export default function GoalSelector({ onSelect }: GoalSelectorProps) {
         What do you want to build?
       </h2>
       <p style={{ fontSize: 12, color: "#909090", marginBottom: 24, lineHeight: 1.6 }}>
-        Pick a goal. We'll give you a visual roadmap with labs and courses for every step.
+        Pick a goal. We&apos;ll give you a visual roadmap with labs and courses for every step.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>

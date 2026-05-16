@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
         });
         setEmail('');
       }
-    } catch (err) {
+    } catch {
       setMessage({
         type: 'error',
         text: 'An unexpected error occurred. Please try again.',

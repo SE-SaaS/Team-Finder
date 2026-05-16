@@ -278,7 +278,7 @@ export default function Step2_YearCourses({ data, onChange, onNext, onBack }: St
             Completed Courses <span className="text-white/40">(Optional)</span>
           </label>
           <p className="text-sm text-white/50 mb-4">
-            Select courses you've completed to unlock additional skills.
+            Select courses you&apos;ve completed to unlock additional skills.
           </p>
 
           {/* Auto-completion Info */}

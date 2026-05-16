@@ -10,6 +10,24 @@ import { MAJORS } from '@/data/majors';
 
 type StepId = 'year' | 'courses' | 'skills' | 'availability' | 'specialization';
 
+interface ProfileRecord {
+  university?: string;
+  major?: string;
+  year?: string;
+  semester?: number;
+  availability?: number;
+  specialization?: string;
+}
+
+interface CourseRecord {
+  id: string;
+  code: string;
+  name: string;
+  year: number;
+  semester: number;
+  unlocks_skills?: string[];
+}
+
 const STEPS: { id: StepId; label: string; icon: string; required: boolean }[] = [
   { id: 'year',           label: 'Year & Semester', icon: '📅', required: true  },
   { id: 'courses',        label: 'Courses',         icon: '📚', required: true  },
@@ -26,14 +44,14 @@ export default function ProfileEditPage() {
   const [saving, setSaving]     = useState(false);
   const [saved, setSaved]       = useState(false);
 
-  const [profile,          setProfile]          = useState<any>(null);
+  const [profile,          setProfile]          = useState<ProfileRecord | null>(null);
   const [year,             setYear]             = useState('');
   const [semester,         setSemester]         = useState(1);
   const [skills,           setSkills]           = useState<string[]>([]);
   const [courses,          setCourses]          = useState<string[]>([]);
   const [availability,     setAvailability]     = useState(20);
   const [specialization,   setSpecialization]   = useState('');
-  const [availableCourses, setAvailableCourses] = useState<any[]>([]);
+  const [availableCourses, setAvailableCourses] = useState<CourseRecord[]>([]);
 
   // First time = profile has never been completed (year not set in DB)
   const isFirstTime = !profile?.year;
@@ -57,11 +75,11 @@ export default function ProfileEditPage() {
 
         const { data: sk } = await supabase
           .from('user_skills').select('skill_name').eq('user_id', user!.id);
-        setSkills(sk?.map((s: any) => s.skill_name) || []);
+        setSkills(sk?.map((s: { skill_name: string }) => s.skill_name) || []);
 
         const { data: co } = await supabase
           .from('user_courses').select('course_id').eq('user_id', user!.id);
-        setCourses(co?.map((c: any) => c.course_id) || []);
+        setCourses(co?.map((c: { course_id: string }) => c.course_id) || []);
       } catch (e) {
         console.error('Error loading profile:', e);
       } finally {
@@ -73,12 +91,13 @@ export default function ProfileEditPage() {
 
   useEffect(() => {
     if (!profile || !year) return;
+    const p = profile;
     async function loadCourses() {
       const yearNum = typeof year === 'string' ? parseInt(year.charAt(0)) : Number(year);
       const { data } = await supabase
         .from('courses').select('*')
-        .eq('university', profile.university === 'University of Jordan' ? 'JU' : 'HU')
-        .eq('major', profile.major)
+        .eq('university', p.university === 'University of Jordan' ? 'JU' : 'HU')
+        .eq('major', p.major)
         .lte('year', yearNum)
         .order('year', { ascending: true })
         .order('semester', { ascending: true })
@@ -384,9 +403,9 @@ export default function ProfileEditPage() {
                             : 'bg-black border border-gray-800 text-gray-400 hover:border-gray-600 hover:text-white'
                           }`}>
                         <div className="font-medium text-sm">{course.code} — {course.name}</div>
-                        {course.unlocks_skills?.length > 0 && (
+                        {course.unlocks_skills && course.unlocks_skills.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1.5">
-                            {course.unlocks_skills.map((s: string) => (
+                            {course.unlocks_skills?.map((s: string) => (
                               <span key={s} className="text-[10px] px-2 py-0.5 rounded bg-[#dc2626]/10 text-[#dc2626] border border-[#dc2626]/20">
                                 {s}
                               </span>

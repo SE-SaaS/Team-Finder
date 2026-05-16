@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
@@ -19,6 +19,14 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0d1117] flex items-center justify-center"><div className="text-[#8b949e]">Loading...</div></div>}>
+      <ProjectsContent />
+    </Suspense>
+  );
+}
+
+function ProjectsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();

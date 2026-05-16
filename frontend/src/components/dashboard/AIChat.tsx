@@ -142,7 +142,7 @@ export default function AIChat() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.length === 0 && (
           <div className="text-center text-[#8b949e] text-sm py-8">
-            <p className="mb-2">👋 Hi! I'm your Career Assistant</p>
+            <p className="mb-2">Hi! I&apos;m your Career Assistant</p>
             <p className="text-xs">Ask me about courses, skills, projects, or career paths!</p>
           </div>
         )}

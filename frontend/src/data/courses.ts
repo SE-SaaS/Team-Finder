@@ -4,9 +4,16 @@
  * Used in Step 2 (Year & Courses)
  */
 
-import type { Course } from '@/types/profile';
+interface StaticCourse {
+  id: string;
+  code: string;
+  name: string;
+  unlocksSkills: string[];
+  recommendedYear: number;
+  description: string;
+}
 
-export const COURSES: Course[] = [
+export const COURSES: StaticCourse[] = [
   // ============================================
   // 1ST YEAR COURSES
   // ============================================
@@ -215,14 +222,14 @@ export const COURSES: Course[] = [
 /**
  * Get courses by recommended year
  */
-export function getCoursesByYear(year: number): Course[] {
+export function getCoursesByYear(year: number): StaticCourse[] {
   return COURSES.filter(course => course.recommendedYear === year);
 }
 
 /**
  * Get course by ID
  */
-export function getCourseById(id: string): Course | undefined {
+export function getCourseById(id: string): StaticCourse | undefined {
   return COURSES.find(course => course.id === id);
 }
 
@@ -245,7 +252,7 @@ export function getUnlockedSkills(courseIds: string[]): string[] {
 /**
  * Search courses by name or code
  */
-export function searchCourses(query: string): Course[] {
+export function searchCourses(query: string): StaticCourse[] {
   if (!query) return COURSES;
 
   const lowerQuery = query.toLowerCase();

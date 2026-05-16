@@ -2,7 +2,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import type { ProfileData, Course } from '@/types/profile';
 import { SKILL_LOCKS } from '@/data/skillLocks';
-import { ALL_SKILLS, getSkillCategory } from '@/lib/skills';
+import { ALL_SKILLS } from '@/lib/skills';
 import SkillPill from '@/lib/SkillPill';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';

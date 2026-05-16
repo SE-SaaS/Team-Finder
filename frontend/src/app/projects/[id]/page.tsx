@@ -265,7 +265,7 @@ export default function ProjectDetailPage() {
 
             {isMember && !isOwner && (
               <div className="w-full bg-[#3fb950]/10 border border-[#3fb950]/30 text-[#3fb950] font-medium py-3 rounded-lg text-center">
-                ✓ You're a member
+                ✓ You&apos;re a member
               </div>
             )}
 

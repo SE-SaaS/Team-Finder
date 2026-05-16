@@ -14,7 +14,7 @@ interface Step5Props {
   onBack: () => void;
 }
 
-export default function Step5_SkillExams({ data, onChange, onNext, onBack }: Step5Props) {
+export default function Step5_SkillExams({ data, onNext, onBack }: Omit<Step5Props, 'onChange'>) {
   const selectedSkills = data.skills || [];
 
   return (

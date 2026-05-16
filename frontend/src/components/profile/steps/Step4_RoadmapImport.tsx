@@ -15,7 +15,7 @@ interface Step4Props {
   onBack: () => void;
 }
 
-export default function Step4_RoadmapImport({ data, onChange, onNext, onBack }: Step4Props) {
+export default function Step4_RoadmapImport({ onNext, onBack }: Pick<Step4Props, 'onNext' | 'onBack'>) {
   // Auto-skip to next step after 1 second
   useEffect(() => {
     const timer = setTimeout(() => {

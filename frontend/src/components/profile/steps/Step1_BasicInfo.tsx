@@ -78,7 +78,7 @@ export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) 
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Basic Information</h2>
-        <p className="text-white/60">Let's start with the basics</p>
+        <p className="text-white/60">Let&apos;s start with the basics</p>
       </div>
 
       {/* University Field (Read-only) */}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import ProfileCompletionBanner from '@/components/dashboard/ProfileCompletionBanner';
+
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 import ThemeToggle from '@/components/dashboard/background/ThemeToggle';
 import { BackgroundThemeProvider } from '@/contexts/BackgroundThemeContext';
@@ -213,7 +213,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab]                   = useState<'university' | 'external' | 'my'>('university');
   const [userCourses, setUserCourses]               = useState<string[]>([]);
   const [userSkills, setUserSkills]                 = useState<string[]>([]);
-  const [allCourses, setAllCourses]                 = useState<any[]>([]);
+  const [allCourses, setAllCourses]                 = useState<{ id: string; code: string; name: string; year: number; semester: number }[]>([]);
   const [searchQuery, setSearchQuery]               = useState('');
   const [myProjects, setMyProjects]                 = useState<Project[]>([]);
   const [trendingProjects, setTrendingProjects]     = useState<Project[]>([]);

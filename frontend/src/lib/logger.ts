@@ -21,7 +21,7 @@ export const logger = {
   /**
    * Log debug information (development only)
    */
-  log: (...args: any[]) => {
+  log: (...args: unknown[]) => {
     if (isDevelopment) {
       console.log(...args);
     }
@@ -30,7 +30,7 @@ export const logger = {
   /**
    * Log informational messages (development only)
    */
-  info: (...args: any[]) => {
+  info: (...args: unknown[]) => {
     if (isDevelopment) {
       console.info(...args);
     }
@@ -39,14 +39,14 @@ export const logger = {
   /**
    * Log warnings (always shown)
    */
-  warn: (...args: any[]) => {
+  warn: (...args: unknown[]) => {
     console.warn(...args);
   },
 
   /**
    * Log errors (always shown)
    */
-  error: (...args: any[]) => {
+  error: (...args: unknown[]) => {
     console.error(...args);
   },
 
@@ -61,20 +61,20 @@ export const logger = {
    * log.info('Loaded projects'); // [Dashboard] Loaded projects
    */
   create: (namespace: string) => ({
-    log: (...args: any[]) => {
+    log: (...args: unknown[]) => {
       if (isDevelopment) {
         console.log(`[${namespace}]`, ...args);
       }
     },
-    info: (...args: any[]) => {
+    info: (...args: unknown[]) => {
       if (isDevelopment) {
         console.info(`[${namespace}]`, ...args);
       }
     },
-    warn: (...args: any[]) => {
+    warn: (...args: unknown[]) => {
       console.warn(`[${namespace}]`, ...args);
     },
-    error: (...args: any[]) => {
+    error: (...args: unknown[]) => {
       console.error(`[${namespace}]`, ...args);
     },
   }),

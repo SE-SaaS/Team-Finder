@@ -19,7 +19,7 @@ interface AvailabilityCardProps {
 export default function AvailabilityCard({
   label,
   description,
-  value,
+  value: _value,
   selected,
   onClick,
   icon,

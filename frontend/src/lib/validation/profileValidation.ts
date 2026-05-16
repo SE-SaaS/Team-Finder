@@ -7,7 +7,7 @@ export interface ValidationResult {
 
 export function validateMajor(majorCode: string): ValidationResult {
   if (!majorCode) return { isValid: false, error: 'Please select your major' }
-  if (!MAJOR_CODES.includes(majorCode as any)) return { isValid: false, error: 'Invalid major selected' }
+  if (!(MAJOR_CODES as readonly string[]).includes(majorCode)) return { isValid: false, error: 'Invalid major selected' }
   return { isValid: true }
 }
 

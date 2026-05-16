@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+
 import type { ProfileData, AvailabilityType } from '@/types/profile';
 import AvailabilityCard from '@/components/profile/ui/AvailabilityCard';
 
