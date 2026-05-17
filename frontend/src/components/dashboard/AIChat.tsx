@@ -54,6 +54,8 @@ export default function AIChat() {
           message: userMessage,
           thread_id: threadId,
           history: messages,
+          user_id: session.user.id,
+          session_id: threadId ?? session.user.id,
         }),
       });
 
