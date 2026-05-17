@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     logger.error('Profile error:', error);

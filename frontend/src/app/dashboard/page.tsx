@@ -240,7 +240,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       if (!user) return;
       try {
         const { data: profile } = await supabase
-          .from('profiles').select('major, year, name, university, semester').eq('id', user.id).single();
+          .from('profiles').select('major, year, name, university, semester').eq('id', user.id).maybeSingle();
         const { count: skillsCount } = await supabase
           .from('user_skills').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
         const { count: coursesCount } = await supabase
@@ -352,7 +352,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
           .from('profiles')
           .select('completed_courses')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         setUserCourses(profile?.completed_courses || []);
 

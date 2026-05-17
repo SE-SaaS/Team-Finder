@@ -65,8 +65,8 @@ export const MAJORS: Record<string, MajorInfo> = {
     ],
   },
 
-  CYB: {
-    code: 'CYB',
+  CYS: {
+    code: 'CYS',
     name: 'Cybersecurity',
     nameAr: 'الأمن السيبراني',
     specializations: [
@@ -119,8 +119,8 @@ export const MAJORS: Record<string, MajorInfo> = {
     ],
   },
 
-  SE: {
-    code: 'SE',
+  SWE: {
+    code: 'SWE',
     name: 'Software Engineering',
     nameAr: 'هندسة البرمجيات',
     specializations: [
@@ -137,21 +137,21 @@ export const MAJORS: Record<string, MajorInfo> = {
     ],
   },
 
-  CE: {
-    code: 'CE',
-    name: 'Computer Engineering',
-    nameAr: 'هندسة الحاسوب',
+  DS_AI: {
+    code: 'DS_AI',
+    name: 'Data Science & AI',
+    nameAr: 'علم البيانات والذكاء الاصطناعي',
     specializations: [
-      'VLSI & Chip Design',
-      'Embedded Systems',
-      'Computer Architecture',
-      'Digital Signal Processing',
-      'IoT Systems Design',
-      'Robotics Engineering',
-      'FPGA & Reconfigurable Computing',
-      'Power Electronics & Low Power Design',
-      'Hardware Security',
-      'Autonomous Systems & Drones',
+      'Machine Learning Engineering',
+      'Data Engineering',
+      'Predictive Analytics',
+      'Deep Learning & Neural Networks',
+      'Natural Language Processing',
+      'Computer Vision',
+      'Big Data Engineering',
+      'MLOps',
+      'Statistical Analysis',
+      'AI for Healthcare',
     ],
   },
 };

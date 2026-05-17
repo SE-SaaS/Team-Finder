@@ -56,7 +56,7 @@ export default function SettingsPage() {
           .from('profiles')
           .select('name, email, university, bio')
           .eq('id', user!.id)
-          .single();
+          .maybeSingle();
         if (base) {
           setName(base.name || '');
           setEmail(base.email || user!.email || '');
@@ -72,7 +72,7 @@ export default function SettingsPage() {
             .from('profiles')
             .select('phone, linkedin_url, github_url, website_url, discord_link')
             .eq('id', user!.id)
-            .single();
+            .maybeSingle();
           if (contact) {
             setPhone(contact.phone || '');
             setLinkedinUrl(contact.linkedin_url || '');

@@ -65,13 +65,13 @@ export default function ProfileEditPage() {
     async function load() {
       try {
         const { data: p, error } = await supabase
-          .from('profiles').select('*').eq('id', user!.id).single();
+          .from('profiles').select('*').eq('id', user!.id).maybeSingle();
         if (error) throw error;
         setProfile(p);
-        setYear(p.year || '');
-        setSemester(p.semester || 1);
-        setAvailability(p.availability || 20);
-        setSpecialization(p.specialization || '');
+        setYear(p?.year || '');
+        setSemester(p?.semester || 1);
+        setAvailability(p?.availability || 20);
+        setSpecialization(p?.specialization || '');
 
         const { data: sk } = await supabase
           .from('user_skills').select('skill_name').eq('user_id', user!.id);

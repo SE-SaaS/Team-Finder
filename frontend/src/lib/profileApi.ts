@@ -31,7 +31,7 @@ export async function getProfile(userId: string) {
     .from('profiles')
     .select('id, email, university, major, specialization, year, availability, bio, avatar, avatar_color, updated_at')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -43,7 +43,7 @@ export async function getPublicProfile(userId: string) {
     .from('profiles')
     .select('university, major, specialization, year, availability, bio, avatar, avatar_color')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
