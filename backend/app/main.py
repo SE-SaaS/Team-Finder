@@ -6,8 +6,10 @@ Provides REST API endpoint for frontend chat integration
 import os
 import sys
 import asyncio
-from fastapi import FastAPI, HTTPException, Depends
+import re
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import uuid
@@ -26,20 +28,62 @@ app = FastAPI(
 )
 
 # CORS configuration
-# Local dev: ALLOWED_ORIGINS not set → default localhost entries
-# Production: set ALLOWED_ORIGINS=https://your-app.vercel.app in Railway env vars
-_origins = os.getenv(
-    "ALLOWED_ORIGINS",
-    "https://team-finder-self.vercel.app,https://team-finder-git-main-awshanaqtahs-projects.vercel.app,https://team-finder-b6h81y7sg-awshanaqtahs-projects.vercel.app,http://localhost:3000,http://localhost:3002"
-).split(",")
+# Allows:
+# - Any vercel.app subdomain (covers all preview deployments)
+# - localhost for development
+# - Any extra origins from ALLOWED_ORIGINS env var
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[o.strip() for o in _origins],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+EXTRA_ORIGINS = [
+    o.strip()
+    for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
+
+def is_allowed_origin(origin: str) -> bool:
+    if not origin:
+        return False
+    # Allow all Vercel preview/production deployments
+    if re.match(r"https://[\w-]+\.vercel\.app$", origin):
+        return True
+    # Allow localhost
+    if re.match(r"http://localhost:\d+$", origin):
+        return True
+    if re.match(r"http://127\.0\.0\.1:\d+$", origin):
+        return True
+    # Allow any extra origins from env var
+    if origin in EXTRA_ORIGINS:
+        return True
+    return False
+
+
+@app.middleware("http")
+async def cors_middleware(request: Request, call_next):
+    origin = request.headers.get("origin", "")
+
+    if request.method == "OPTIONS":
+        if is_allowed_origin(origin):
+            return Response(
+                status_code=200,
+                headers={
+                    "Access-Control-Allow-Origin": origin,
+                    "Access-Control-Allow-Credentials": "true",
+                    "Access-Control-Allow-Methods": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Max-Age": "600",
+                },
+            )
+        return Response(status_code=400)
+
+    response = await call_next(request)
+
+    if is_allowed_origin(origin):
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+
+    return response
+
 
 REQUIRED_ENV_VARS = [
     "NEXT_PUBLIC_SUPABASE_URL",
