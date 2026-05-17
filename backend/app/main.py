@@ -30,7 +30,7 @@ app = FastAPI(
 # Production: set ALLOWED_ORIGINS=https://your-app.vercel.app in Railway env vars
 _origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3002,http://localhost:3000,http://127.0.0.1:3002,http://127.0.0.1:3000"
+    "https://team-finder-self.vercel.app,https://team-finder-git-main-awshanaqtahs-projects.vercel.app,https://team-finder-b6h81y7sg-awshanaqtahs-projects.vercel.app,http://localhost:3000,http://localhost:3002"
 ).split(",")
 
 app.add_middleware(
@@ -149,7 +149,6 @@ async def chat(
 async def health():
     """Detailed health check."""
     try:
-        # Try to get agent to verify everything is working
         agent = await get_agent()
         return {
             "status": "healthy",
