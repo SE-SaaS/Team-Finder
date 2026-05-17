@@ -6,9 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
-import { MAJORS } from '@/data/majors';
+import { MAJORS, MAJOR_CODES } from '@/data/majors';
 
-type StepId = 'year' | 'courses' | 'skills' | 'availability' | 'specialization';
+type StepId = 'major' | 'year' | 'courses' | 'skills' | 'availability' | 'specialization';
 
 interface ProfileRecord {
   university?: string;
@@ -29,6 +29,7 @@ interface CourseRecord {
 }
 
 const STEPS: { id: StepId; label: string; icon: string; required: boolean }[] = [
+  { id: 'major',          label: 'Major',           icon: '🎓', required: true  },
   { id: 'year',           label: 'Year & Semester', icon: '📅', required: true  },
   { id: 'courses',        label: 'Courses',         icon: '📚', required: true  },
   { id: 'skills',         label: 'Skills',          icon: '🎯', required: true  },
@@ -45,6 +46,7 @@ export default function ProfileEditPage() {
   const [saved, setSaved]       = useState(false);
 
   const [profile,          setProfile]          = useState<ProfileRecord | null>(null);
+  const [major,            setMajor]            = useState('');
   const [year,             setYear]             = useState('');
   const [semester,         setSemester]         = useState(1);
   const [skills,           setSkills]           = useState<string[]>([]);
@@ -53,8 +55,8 @@ export default function ProfileEditPage() {
   const [specialization,   setSpecialization]   = useState('');
   const [availableCourses, setAvailableCourses] = useState<CourseRecord[]>([]);
 
-  // First time = profile has never been completed (year not set in DB)
-  const isFirstTime = !profile?.year;
+  // First time = profile has never been completed (major or year not set in DB)
+  const isFirstTime = !profile?.major || !profile?.year;
 
   useEffect(() => {
     if (!authLoading && !user) router.push('/auth/login');
@@ -68,6 +70,7 @@ export default function ProfileEditPage() {
           .from('profiles').select('*').eq('id', user!.id).maybeSingle();
         if (error) throw error;
         setProfile(p);
+        setMajor(p?.major || '');
         setYear(p?.year || '');
         setSemester(p?.semester || 1);
         setAvailability(p?.availability || 20);
@@ -90,14 +93,14 @@ export default function ProfileEditPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!profile || !year) return;
+    if (!profile || !year || !major) return;
     const p = profile;
     async function loadCourses() {
       const yearNum = typeof year === 'string' ? parseInt(year.charAt(0)) : Number(year);
       const { data } = await supabase
         .from('courses').select('*')
         .eq('university', p.university === 'University of Jordan' ? 'JU' : 'HU')
-        .eq('major', p.major)
+        .eq('major', major)
         .lte('year', yearNum)
         .order('year', { ascending: true })
         .order('semester', { ascending: true })
@@ -105,18 +108,20 @@ export default function ProfileEditPage() {
       setAvailableCourses(data || []);
     }
     loadCourses();
-  }, [year, profile]);
+  }, [year, major, profile]);
 
   // ── Validation ──────────────────────────────────────────────────────────────
   const isStepValid = useCallback((id: StepId): boolean => {
     switch (id) {
+      case 'major':          return !!major;
       case 'year':           return !!year;
       case 'courses':        return true;
       case 'skills':         return skills.length > 0;
       case 'availability':   return availability > 0;
       case 'specialization': return true;
+      default:               return false;
     }
-  }, [year, skills, availability]);
+  }, [major, year, skills, availability]);
 
   // In first-time mode a step is reachable only if every required step before it is valid
   const isStepReachable = useCallback((index: number): boolean => {
@@ -147,7 +152,7 @@ export default function ProfileEditPage() {
     setSaving(true);
     try {
       await supabase.from('profiles').update({
-        year, semester, availability,
+        major, year, semester, availability,
         specialization: (specialization && specialization !== '__unknown__') ? specialization : null,
       }).eq('id', user.id);
 
@@ -187,7 +192,7 @@ export default function ProfileEditPage() {
     </div>
   );
 
-  const majorInfo  = profile?.major ? MAJORS[profile.major] : null;
+  const majorInfo  = major ? MAJORS[major] : null;
   const currentId  = STEPS[activeStep].id;
   const canAdvance = isStepValid(currentId);
   const isLast     = activeStep === STEPS.length - 1;
@@ -328,6 +333,7 @@ export default function ProfileEditPage() {
               )}
             </div>
             <p className="text-gray-500 text-sm">
+              {currentId === 'major'          && 'Choose your major. This determines which courses appear next.'}
               {currentId === 'year'           && 'Select your current academic year and semester.'}
               {currentId === 'courses'        && 'Mark the courses you have already completed.'}
               {currentId === 'skills'         && 'Select the skills you are confident in.'}
@@ -335,6 +341,37 @@ export default function ProfileEditPage() {
               {currentId === 'specialization' && 'Choose your focus area — you can always update this later.'}
             </p>
           </div>
+
+          {/* ── Major ── */}
+          {currentId === 'major' && (
+            <div className="space-y-3">
+              <label className="block text-sm font-semibold text-gray-300 mb-3">
+                Major <span className="text-[#dc2626]">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1">
+                {MAJOR_CODES.map(code => {
+                  const info = MAJORS[code];
+                  return (
+                    <button
+                      key={code}
+                      onClick={() => setMajor(code)}
+                      className={`text-left p-4 rounded-lg border-2 transition-all
+                        ${major === code
+                          ? 'bg-[#dc2626] border-[#b91c1c] text-white'
+                          : 'bg-[#1a1a1a] border-gray-700 text-gray-400 hover:border-[#dc2626] hover:text-white'
+                        }`}
+                    >
+                      <div className="font-semibold text-sm">{info.name}</div>
+                      <div className="text-xs opacity-70 mt-0.5">{code}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              {!major && (
+                <p className="mt-2 text-xs text-[#dc2626]">Pick a major to continue.</p>
+              )}
+            </div>
+          )}
 
           {/* ── Year & Semester ── */}
           {currentId === 'year' && (
