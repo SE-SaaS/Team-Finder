@@ -9,9 +9,7 @@ Available keys:
 import importlib.util
 import os
 
-_SRC = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "raw", "majors", "majors_plans")
-)
+_SRC = os.path.dirname(os.path.abspath(__file__))
 
 
 def _load(filename: str, attr: str):

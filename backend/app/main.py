@@ -6,6 +6,7 @@ Provides REST API endpoint for frontend chat integration
 import os
 import sys
 import asyncio
+import logging
 import re
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -85,6 +86,9 @@ async def cors_middleware(request: Request, call_next):
     return response
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 REQUIRED_ENV_VARS = [
     "NEXT_PUBLIC_SUPABASE_URL",
     "DATABASE_URL",
@@ -100,7 +104,6 @@ async def startup():
     missing = [v for v in REQUIRED_ENV_VARS if not os.getenv(v)]
     if missing:
         raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
-    await get_agent()
 
 
 async def get_agent():
@@ -176,8 +179,12 @@ async def chat(
         ):
             if event["event"] == "on_chat_model_stream":
                 content = event["data"]["chunk"].content
-                if content:
+                if isinstance(content, str):
                     full_response += content
+                elif isinstance(content, list):
+                    for block in content:
+                        if isinstance(block, dict) and block.get("type") == "text":
+                            full_response += block.get("text", "")
 
         return ChatResponse(
             response=full_response,
@@ -187,6 +194,7 @@ async def chat(
     except HTTPException:
         raise
     except Exception as e:
+        logger.exception("chat endpoint failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/health")
