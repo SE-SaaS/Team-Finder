@@ -71,7 +71,9 @@ export default function ProfileEditPage() {
         if (error) throw error;
         setProfile(p);
         setMajor(p?.major || '');
-        setYear(p?.year || '');
+        // year is stored as integer in DB but UI works with '1st'/'2nd'/...
+        const yearLabels = ['', '1st', '2nd', '3rd', '4th'];
+        setYear(p?.year ? yearLabels[p.year] || '' : '');
         setSemester(p?.semester || 1);
         setAvailability(p?.availability || 20);
         setSpecialization(p?.specialization || '');
@@ -151,22 +153,34 @@ export default function ProfileEditPage() {
     if (!user) return;
     setSaving(true);
     try {
-      await supabase.from('profiles').update({
-        major, year, semester, availability,
+      const yearInt = year ? parseInt(year.charAt(0), 10) : null;
+
+      const { error: profileErr } = await supabase.from('profiles').update({
+        major,
+        year: yearInt,
+        semester,
+        availability,
         specialization: (specialization && specialization !== '__unknown__') ? specialization : null,
       }).eq('id', user.id);
+      if (profileErr) throw profileErr;
 
-      await supabase.from('user_skills').delete().eq('user_id', user.id);
-      if (skills.length > 0)
-        await supabase.from('user_skills').insert(
+      const { error: delSkillsErr } = await supabase.from('user_skills').delete().eq('user_id', user.id);
+      if (delSkillsErr) throw delSkillsErr;
+      if (skills.length > 0) {
+        const { error: insSkillsErr } = await supabase.from('user_skills').insert(
           skills.map(skill => ({ user_id: user.id, skill_name: skill }))
         );
+        if (insSkillsErr) throw insSkillsErr;
+      }
 
-      await supabase.from('user_courses').delete().eq('user_id', user.id);
-      if (courses.length > 0)
-        await supabase.from('user_courses').insert(
+      const { error: delCoursesErr } = await supabase.from('user_courses').delete().eq('user_id', user.id);
+      if (delCoursesErr) throw delCoursesErr;
+      if (courses.length > 0) {
+        const { error: insCoursesErr } = await supabase.from('user_courses').insert(
           courses.map(courseId => ({ user_id: user.id, course_id: courseId }))
         );
+        if (insCoursesErr) throw insCoursesErr;
+      }
 
       setSaved(true);
       setTimeout(() => {
