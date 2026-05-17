@@ -60,7 +60,16 @@ export default function AIChat() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response');
+        const errorBody = await response.text();
+        console.error('Chat HTTP error:', response.status, errorBody);
+        let serverDetail = errorBody;
+        try {
+          const parsed = JSON.parse(errorBody);
+          serverDetail = parsed.detail || parsed.error || errorBody;
+        } catch {
+          // body wasn't JSON, keep raw text
+        }
+        throw new Error(`HTTP ${response.status}: ${serverDetail}`);
       }
 
       const data = await response.json();
@@ -71,12 +80,13 @@ export default function AIChat() {
 
       setMessages([...newMessages, { role: 'assistant', content: data.response }]);
     } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
       console.error('Chat error:', error);
       setMessages([
         ...newMessages,
         {
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
+          content: `Error: ${message}`,
         },
       ]);
     } finally {
