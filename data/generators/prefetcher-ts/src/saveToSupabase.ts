@@ -54,9 +54,13 @@ async function checkDuplicate(external_url: string): Promise<boolean> {
     .from("projects")
     .select("id")
     .eq("external_url", external_url)
-    .single();
+    .maybeSingle();
 
-  return !!data && !error;
+  if (error) {
+    console.warn(`Duplicate-check query failed for ${external_url}: ${error.message}`);
+    return false;
+  }
+  return data !== null;
 }
 
 export async function saveProjectsToSupabase(

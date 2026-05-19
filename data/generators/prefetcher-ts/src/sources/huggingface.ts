@@ -15,6 +15,16 @@ const MAJOR_DATASET_TAGS: Record<string, string> = {
   CYS: "security",
 };
 
+const MAJOR_PAPER_QUERIES: Record<string, string> = {
+  AI:  "large language models",
+  DS:  "time series forecasting",
+  CS:  "algorithms",
+  SWE: "software engineering",
+  CYS: "security",
+  CIS: "information systems",
+  BI:  "data visualization",
+};
+
 export class HuggingFacePrefetcher extends BasePrefetcher {
   readonly sourceName = "huggingface";
   readonly strategy   = "api";
@@ -68,5 +78,41 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
       tags:        Array.isArray(item.tags) ? item.tags as string[] : [],
       extra:       { downloads: item.downloads, likes: item.likes },
     }));
+  }
+
+  private async fetchPapers(major: string, opts: FetchOptions = {}): Promise<PrefetchResult[]> {
+    const q    = MAJOR_PAPER_QUERIES[major] ?? major;
+    const data = await this.get<Array<{ paper: Record<string, unknown> }>>(
+      `${this.baseUrl}/papers/search`,
+      { q }
+    );
+    return (data ?? []).slice(0, opts.limit ?? 10).map(({ paper }) =>
+      this.makeResult(major, "resource", {
+        title:       String(paper.title ?? ""),
+        url:         `https://huggingface.co/papers/${paper.id}`,
+        description: String(paper.summary ?? "").slice(0, 300),
+        tags:        Array.isArray(paper.ai_keywords) ? paper.ai_keywords as string[] : [],
+        extra: {
+          github_repo: paper.githubRepo,
+          upvotes:     paper.upvotes,
+          published:   paper.publishedAt,
+        },
+      })
+    );
+  }
+
+  async fetchAll(major: string, opts?: FetchOptions): Promise<PrefetchResult[]> {
+    const [resources, projects, datasets, papers] = await Promise.allSettled([
+      this.fetchResources(major, opts),
+      this.fetchProjects(major, opts),
+      this.fetchDatasets(major, opts),
+      this.fetchPapers(major, opts),
+    ]);
+    const combined: PrefetchResult[] = [];
+    for (const r of [resources, projects, datasets, papers]) {
+      if (r.status === "fulfilled") combined.push(...r.value);
+      else console.error(`[${this.sourceName}] fetchAll error:`, r.reason);
+    }
+    return combined;
   }
 }

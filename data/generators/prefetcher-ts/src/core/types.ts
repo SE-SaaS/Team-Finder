@@ -30,11 +30,11 @@ export interface PrefetchResult {
 export const SOURCE_MAP: Record<Major, string[]> = {
   [Major.AI]:  ["github", "kaggle", "huggingface", "ai_generator"],
   [Major.CS]:  ["github", "leetcode", "hackerrank"],
-  [Major.CIS]: ["github", "kaggle", "sap"],
-  [Major.BI]:  ["github", "kaggle", "tableau_public", "power_bi"],
-  [Major.CYS]: ["github", "hackthebox", "vulnhub", "ctftime"],
-  [Major.DS]:  ["github", "kaggle", "huggingface", "paperswithcode", "uci"],
-  [Major.SWE]: ["github", "gitlab", "openhub"],
+  [Major.CIS]: ["github", "kaggle"],
+  [Major.BI]:  ["github", "kaggle"],
+  [Major.CYS]: ["github", "ctftime"],
+  [Major.DS]:  ["github", "kaggle", "huggingface"],
+  [Major.SWE]: ["github", "gitlab"],
 };
 
 export const SOURCE_STRATEGY: Record<string, Strategy> = {

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { MajorPrefetcher, Major } from "./majorPrefetcher";
+import { MajorPrefetcher } from "./majorPrefetcher";
 import { saveProjectsToSupabase, saveAllResourcesToSupabase } from "./saveToSupabase";
 
 function loadApiKeys(): Record<string, string> {
@@ -20,39 +20,47 @@ function loadApiKeys(): Record<string, string> {
 
 async function main() {
   const args = process.argv.slice(2);
-  const includeAll = args.includes("--all-categories");
+  const projectsOnly = args.includes("--projects-only");
   const limit = parseInt(args.find((a) => a.startsWith("--limit="))?.split("=")[1] || "10", 10);
 
-  console.log("🚀 Starting prefetch and save to Supabase...\n");
+  console.log("Starting prefetch and save to Supabase...\n");
   console.log(`   Limit per source: ${limit}`);
-  console.log(`   Include all categories: ${includeAll ? "Yes (projects, datasets, resources)" : "No (projects only)"}\n`);
+  console.log(`   Mode: ${projectsOnly ? "projects only" : "all categories (projects, datasets, resources)"}\n`);
 
   const apiKeys = loadApiKeys();
   const mp = new MajorPrefetcher(apiKeys, limit);
 
-  // Fetch all projects
-  console.log("📥 Fetching projects from all sources...\n");
+  console.log("Fetching from all sources...\n");
   const allResults = await mp.prefetchAll();
 
-  // Flatten results
   const flatResults = Object.values(allResults).flat();
 
-  console.log(`\n📊 Total fetched: ${flatResults.length} items`);
-  console.log(`   Projects: ${flatResults.filter((r) => r.category === "project").length}`);
-  console.log(`   Datasets: ${flatResults.filter((r) => r.category === "dataset").length}`);
-  console.log(`   Resources: ${flatResults.filter((r) => r.category === "resource").length}`);
+  const projects = flatResults.filter((r) => r.category === "project").length;
+  const datasets = flatResults.filter((r) => r.category === "dataset").length;
+  const resources = flatResults.filter((r) => r.category === "resource").length;
 
-  // Save to Supabase
-  console.log("\n💾 Saving to Supabase...");
+  console.log(`\nTotal fetched: ${flatResults.length} items`);
+  console.log(`   Projects:  ${projects}`);
+  console.log(`   Datasets:  ${datasets}`);
+  console.log(`   Resources: ${resources}`);
 
-  const stats = includeAll
-    ? await saveAllResourcesToSupabase(flatResults)
-    : await saveProjectsToSupabase(flatResults);
+  const willInsert = projectsOnly ? projects : flatResults.length;
+  console.log(`\nWill attempt to insert: ${willInsert} items`);
+  if (willInsert === 0) {
+    console.warn("Nothing to insert. Check API keys and source connectivity.");
+    return;
+  }
 
-  console.log("\n✅ Done!");
-  console.log(`   Total inserted: ${stats.inserted}`);
-  console.log(`   Total skipped: ${stats.skipped}`);
-  console.log(`   Total errors: ${stats.errors}`);
+  console.log("\nSaving to Supabase...");
+
+  const stats = projectsOnly
+    ? await saveProjectsToSupabase(flatResults)
+    : await saveAllResourcesToSupabase(flatResults);
+
+  console.log("\nDone.");
+  console.log(`   Inserted: ${stats.inserted}`);
+  console.log(`   Skipped:  ${stats.skipped}`);
+  console.log(`   Errors:   ${stats.errors}`);
 }
 
 main().catch((err) => {
