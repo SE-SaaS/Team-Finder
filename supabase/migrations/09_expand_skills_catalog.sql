@@ -1,0 +1,103 @@
+-- Migration: 09_expand_skills_catalog.sql
+-- Intent: expand the skills catalog with 83 new entries spanning Coding,
+-- Architecture, Cybersecurity, Cloud, Data and Databases, DevOps, Digital
+-- Literacy, and AI/ML categories. Aligns the catalog with the Technical
+-- Skills taxonomy reference and adds skills explicitly requested by the
+-- product owner (Algorithms, Data Structures, ML/NLP/CV/Neural Network,
+-- LLMs, Ethical Hacking, Penetration Testing, Web Security).
+
+BEGIN;
+
+INSERT INTO skills (name, category) VALUES
+  ('Algorithms',                   'Coding'),
+  ('Continuous Deployment',        'Coding'),
+  ('Continuous Integration',       'Coding'),
+  ('Data Structures',              'Coding'),
+  ('Databases',                    'Coding'),
+  ('Debugging',                    'Coding'),
+  ('Front-end / Back-end',         'Coding'),
+  ('Programming Languages',        'Coding'),
+  ('Scripting',                    'Coding'),
+  ('Software Design',              'Coding'),
+  ('Unit Testing',                 'Coding'),
+
+  ('API Design',                   'Architecture'),
+  ('Application Architecture',     'Architecture'),
+  ('Architecture Principles',      'Architecture'),
+  ('Caching Strategies',           'Architecture'),
+  ('Compliance Standards',         'Architecture'),
+  ('Domain-Driven Design',         'Architecture'),
+  ('IT Metrics',                   'Architecture'),
+  ('Process Automation',           'Architecture'),
+  ('Service Design',               'Architecture'),
+  ('Technical Leadership',         'Architecture'),
+  ('Workflow Automation',          'Architecture'),
+
+  ('Application Security',         'Cybersecurity'),
+  ('Cloud Security',               'Cybersecurity'),
+  ('Endpoint Security',            'Cybersecurity'),
+  ('Ethical Hacking',              'Cybersecurity'),
+  ('Network Protocols',            'Cybersecurity'),
+  ('Penetration Testing',          'Cybersecurity'),
+  ('Risk Assessments',             'Cybersecurity'),
+  ('Security Architecture',        'Cybersecurity'),
+  ('Security Auditing',            'Cybersecurity'),
+  ('Threat Modeling',              'Cybersecurity'),
+  ('Vulnerability Assessments',    'Cybersecurity'),
+  ('Web Security',                 'Cybersecurity'),
+
+  ('Block Storage',                'Cloud'),
+  ('Cloud Cost Management',        'Cloud'),
+  ('Cloud Services',               'Cloud'),
+  ('Cloud-native Development',     'Cloud'),
+  ('Network Security',             'Cloud'),
+  ('Object Storage',               'Cloud'),
+  ('Platform as a Service (PaaS)', 'Cloud'),
+  ('Private Cloud',                'Cloud'),
+  ('Serverless Architecture',      'Cloud'),
+  ('Virtual Private Cloud',        'Cloud'),
+  ('Virtualization',               'Cloud'),
+
+  ('Data Lakes',                   'Data & Databases'),
+  ('Data Lifecycle Management',    'Data & Databases'),
+  ('Data Modeling',                'Data & Databases'),
+  ('Data Profiling',               'Data & Databases'),
+  ('Database Constraints',         'Data & Databases'),
+  ('Database Sharding',            'Data & Databases'),
+  ('Indexing',                     'Data & Databases'),
+  ('Master Data Management',       'Data & Databases'),
+  ('OLTP & OLAP',                  'Data & Databases'),
+  ('Schema Design',                'Data & Databases'),
+  ('Transactions',                 'Data & Databases'),
+
+  ('Automated Deployment',         'DevOps'),
+  ('Automated Testing',            'DevOps'),
+  ('Backup & Restore',             'DevOps'),
+  ('Build Automation',             'DevOps'),
+  ('Containerization',             'DevOps'),
+  ('Incident Management',          'DevOps'),
+  ('Infrastructure Automation',    'DevOps'),
+  ('Infrastructure Monitoring',    'DevOps'),
+  ('Infrastructure Provisioning',  'DevOps'),
+  ('Infrastructure as Code',       'DevOps'),
+  ('Service Level Agreements',     'DevOps'),
+
+  ('Collaboration Tools',          'Digital Literacy'),
+  ('Data Analysis',                'Digital Literacy'),
+  ('Data Entry',                   'Digital Literacy'),
+  ('Document Tools',               'Digital Literacy'),
+  ('Email Communication',          'Digital Literacy'),
+  ('File Management',              'Digital Literacy'),
+  ('Graphic Design Tools',         'Digital Literacy'),
+  ('Media Tools',                  'Digital Literacy'),
+  ('Password Management',          'Digital Literacy'),
+  ('Presentation Software',        'Digital Literacy'),
+  ('Using Generative AI',          'Digital Literacy'),
+
+  ('Computer Vision',              'AI/ML'),
+  ('LLMs',                         'AI/ML'),
+  ('Machine Learning',             'AI/ML'),
+  ('Neural Network',               'AI/ML'),
+  ('NLP',                          'AI/ML');
+
+COMMIT;
