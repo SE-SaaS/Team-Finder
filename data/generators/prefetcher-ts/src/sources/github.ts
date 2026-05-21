@@ -45,9 +45,18 @@ export class GitHubPrefetcher extends BasePrefetcher {
       language:    item.language as string | undefined,
       stars:       item.stargazers_count as number | undefined,
       extra: {
-        forks:   item.forks_count,
-        license: (item.license as Record<string, unknown> | null)?.spdx_id,
-        updated: item.updated_at,
+        forks:             item.forks_count,
+        license:           (item.license as Record<string, unknown> | null)?.spdx_id,
+        updated_at:        item.updated_at,
+        pushed_at:         item.pushed_at,
+        size_kb:           item.size,
+        open_issues:       item.open_issues_count,
+        watchers:          item.subscribers_count,
+        has_wiki:          item.has_wiki,
+        has_pages:         item.has_pages,
+        homepage:          item.homepage,
+        archived:          item.archived,
+        default_branch:    item.default_branch,
       },
     });
   }

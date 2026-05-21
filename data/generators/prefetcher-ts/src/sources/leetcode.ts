@@ -66,7 +66,11 @@ export class LeetCodePrefetcher extends BasePrefetcher {
         url:         `https://leetcode.com/problems/${item.titleSlug}/`,
         description: `Difficulty: ${item.difficulty} | Acceptance: ${Number(item.acRate ?? 0).toFixed(1)}%`,
         tags:        topicTags,
-        extra:       { difficulty: item.difficulty, ac_rate: item.acRate, question_id: item.frontendQuestionId },
+        extra: {
+          difficulty_rating: item.difficulty,
+          acceptance_rate:   item.acRate,
+          question_id:       item.frontendQuestionId,
+        },
       });
     });
   }

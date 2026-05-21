@@ -44,12 +44,20 @@ export class KagglePrefetcher extends BasePrefetcher {
   async fetchProjects(major: string): Promise<PrefetchResult[]> { return []; }
 
   async fetchDatasets(major: string, opts: FetchOptions = {}): Promise<PrefetchResult[]> {
-    const kw   = (MAJOR_KEYWORDS[major] ?? [major])[0];
+    const kw          = (MAJOR_KEYWORDS[major] ?? [major])[0];
+    const targetLimit = opts.limit ?? 10;
+    // Over-fetch so we can drop low-usability rows and still hit the target.
     const data = await this.get<Record<string, unknown>[]>(
       `${this.baseUrl}/datasets/list`,
-      { search: kw, pageSize: opts.limit ?? 10, sortBy: "usability" }
+      { search: kw, pageSize: Math.min(targetLimit * 3, 100), sortBy: "usability" }
     );
-    return (data ?? []).map(item => {
+    const USABILITY_THRESHOLD = 6.0;
+    const filtered = (data ?? []).filter(item => {
+      const u = Number(item.usabilityRating ?? 0);
+      return u >= USABILITY_THRESHOLD;
+    }).slice(0, targetLimit);
+
+    return filtered.map(item => {
       const tags = Array.isArray(item.tags)
         ? (item.tags as Record<string, unknown>[]).map(t => String(t.name ?? ""))
         : [];
@@ -63,6 +71,8 @@ export class KagglePrefetcher extends BasePrefetcher {
           vote_count:     item.voteCount,
           download_count: item.downloadCount,
           size_bytes:     item.totalBytes,
+          last_updated:   item.lastUpdated,
+          license_name:   item.licenseName,
         },
       });
     });

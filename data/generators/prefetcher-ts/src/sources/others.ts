@@ -25,7 +25,12 @@ export class HackerRankPrefetcher extends BasePrefetcher {
       url:         `https://www.hackerrank.com/challenges/${item.slug}`,
       description: String(item.preview ?? ""),
       tags:        [String(item.track ?? "")],
-      extra:       { difficulty: item.difficulty_name, score: item.max_score },
+      extra: {
+        difficulty_name: item.difficulty_name,
+        score:           item.max_score,
+        track:           item.track,
+        attempts:        item.total_count ?? item.attempts,
+      },
     }));
   }
 
@@ -120,15 +125,27 @@ export class GitLabPrefetcher extends BasePrefetcher {
       `${this.baseUrl}/projects`,
       { topic, order_by: "star_count", sort: "desc", per_page: opts.limit ?? 10, visibility: "public" }
     );
-    return (data ?? []).map(p => this.makeResult(major, "project", {
-      title:       String(p.name_with_namespace ?? ""),
-      url:         String(p.web_url ?? ""),
-      description: String(p.description ?? ""),
-      tags:        Array.isArray(p.tag_list) ? p.tag_list as string[] : [],
-      language:    p.language as string | undefined,
-      stars:       p.star_count as number | undefined,
-      extra:       { forks: p.forks_count, license: (p.license as { name?: string } | null)?.name },
-    }));
+    return (data ?? []).map(p => {
+      const stats = (p.statistics as Record<string, unknown> | undefined) ?? {};
+      return this.makeResult(major, "project", {
+        title:       String(p.name_with_namespace ?? ""),
+        url:         String(p.web_url ?? ""),
+        description: String(p.description ?? ""),
+        tags:        Array.isArray(p.tag_list) ? p.tag_list as string[] : [],
+        language:    p.language as string | undefined,
+        stars:       p.star_count as number | undefined,
+        extra: {
+          forks:            p.forks_count,
+          license:          (p.license as { name?: string } | null)?.name,
+          size_kb:          (stats.repository_size as number | undefined),
+          open_issues:      p.open_issues_count,
+          last_activity_at: p.last_activity_at,
+          default_branch:   p.default_branch,
+          wiki_enabled:     p.wiki_enabled,
+          archived:         p.archived,
+        },
+      });
+    });
   }
 }
 

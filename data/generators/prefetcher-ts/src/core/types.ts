@@ -28,7 +28,7 @@ export interface PrefetchResult {
 
 // ── Source map ───────────────────────────────────────────────────
 export const SOURCE_MAP: Record<Major, string[]> = {
-  [Major.AI]:  ["github", "kaggle", "huggingface", "ai_generator"],
+  [Major.AI]:  ["github", "kaggle", "huggingface"],
   [Major.CS]:  ["github", "leetcode", "hackerrank"],
   [Major.CIS]: ["github", "kaggle"],
   [Major.BI]:  ["github", "kaggle"],

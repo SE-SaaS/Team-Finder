@@ -36,7 +36,12 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
     for (const task of tasks) {
       const data = await this.get<Record<string, unknown>[]>(
         `${this.baseUrl}/models`,
-        { pipeline_tag: task, sort: "downloads", limit: opts.limit ?? 10 }
+        {
+          pipeline_tag: task,
+          library:      "transformers",
+          sort:         "downloads",
+          limit:        opts.limit ?? 10,
+        }
       );
       (data ?? []).forEach(item =>
         results.push(this.makeResult(major, "resource", {
@@ -44,7 +49,13 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
           url:         `https://huggingface.co/${item.id}`,
           description: "",
           tags:        Array.isArray(item.tags) ? item.tags as string[] : [],
-          extra:       { downloads: item.downloads, likes: item.likes, pipeline: task },
+          extra: {
+            downloads:     item.downloads,
+            likes:         item.likes,
+            pipeline:      task,
+            library_name:  item.library_name ?? "transformers",
+            lastModified:  item.lastModified,
+          },
         }))
       );
     }
@@ -54,14 +65,19 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
   async fetchProjects(major: string, opts: FetchOptions = {}): Promise<PrefetchResult[]> {
     const data = await this.get<Record<string, unknown>[]>(
       `${this.baseUrl}/spaces`,
-      { sort: "likes", limit: opts.limit ?? 10 }
+      { sort: "lastModified", limit: opts.limit ?? 10 }
     );
     return (data ?? []).map(item => this.makeResult(major, "project", {
       title:       String(item.id ?? ""),
       url:         `https://huggingface.co/spaces/${item.id}`,
       description: "",
       tags:        Array.isArray(item.tags) ? item.tags as string[] : [],
-      extra:       { likes: item.likes, sdk: item.sdk },
+      extra: {
+        likes:        item.likes,
+        sdk:          item.sdk,
+        runtime:      item.runtime,
+        lastModified: item.lastModified,
+      },
     }));
   }
 
@@ -69,14 +85,24 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
     const tag  = MAJOR_DATASET_TAGS[major] ?? "nlp";
     const data = await this.get<Record<string, unknown>[]>(
       `${this.baseUrl}/datasets`,
-      { tags: tag, sort: "downloads", limit: opts.limit ?? 10 }
+      {
+        tags:     tag,
+        language: "en",
+        sort:     "downloads",
+        limit:    opts.limit ?? 10,
+      }
     );
     return (data ?? []).map(item => this.makeResult(major, "dataset", {
       title:       String(item.id ?? ""),
       url:         `https://huggingface.co/datasets/${item.id}`,
       description: "",
       tags:        Array.isArray(item.tags) ? item.tags as string[] : [],
-      extra:       { downloads: item.downloads, likes: item.likes },
+      extra: {
+        downloads:    item.downloads,
+        likes:        item.likes,
+        language:     item.language ?? "en",
+        lastModified: item.lastModified,
+      },
     }));
   }
 
@@ -86,19 +112,22 @@ export class HuggingFacePrefetcher extends BasePrefetcher {
       `${this.baseUrl}/papers/search`,
       { q }
     );
-    return (data ?? []).slice(0, opts.limit ?? 10).map(({ paper }) =>
-      this.makeResult(major, "resource", {
+    return (data ?? []).slice(0, opts.limit ?? 10).map(({ paper }) => {
+      const authors      = Array.isArray(paper.authors) ? paper.authors as unknown[] : [];
+      const authorCount  = authors.length;
+      return this.makeResult(major, "resource", {
         title:       String(paper.title ?? ""),
         url:         `https://huggingface.co/papers/${paper.id}`,
         description: String(paper.summary ?? "").slice(0, 300),
         tags:        Array.isArray(paper.ai_keywords) ? paper.ai_keywords as string[] : [],
         extra: {
-          github_repo: paper.githubRepo,
-          upvotes:     paper.upvotes,
-          published:   paper.publishedAt,
+          github_repo:  paper.githubRepo,
+          upvotes:      paper.upvotes,
+          author_count: authorCount,
+          published:    paper.publishedAt,
         },
-      })
-    );
+      });
+    });
   }
 
   async fetchAll(major: string, opts?: FetchOptions): Promise<PrefetchResult[]> {
