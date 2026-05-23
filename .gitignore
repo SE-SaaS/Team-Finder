@@ -156,3 +156,9 @@ course_extraction/hu_extracted/
 
 # Raw data files (PDFs, large binaries)
 data/raw/
+
+# Playwright MCP test artifacts
+.playwright-mcp/
+
+# Smoke-test screenshots at repo root (product PNGs live under frontend/public)
+/*.png

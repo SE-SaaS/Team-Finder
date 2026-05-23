@@ -16,7 +16,7 @@
 
 ### Known Issues:
 - ✅ ~~TypeScript errors in `examQuestionsMock.ts`~~ **FIXED** - File disabled (not in use, exams not ready)
-- ⚠️ Some TypeScript warnings in other files (pre-existing, don't affect functionality)
+- ✅ `tsc --noEmit` is clean as of 2026-05-23; new warnings should be captured in `workflow/STATUS.md` under Known issues.
 
 ---
 
