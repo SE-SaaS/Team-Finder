@@ -10,12 +10,20 @@ import { MAJORS, MAJOR_CODES } from '@/data/majors';
 
 type StepId = 'major' | 'year' | 'courses' | 'skills' | 'availability' | 'specialization';
 
+const AVAILABILITY_OPTIONS = [
+  { value: 'Full-time' as const, label: 'Full-time', description: 'I can dedicate full days to a project.' },
+  { value: 'Flexible'  as const, label: 'Flexible',  description: 'Lots of free time, easy to schedule.' },
+  { value: 'Evenings'  as const, label: 'Evenings',  description: 'Busy with classes by day, evenings are mine.' },
+  { value: 'Weekends'  as const, label: 'Weekends',  description: 'Only weekends.' },
+];
+type AvailabilityValue = typeof AVAILABILITY_OPTIONS[number]['value'];
+
 interface ProfileRecord {
   university?: string;
   major?: string;
   year?: string;
   semester?: number;
-  availability?: number;
+  availability?: AvailabilityValue | null;
   specialization?: string;
 }
 
@@ -26,6 +34,60 @@ interface CourseRecord {
   year: number;
   semester: number;
   unlocks_skills?: string[];
+}
+
+// Wizard-local draft persisted to localStorage so unsaved progress survives
+// reloads, tab closes, and brief offline windows. Cleared on successful save.
+const DRAFT_KEY = 'teamfinder_wizard_draft';
+const DRAFT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+interface WizardDraft {
+  userId:         string;
+  lastSaved:      number;
+  activeStep:     number;
+  major:          string;
+  year:           string;
+  semester:       number;
+  availability:   AvailabilityValue | '';
+  specialization: string;
+  skills:         string[];
+  courses:        string[];
+}
+
+function loadDraft(userId: string): WizardDraft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as WizardDraft;
+    if (draft.userId !== userId) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    if (Date.now() - draft.lastSaved > DRAFT_TTL_MS) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
+function saveDraft(draft: Omit<WizardDraft, 'lastSaved'>): void {
+  try {
+    const payload: WizardDraft = { ...draft, lastSaved: Date.now() };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+  } catch {
+    // best-effort; localStorage quota/disabled is non-fatal
+  }
+}
+
+function clearDraft(): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 const STEPS: { id: StepId; label: string; icon: string; required: boolean }[] = [
@@ -51,7 +113,7 @@ export default function ProfileEditPage() {
   const [semester,         setSemester]         = useState(1);
   const [skills,           setSkills]           = useState<string[]>([]);
   const [courses,          setCourses]          = useState<string[]>([]);
-  const [availability,     setAvailability]     = useState(20);
+  const [availability,     setAvailability]     = useState<AvailabilityValue | ''>('');
   const [specialization,   setSpecialization]   = useState('');
   const [availableCourses, setAvailableCourses] = useState<CourseRecord[]>([]);
 
@@ -75,16 +137,36 @@ export default function ProfileEditPage() {
         const yearLabels = ['', '1st', '2nd', '3rd', '4th'];
         setYear(p?.year ? yearLabels[p.year] || '' : '');
         setSemester(p?.semester || 1);
-        setAvailability(p?.availability || 20);
+        setAvailability(
+          AVAILABILITY_OPTIONS.some(o => o.value === p?.availability)
+            ? (p!.availability as AvailabilityValue)
+            : ''
+        );
         setSpecialization(p?.specialization || '');
 
         const { data: sk } = await supabase
           .from('user_skills').select('skill_name').eq('user_id', user!.id);
         setSkills(sk?.map((s: { skill_name: string }) => s.skill_name) || []);
 
+        // user_courses stores course_code + course_name (denormalized).
+        // We need course.id locally to drive selection; map by code from the
+        // courses table loaded in the next effect.
         const { data: co } = await supabase
-          .from('user_courses').select('course_id').eq('user_id', user!.id);
-        setCourses(co?.map((c: { course_id: string }) => c.course_id) || []);
+          .from('user_courses').select('course_code').eq('user_id', user!.id);
+        setCourses(co?.map((c: { course_code: string }) => c.course_code) || []);
+
+        // After DB load, overlay any newer in-progress draft from localStorage
+        const draft = loadDraft(user!.id);
+        if (draft) {
+          if (draft.major)          setMajor(draft.major);
+          if (draft.year)           setYear(draft.year);
+          if (draft.semester)       setSemester(draft.semester);
+          if (draft.availability)   setAvailability(draft.availability);
+          if (draft.specialization) setSpecialization(draft.specialization);
+          if (Array.isArray(draft.skills))  setSkills(draft.skills);
+          if (Array.isArray(draft.courses)) setCourses(draft.courses);
+          if (typeof draft.activeStep === 'number') setActiveStep(draft.activeStep);
+        }
       } catch (e) {
         console.error('Error loading profile:', e);
       } finally {
@@ -93,6 +175,23 @@ export default function ProfileEditPage() {
     }
     load();
   }, [user]);
+
+  // Autosave wizard state to localStorage on every change. Lets users
+  // reload/close the tab mid-flow without losing progress.
+  useEffect(() => {
+    if (!user || loading) return;
+    saveDraft({
+      userId:         user.id,
+      activeStep,
+      major,
+      year,
+      semester,
+      availability,
+      specialization,
+      skills,
+      courses,
+    });
+  }, [user, loading, activeStep, major, year, semester, availability, specialization, skills, courses]);
 
   useEffect(() => {
     if (!profile || !year || !major) return;
@@ -119,7 +218,7 @@ export default function ProfileEditPage() {
       case 'year':           return !!year;
       case 'courses':        return true;
       case 'skills':         return skills.length > 0;
-      case 'availability':   return availability > 0;
+      case 'availability':   return availability !== '';
       case 'specialization': return true;
       default:               return false;
     }
@@ -148,40 +247,51 @@ export default function ProfileEditPage() {
     if (activeStep > 0) setActiveStep(s => s - 1);
   };
 
-  // ── Save ─────────────────────────────────────────────────────────────────────
+  // Save through the API route so writes are validated server-side,
+  // skill-unlocks are applied with prerequisite gating, and the wizard
+  // never trusts client-side claims about the catalog.
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
     try {
-      const yearInt = year ? parseInt(year.charAt(0), 10) : null;
+      // courses state holds course codes (course.code from availableCourses);
+      // resolve names by lookup so the API can persist code + name.
+      const codeToCourse = new Map(availableCourses.map(c => [c.code, c]));
+      const selectedCourses = courses
+        .map(code => codeToCourse.get(code))
+        .filter((c): c is CourseRecord => Boolean(c))
+        .map(c => ({ code: c.code, name: c.name }));
 
-      const { error: profileErr } = await supabase.from('profiles').update({
-        major,
-        year: yearInt,
-        semester,
-        availability,
-        specialization: (specialization && specialization !== '__unknown__') ? specialization : null,
-      }).eq('id', user.id);
-      if (profileErr) throw profileErr;
+      const res = await fetch('/api/profile/complete', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          major,
+          year,
+          semester,
+          availability,
+          specialization: (specialization && specialization !== '__unknown__') ? specialization : null,
+          skills,
+          courses: selectedCourses,
+        }),
+      });
 
-      const { error: delSkillsErr } = await supabase.from('user_skills').delete().eq('user_id', user.id);
-      if (delSkillsErr) throw delSkillsErr;
-      if (skills.length > 0) {
-        const { error: insSkillsErr } = await supabase.from('user_skills').insert(
-          skills.map(skill => ({ user_id: user.id, skill_name: skill }))
-        );
-        if (insSkillsErr) throw insSkillsErr;
+      if (!res.ok) {
+        let msg = 'Failed to save profile';
+        try {
+          const body = await res.json();
+          if (body?.error) msg = body.error;
+          if (Array.isArray(body?.issues)) {
+            const lines = body.issues.map((i: { field: string; message: string }) => `- ${i.field}: ${i.message}`);
+            msg += '\n' + lines.join('\n');
+          }
+        } catch {
+          // ignore parse errors; use default message
+        }
+        throw new Error(msg);
       }
 
-      const { error: delCoursesErr } = await supabase.from('user_courses').delete().eq('user_id', user.id);
-      if (delCoursesErr) throw delCoursesErr;
-      if (courses.length > 0) {
-        const { error: insCoursesErr } = await supabase.from('user_courses').insert(
-          courses.map(courseId => ({ user_id: user.id, course_id: courseId }))
-        );
-        if (insCoursesErr) throw insCoursesErr;
-      }
-
+      clearDraft();
       setSaved(true);
       setTimeout(() => {
         setSaved(false);
@@ -189,7 +299,7 @@ export default function ProfileEditPage() {
       }, 800);
     } catch (e) {
       console.error('Error saving:', e);
-      alert('Failed to save. Please try again.');
+      alert(`Save failed: ${(e as Error).message}`);
     } finally {
       setSaving(false);
     }
@@ -351,7 +461,7 @@ export default function ProfileEditPage() {
               {currentId === 'year'           && 'Select your current academic year and semester.'}
               {currentId === 'courses'        && 'Mark the courses you have already completed.'}
               {currentId === 'skills'         && 'Select the skills you are confident in.'}
-              {currentId === 'availability'   && 'How many hours per week can you give to projects?'}
+              {currentId === 'availability'   && 'When are you free to work on projects? Pick the one that fits best.'}
               {currentId === 'specialization' && 'Choose your focus area — you can always update this later.'}
             </p>
           </div>
@@ -447,9 +557,9 @@ export default function ProfileEditPage() {
                 <>
                   <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
                     {availableCourses.map(course => (
-                      <button key={course.id} onClick={() => toggleCourse(course.id)}
+                      <button key={course.code} onClick={() => toggleCourse(course.code)}
                         className={`w-full text-left px-4 py-3 rounded-lg transition-all
-                          ${courses.includes(course.id)
+                          ${courses.includes(course.code)
                             ? 'bg-[#dc2626]/15 border-2 border-[#dc2626] text-white'
                             : 'bg-black border border-gray-800 text-gray-400 hover:border-gray-600 hover:text-white'
                           }`}>
@@ -496,32 +606,26 @@ export default function ProfileEditPage() {
 
           {/* ── Availability ── */}
           {currentId === 'availability' && (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-4">
-                  Hours per week: <span className="text-[#dc2626] font-bold text-lg">{availability}</span>
-                </label>
-                <input
-                  type="range" min="5" max="40" step="5" value={availability}
-                  onChange={e => setAvailability(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-[#dc2626]"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-2">
-                  <span>5 hrs</span><span>20 hrs</span><span>40 hrs</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-center">
-                {[[5,10,'Light'],[15,25,'Moderate'],[30,40,'Heavy']].map(([lo, hi, label]) => (
-                  <div key={label as string}
-                    className={`p-3 rounded-lg border text-xs transition-colors
-                      ${availability >= (lo as number) && availability <= (hi as number)
-                        ? 'border-[#dc2626] bg-[#dc2626]/10 text-[#dc2626]'
-                        : 'border-gray-800 text-gray-600'}`}>
-                    <div className="font-bold mb-0.5">{label}</div>
-                    <div>{lo}–{hi} hrs</div>
-                  </div>
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {AVAILABILITY_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setAvailability(opt.value)}
+                    className={`text-left p-4 rounded-lg border-2 transition-all
+                      ${availability === opt.value
+                        ? 'bg-[#dc2626]/15 border-[#dc2626] text-white'
+                        : 'bg-[#1a1a1a] border-gray-700 text-gray-400 hover:border-[#dc2626] hover:text-white'
+                      }`}
+                  >
+                    <div className="font-semibold text-sm mb-1">{opt.label}</div>
+                    <div className="text-xs opacity-70">{opt.description}</div>
+                  </button>
                 ))}
               </div>
+              {!availability && (
+                <p className="mt-3 text-xs text-[#dc2626]">Pick the one that best matches your schedule.</p>
+              )}
             </div>
           )}
 
