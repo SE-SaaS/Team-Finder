@@ -7,6 +7,17 @@
 // CORE PROFILE DATA
 // ============================================
 
+export type CompletedCourseStatus = 'completed' | 'in_progress';
+
+// A course the user has either finished or is currently taking. Identified by
+// course CODE (matches user_courses.course_code in the DB). The user_courses
+// table also accepts 'planned' but the wizard does not surface it.
+export interface CompletedCourse {
+  code:   string;
+  name:   string;
+  status: CompletedCourseStatus;
+}
+
 export interface ProfileData {
   // Step 1: Basic Info
   name: string;
@@ -18,7 +29,7 @@ export interface ProfileData {
 
   // Step 2: Year & Courses
   semester: 1 | 2;
-  completedCourses: string[]; // Course IDs
+  completedCourses: CompletedCourse[];
 
   // Step 3: Skill Selector
   skills: string[]; // Skill names (e.g., ['React', 'Python', 'SQL'])

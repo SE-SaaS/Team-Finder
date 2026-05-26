@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import ProfileWizardController from '@/components/profile/ProfileWizardController';
 
-export default function ProfilePage() {
+export default function ProfileV2Page() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -35,12 +35,11 @@ export default function ProfilePage() {
             href="/dashboard"
             className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
             <span className="text-sm font-medium">Dashboard</span>
           </Link>
-          <span className="text-xs uppercase tracking-wider text-gray-500">Profile</span>
+          <span className="text-xs uppercase tracking-wider text-gray-500">
+            Profile wizard v2 preview
+          </span>
         </div>
       </header>
 

@@ -1,43 +1,27 @@
 'use client';
 
-/**
- * SkillPill Component
- * Displays a skill with 3 states: unlocked/selected/locked
- */
-
 import { useState } from 'react';
-import type { SkillCategory } from '@/types/profile';
 
 interface SkillPillProps {
   skill: string;
-  category: SkillCategory;
   isLocked: boolean;
   isSelected: boolean;
-  isVerified?: boolean; // Has passed exam
+  isVerified?: boolean;
+  isProvisional?: boolean;
   onClick: () => void;
-  lockReason?: string; // Tooltip message for locked skills
+  lockReason?: string;
 }
 
 export default function SkillPill({
   skill,
-  category,
   isLocked,
   isSelected,
   isVerified = false,
+  isProvisional = false,
   onClick,
   lockReason,
 }: SkillPillProps) {
   const [showTooltip, setShowTooltip] = useState(false);
-
-  const categoryColors = {
-    Frontend: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    Backend: 'bg-green-500/10 text-green-400 border-green-500/20',
-    Database: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    DevOps: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-    Mobile: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-    Other: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-    Security: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-  };
 
   const handleClick = () => {
     if (isLocked) {
@@ -57,20 +41,21 @@ export default function SkillPill({
         onMouseLeave={() => setShowTooltip(false)}
         disabled={isLocked && !lockReason}
         className={`
-          group relative px-4 py-2.5 rounded-lg font-medium text-sm
-          transition-all duration-200 flex items-center gap-2
+          group relative px-3 py-1.5 rounded-md font-medium text-xs
+          transition-colors duration-150 flex items-center gap-1.5
           ${
             isLocked
               ? 'bg-white/5 text-white/30 border border-white/10 cursor-not-allowed'
               : isSelected
-              ? 'bg-[#4455ff] text-white border-2 border-[#4455ff] shadow-[0_0_15px_rgba(68,85,255,0.3)] scale-105'
-              : 'bg-[#0f0f18] text-white/70 border border-white/20 hover:border-[#4455ff] hover:text-white hover:scale-105 cursor-pointer'
+              ? 'bg-[#dc2626] text-white border-2 border-[#b91c1c]'
+              : isProvisional
+              ? 'bg-[#0f0f18] text-white/70 border-2 border-dashed border-amber-500/60 hover:border-[#dc2626] hover:text-white cursor-pointer'
+              : 'bg-[#0f0f18] text-white/70 border border-white/20 hover:border-[#dc2626] hover:text-white cursor-pointer'
           }
         `}
       >
-        {/* Lock Icon */}
         {isLocked && (
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -80,15 +65,14 @@ export default function SkillPill({
           </svg>
         )}
 
-        {/* Skill Name */}
         <span>{skill}</span>
 
-        {/* Category Tag */}
-        <span className={`text-xs px-2 py-0.5 rounded border ${categoryColors[category]}`}>
-          {category}
-        </span>
+        {isProvisional && !isLocked && (
+          <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            Learning
+          </span>
+        )}
 
-        {/* Verified Badge */}
         {isVerified && !isLocked && (
           <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
             <path

@@ -1,84 +1,71 @@
 'use client';
 
-
 import type { ProfileData, AvailabilityType } from '@/types/profile';
-import AvailabilityCard from '@/components/profile/ui/AvailabilityCard';
 
 interface Step6Props {
-  data: Partial<ProfileData>;
+  data:     Partial<ProfileData>;
   onChange: (data: Partial<ProfileData>) => void;
-  onNext: () => void;
-  onBack: () => void;
+  onNext:   () => void;
+  onBack:   () => void;
 }
 
-export default function Step6_Availability({ data, onChange, onNext, onBack }: Step6Props) {
-  const availabilityOptions: Array<{
-    value: AvailabilityType;
-    label: string;
-    description: string;
-    icon: string;
-  }> = [
-    { value: 'Full-time', label: 'Full-time', description: 'Available 40+ hours/week for projects', icon: '⏰' },
-    { value: 'Flexible',  label: 'Flexible',  description: 'Can adjust schedule as needed',        icon: '🔄' },
-    { value: 'Evenings',  label: 'Evenings',  description: 'Primarily evenings after 5pm',         icon: '🌙' },
-    { value: 'Weekends',  label: 'Weekends',  description: 'Weekends only',                        icon: '📅' },
-  ];
+const OPTIONS: Array<{ value: AvailabilityType; label: string; description: string }> = [
+  { value: 'Full-time', label: 'Full-time', description: 'I can dedicate full days to a project.' },
+  { value: 'Flexible',  label: 'Flexible',  description: 'Lots of free time, easy to schedule.' },
+  { value: 'Evenings',  label: 'Evenings',  description: 'Busy with classes by day, evenings are mine.' },
+  { value: 'Weekends',  label: 'Weekends',  description: 'Only weekends.' },
+];
 
-  const handleSelect = (availability: AvailabilityType) => {
-    onChange({ ...data, availability });
-  };
+export default function Step6_Availability({ data, onChange, onNext, onBack }: Step6Props) {
+  const selected = data.availability;
+  const canAdvance = !!selected;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Your Availability</h2>
-        <p className="text-white/60">How much time can you dedicate to projects?</p>
-      </div>
-
-      {/* Availability Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {availabilityOptions.map((option) => (
-          <AvailabilityCard
-            key={option.value}
-            label={option.label}
-            description={option.description}
-            value={option.value}
-            selected={data.availability === option.value}
-            onClick={() => handleSelect(option.value)}
-            icon={option.icon}
-          />
-        ))}
-      </div>
-
-      {/* Info Box */}
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-        <p className="text-sm text-blue-200">
-          💡 <strong>Note:</strong> This affects your match score (20% weight). You can update this anytime.
+      <div className="mb-6">
+        <h2 className="text-white font-bold text-xl mb-1">Availability</h2>
+        <p className="text-gray-500 text-sm">
+          When are you free to work on projects? Pick the one that fits best.
         </p>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between pt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {OPTIONS.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange({ ...data, availability: opt.value })}
+            className={`text-left p-4 rounded-lg border-2 transition-all
+              ${selected === opt.value
+                ? 'bg-[#dc2626]/15 border-[#dc2626] text-white'
+                : 'bg-[#1a1a1a] border-gray-700 text-gray-400 hover:border-[#dc2626] hover:text-white'
+              }`}
+          >
+            <div className="font-semibold text-sm mb-1">{opt.label}</div>
+            <div className="text-xs opacity-70">{opt.description}</div>
+          </button>
+        ))}
+      </div>
+
+      {!canAdvance && (
+        <p className="text-xs text-[#dc2626]">Pick the one that best matches your schedule.</p>
+      )}
+
+      <div className="mt-5 flex items-center justify-between">
         <button
+          type="button"
           onClick={onBack}
-          className="px-8 py-3 rounded-lg font-semibold text-white/70 hover:text-white transition-all"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
-          ← Back
+          Back
         </button>
         <button
+          type="button"
           onClick={onNext}
-          disabled={!data.availability}
-          className={`
-            px-8 py-3 rounded-lg font-semibold transition-all
-            ${
-              data.availability
-                ? 'bg-[#4455ff] text-white hover:bg-[#5566ff] shadow-[0_0_20px_rgba(68,85,255,0.3)] hover:shadow-[0_0_30px_rgba(68,85,255,0.5)]'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
-            }
-          `}
+          disabled={!canAdvance}
+          className="bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Next Step →
+          Next
         </button>
       </div>
     </div>

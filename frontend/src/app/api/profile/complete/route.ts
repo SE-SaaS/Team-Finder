@@ -188,11 +188,17 @@ export async function POST(req: NextRequest) {
   const supabase = createClient();
 
   // 1) Profile upsert. university is forced from auth metadata.
+  // username is derived from email (matches auth/callback row-creation logic)
+  // because the live profiles table enforces NOT NULL on username, and the
+  // upsert's INSERT branch would otherwise fail when the row is missing.
+  const usernameFromEmail = user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`;
+
   const profileError = await supabase
     .from('profiles')
     .upsert({
       id:                  user.id,
       email:               user.email,
+      username:            usernameFromEmail,
       university,
       verification_method: 'email_domain',
       major:               data.major,

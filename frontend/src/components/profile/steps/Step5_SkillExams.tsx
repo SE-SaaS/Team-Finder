@@ -1,90 +1,48 @@
 'use client';
 
-/**
- * Step 5: Skill Exams
- * Take exams to verify skills (simplified version - full exam modal to be added)
- */
-
 import type { ProfileData } from '@/types/profile';
 
 interface Step5Props {
-  data: Partial<ProfileData>;
+  data:     Partial<ProfileData>;
   onChange: (data: Partial<ProfileData>) => void;
-  onNext: () => void;
-  onBack: () => void;
+  onNext:   () => void;
+  onBack:   () => void;
 }
 
-export default function Step5_SkillExams({ data, onNext, onBack }: Omit<Step5Props, 'onChange'>) {
-  const selectedSkills = data.skills || [];
-
+export default function Step5_SkillExams({ onNext, onBack }: Step5Props) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Skill Verification Exams</h2>
-        <p className="text-white/60">
-          Take exams to verify your skills. You can skip and take them later from your dashboard.
+      <div className="mb-2">
+        <h2 className="text-white font-bold text-xl mb-1">Skill verification</h2>
+        <p className="text-gray-500 text-sm">
+          Coming soon. You will be able to verify your skills with short exams
+          later from your profile page.
         </p>
       </div>
 
-      {/* Skills List */}
-      <div className="bg-[#0f0f18] border border-white/10 rounded-xl p-6">
-        <h3 className="text-white font-semibold mb-4">Your Selected Skills ({selectedSkills.length})</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          {selectedSkills.map((skillName) => {
-            const isVerified = data.examResults?.[skillName]?.passed || false;
-            return (
-              <div
-                key={skillName}
-                className={`
-                  px-4 py-3 rounded-lg text-center
-                  ${
-                    isVerified
-                      ? 'bg-green-500/20 border border-green-500/50 text-green-300'
-                      : 'bg-white/5 border border-white/10 text-white/70'
-                  }
-                `}
-              >
-                {skillName}
-                {isVerified && ' ✓'}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Exam Placeholder */}
-        <div className="bg-[#16161f] rounded-lg p-8 text-center border border-[#4455ff]/20">
-          <div className="text-4xl mb-3">📝</div>
-          <h4 className="text-xl font-bold text-white mb-2">Exam System</h4>
-          <p className="text-white/60 mb-4">
-            Full exam modal with HackerRank-style MCQ questions, timer, and scoring will be implemented here.
-          </p>
-          <p className="text-sm text-white/40">
-            For now, you can skip this step and complete exams later from your dashboard.
-          </p>
-        </div>
-      </div>
-
-      {/* Info Box */}
-      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-        <p className="text-sm text-blue-200">
-          💡 <strong>Tip:</strong> Taking exams increases your match score. Higher scores = better team matches!
+      <div className="rounded-lg border border-dashed border-gray-700 bg-[#0f0f18] p-6 text-center">
+        <p className="text-gray-400 text-sm">
+          For now, the skills you picked stand on the courses you have completed.
+        </p>
+        <p className="text-gray-600 text-xs mt-2">
+          Self-claimed and provisional skills can be verified later.
         </p>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between pt-6">
+      <div className="mt-5 flex items-center justify-between">
         <button
+          type="button"
           onClick={onBack}
-          className="px-8 py-3 rounded-lg font-semibold text-white/70 hover:text-white transition-all"
+          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
         >
-          ← Back
+          Back
         </button>
         <button
+          type="button"
           onClick={onNext}
-          className="px-8 py-3 rounded-lg font-semibold bg-[#4455ff] text-white hover:bg-[#5566ff] shadow-[0_0_20px_rgba(68,85,255,0.3)] transition-all"
+          className="bg-[#dc2626] hover:bg-[#b91c1c] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
-          Skip Exams (Take Later) →
+          Next
         </button>
       </div>
     </div>
