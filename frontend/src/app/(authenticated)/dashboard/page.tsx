@@ -341,14 +341,14 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       if (!profileStats.major || !profileStats.university) return;
 
       try {
-        // Fetch user's completed courses from profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('completed_courses')
-          .eq('id', user.id)
-          .maybeSingle();
+        // Fetch user's completed courses from user_courses
+        const { data: completedCourses } = await supabase
+          .from('user_courses')
+          .select('course_code')
+          .eq('user_id', user.id)
+          .eq('status', 'completed');
 
-        setUserCourses(profile?.completed_courses || []);
+        setUserCourses(completedCourses?.map(c => c.course_code) || []);
 
         // Fetch user's skills
         const { data: skills } = await supabase

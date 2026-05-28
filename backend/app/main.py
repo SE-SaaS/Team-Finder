@@ -8,6 +8,7 @@ import sys
 import asyncio
 import logging
 import re
+import sentry_sdk
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -20,6 +21,12 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from ai_agent.agent import create_university_assistant
 from app.core.auth import verify_supabase_jwt, AuthenticatedUser
 from langchain_core.messages import HumanMessage, AIMessage
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    send_default_pii=True,
+    traces_sample_rate=0.1,
+)
 
 # Initialize FastAPI app
 app = FastAPI(
