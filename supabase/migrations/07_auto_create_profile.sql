@@ -11,11 +11,10 @@
 -- and backfills any existing affected users.
 -- ============================================
 
--- 1. Trigger function: derives university from the email domain (or metadata
---    as a fallback) and inserts a minimal profile row. Skips silently if the
---    email isn't from a supported university so the auth.users INSERT itself
---    still succeeds (the user just won't get a profile until they verify a
---    university email).
+-- 1. Trigger function: derives university from the email domain and inserts a
+--    minimal profile row. Skips silently if the email isn't from a supported
+--    university so the auth.users INSERT itself still succeeds (the user just
+--    won't get a profile until they verify a university email).
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
@@ -29,8 +28,6 @@ BEGIN
   detected_university := CASE
     WHEN NEW.email LIKE '%@ju.edu.jo' THEN 'University of Jordan'
     WHEN NEW.email LIKE '%@hu.edu.jo' THEN 'Hashemite University'
-    WHEN NEW.raw_user_meta_data->>'university' IN ('University of Jordan', 'Hashemite University')
-      THEN NEW.raw_user_meta_data->>'university'
     ELSE NULL
   END;
 
