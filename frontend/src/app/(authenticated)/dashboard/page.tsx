@@ -11,6 +11,7 @@ import ThemeToggle from '@/components/dashboard/background/ThemeToggle';
 import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
 import { logger } from '@/lib/logger';
 import AIChat from '@/components/dashboard/AIChat';
+import ProfileCompletionBanner from '@/components/dashboard/ProfileCompletionBanner';
 
 interface Project {
   id: string;
@@ -421,6 +422,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
 
   return (
     <>
+      <ProfileCompletionBanner />
       <BackgroundCanvas />
       <div className="min-h-screen bg-transparent text-[#c9d1d9] relative z-10">
 

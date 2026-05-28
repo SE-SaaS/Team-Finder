@@ -11,7 +11,7 @@ const DISMISSED_KEY = 'profile_banner_dismissed';
 
 export default function ProfileCompletionBanner() {
   const { user } = useAuthenticatedUser();
-  const [isComplete, setIsComplete] = useState(true);
+  const [isIncomplete, setIsIncomplete] = useState(false);
   const [loading,    setLoading]    = useState(true);
   const [dismissed,  setDismissed]  = useState(false);
 
@@ -29,18 +29,15 @@ export default function ProfileCompletionBanner() {
           .from('profiles').select('major, year, semester').eq('id', user.id).maybeSingle();
         const { count: skillsCount } = await supabase
           .from('user_skills').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-        const { count: coursesCount } = await supabase
-          .from('user_courses').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
 
-        setIsComplete(checkProfileComplete({
+        setIsIncomplete(!checkProfileComplete({
           major: profile?.major,
           year: profile?.year,
           skillsCount: skillsCount ?? 0,
-          coursesCount: coursesCount ?? 0,
         }));
       } catch (e) {
         logger.error('Error checking profile completion:', e);
-        setIsComplete(false);
+        setIsIncomplete(true);
       } finally {
         setLoading(false);
       }
@@ -55,7 +52,7 @@ export default function ProfileCompletionBanner() {
     sessionStorage.setItem(DISMISSED_KEY, '1');
   };
 
-  if (loading || isComplete || dismissed) return null;
+  if (loading || !isIncomplete || dismissed) return null;
 
   return (
     <div className="fixed top-4 right-4 z-50 max-w-sm">
