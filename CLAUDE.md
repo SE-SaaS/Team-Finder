@@ -71,8 +71,10 @@ CORS in `main.py` allows any `*.vercel.app` origin, any `localhost`/`127.0.0.1` 
 
 - `src/algorithm/` — Client-side team matching engine. `finalScore()` computes a 0–100 match score from cosine skill similarity, normalized rating, and availability score, with a penalty multiplier for low ratings. Weights are in `src/constants/weights.ts`.
 - `src/components/profile/steps/` — multi-step profile wizard components (Step1–Step7), retained as the quality reference for the planned best-of-both wizard rework. Draft state is saved to localStorage via `src/components/profile/utils/profileStorage.ts`; final submission writes to Supabase.
-- `src/contexts/AuthContext.tsx` — Wraps Supabase auth session; consumed app-wide.
-- `src/middleware.ts` — Refreshes Supabase sessions on every request. Does not redirect unauthenticated users (route protection is per-page).
+- `src/contexts/AuthContext.tsx` — Wraps Supabase auth session; consumed app-wide. Provides `user: User | null`.
+- `src/contexts/AuthenticatedUserContext.tsx` — Thin wrapper around `AuthContext` that provides `user: User` (non-null guaranteed). Only valid inside `(authenticated)/` routes — do not use outside that group.
+- `src/app/(authenticated)/layout.tsx` — The auth gate. Reads from `AuthContext`, redirects unauthenticated users to `/auth/login`, then wraps children in `AuthenticatedUserProvider`. This is the single redirect point for all protected routes.
+- `src/middleware.ts` — Refreshes Supabase sessions on every request. Does NOT redirect unauthenticated users — that is handled by the layout above.
 - `src/lib/supabase.ts` / `supabaseServer.ts` — Client vs. server-side Supabase instances.
 
 ### Data generation (`data/generators/`)
@@ -113,11 +115,34 @@ Copy `.env.example` to `.env` in the root. The frontend reads from `frontend/.en
 
 The backend hard-fails at startup if `NEXT_PUBLIC_SUPABASE_URL`, `DATABASE_URL`, or `ANTHROPIC_API_KEY` is missing.
 
+## Auth Context Rules
+
+Always use the correct context for the location:
+
+| Location | Use | Reason |
+|---|---|---|
+| Inside `(authenticated)/` pages | `useAuthenticatedUser()` | `user` is `User` — non-null, no loading state needed |
+| Inside components rendered only in authenticated pages | `useAuthenticatedUser()` | Same guarantee applies |
+| Inside `AuthContext` itself or the layout | `useAuth()` | This is the source; nullable by design |
+| Outside `(authenticated)/` (auth pages, public pages) | `useAuth()` | User may not be logged in |
+
+**Do not** add `if (!user) return` guards inside `(authenticated)/` pages — the layout already handles the unauthenticated case before children render.
+
+**Do not** add `useEffect` redirect blocks inside `(authenticated)/` pages — the layout handles redirection. Duplicate redirects cause race conditions.
+
+
 ## Critical Security Rules
 
 1. **University is immutable** — always read `university` from `user.user_metadata`, never from the request body. The Supabase RLS `UPDATE` policy enforces this at the DB level.
 2. **All API routes must authenticate** — call `supabase.auth.getUser()` server-side before processing any write.
 3. **AI agent write access is limited** — the agent's custom tools only modify `user_courses` and `user_skills`; all other tables are read-only via the SQL toolkit.
+
+### Known auth issues (not yet fixed)
+
+- `AuthContext.signUp()` is an unvalidated backdoor — it bypasses domain restriction and password rules. Do not call it. The active signup path is `POST /api/auth/signup`.
+- `auth/callback/route.ts` line 38 falls back to `'University of Jordan'` when `user_metadata.university` is missing — HU users who registered before the metadata backfill will be silently mis-assigned. Fix: use `getUniversityFromEmail(user.email!)` as the fallback.
+- `NEXT_PUBLIC_APP_URL` must be set in all environments — if missing, confirmation emails link to `localhost:3002` in production.
+- `middleware.ts` logs `user.email` on every request — PII leak in production logs.
 
 ## Troubleshooting
 

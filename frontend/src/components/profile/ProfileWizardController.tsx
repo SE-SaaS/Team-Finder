@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { supabase } from '@/lib/supabase';
 import type { Course, ProfileData } from '@/types/profile';
 
@@ -80,7 +80,7 @@ function intToYear(n: number | null | undefined): ProfileData['year'] | undefine
 
 export default function ProfileWizardController({ initialStep = 1 }: ProfileWizardControllerProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthenticatedUser();
 
   const [activeStep,       setActiveStep]       = useState(initialStep);
   const [data,             setData]             = useState<Partial<ProfileData>>({});
@@ -90,7 +90,6 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
 
   // Hydrate from DB on mount, then overlay newer localStorage draft if present.
   useEffect(() => {
-    if (!user) return;
     let cancelled = false;
     (async () => {
       try {
@@ -150,7 +149,7 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
   // Autosave on every state change (only after hydration completes, so the
   // empty initial state never overwrites a real saved draft).
   useEffect(() => {
-    if (!user || loading) return;
+    if (loading) return;
     saveDraft({ userId: user.id, activeStep, data });
   }, [user, loading, activeStep, data]);
 
@@ -160,7 +159,6 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
   // current so future-year courses aren't even loaded; Step2's year-gate UX
   // hides them regardless.
   useEffect(() => {
-    if (!user) return;
     const university = user.user_metadata?.university as string | undefined;
     const major      = data.major;
     const year       = data.year;
@@ -214,7 +212,7 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
   }, []);
 
   const onSubmit = useCallback(async () => {
-    if (!user || saving) return;
+    if (saving) return;
     setSaving(true);
     try {
       const payload = {

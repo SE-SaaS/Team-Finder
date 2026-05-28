@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
@@ -11,7 +11,7 @@ import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas
 export default function EditProjectPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuthenticatedUser();
 
   const projectId = params.id as string;
 
@@ -33,11 +33,7 @@ export default function EditProjectPage() {
   const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/auth/login');
-  }, [user, authLoading, router]);
-
-  useEffect(() => {
-    if (!user || !projectId) return;
+    if (!projectId) return;
 
     async function fetchProject() {
       try {
@@ -48,7 +44,7 @@ export default function EditProjectPage() {
           .single();
 
         if (error || !data) { setNotFound(true); return; }
-        if (data.creator_id !== user!.id) { setForbidden(true); return; }
+        if (data.creator_id !== user.id) { setForbidden(true); return; }
 
         setFormData({
           title: data.title,
@@ -93,7 +89,7 @@ export default function EditProjectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate() || !user) return;
+    if (!validate()) return;
 
     setSaving(true);
     setSuccessMsg('');
@@ -124,7 +120,7 @@ export default function EditProjectPage() {
     }
   };
 
-  if (authLoading || (loading && !notFound && !forbidden)) {
+  if (loading && !notFound && !forbidden) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <BackgroundCanvas />
@@ -140,7 +136,7 @@ export default function EditProjectPage() {
         <div className="text-center">
           <p className="text-[#f85149] font-medium mb-2">Access Denied</p>
           <p className="text-[#8b949e] text-sm mb-4">You are not the owner of this project.</p>
-          <Link href="/projects" className="text-[#58a6ff] hover:underline text-sm">← Back to Projects</Link>
+          <Link href="/projects" className="text-[#58a6ff] hover:underline text-sm">Back to Projects</Link>
         </div>
       </div>
     );
@@ -152,7 +148,7 @@ export default function EditProjectPage() {
         <BackgroundCanvas />
         <div className="text-center">
           <p className="text-[#8b949e] mb-4">Project not found</p>
-          <Link href="/projects" className="text-[#58a6ff] hover:underline text-sm">← Back to Projects</Link>
+          <Link href="/projects" className="text-[#58a6ff] hover:underline text-sm">Back to Projects</Link>
         </div>
       </div>
     );
@@ -232,7 +228,7 @@ export default function EditProjectPage() {
                     : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
                 }`}
               >
-                <div className="font-semibold mb-1">🎓 University Project</div>
+                <div className="font-semibold mb-1">University Project</div>
                 <div className="text-xs">Course assignments, capstone projects</div>
               </button>
               <button
@@ -244,7 +240,7 @@ export default function EditProjectPage() {
                     : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
                 }`}
               >
-                <div className="font-semibold mb-1">🌐 External Project</div>
+                <div className="font-semibold mb-1">External Project</div>
                 <div className="text-xs">Personal projects, hackathons, startups</div>
               </button>
             </div>
@@ -269,7 +265,7 @@ export default function EditProjectPage() {
                       : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]/50'
                   }`}
                 >
-                  {s === 'open' ? '🟢 Open' : s === 'in_progress' ? '🟡 In Progress' : '✅ Completed'}
+                  {s === 'open' ? 'Open' : s === 'in_progress' ? 'In Progress' : 'Completed'}
                 </button>
               ))}
             </div>
@@ -288,7 +284,7 @@ export default function EditProjectPage() {
               onChange={e => setFormData({ ...formData, team_size: parseInt(e.target.value) })}
               className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
             />
-            <p className="mt-1 text-xs text-[#8b949e]">Total team members including you (2–10)</p>
+            <p className="mt-1 text-xs text-[#8b949e]">Total team members including you (2-10)</p>
             {errors.team_size && <p className="mt-2 text-sm text-[#f85149]">{errors.team_size}</p>}
           </div>
 

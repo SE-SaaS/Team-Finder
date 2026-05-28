@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { AVATAR_COLORS } from '@/types/profile';
 import type { ProfileData } from '@/types/profile';
 import { MAJORS } from '@/data/majors';
@@ -27,7 +27,7 @@ function pickAvatarColor(source: string): string {
 }
 
 export default function Step7_Bio({ data, onChange, onBack, onSubmit }: Step7Props) {
-  const { user } = useAuth();
+  const { user } = useAuthenticatedUser();
   const [submitting, setSubmitting] = useState(false);
 
   const dataRef     = useRef(data);
@@ -36,7 +36,7 @@ export default function Step7_Bio({ data, onChange, onBack, onSubmit }: Step7Pro
   onChangeRef.current = onChange;
 
   useEffect(() => {
-    if (!user || dataRef.current.avatar) return;
+    if (dataRef.current.avatar) return;
     const source = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? '';
     onChangeRef.current({
       ...dataRef.current,
@@ -45,11 +45,11 @@ export default function Step7_Bio({ data, onChange, onBack, onSubmit }: Step7Pro
     });
   }, [user]);
 
-  const displayName = (user?.user_metadata?.full_name as string | undefined)
-    ?? user?.email?.split('@')[0]
+  const displayName = (user.user_metadata?.full_name as string | undefined)
+    ?? user.email?.split('@')[0]
     ?? 'User';
   const majorName     = data.major ? (MAJORS[data.major]?.name ?? data.major) : '';
-  const university    = (user?.user_metadata?.university as string | undefined) ?? '';
+  const university    = (user.user_metadata?.university as string | undefined) ?? '';
   const completedSet  = data.completedCourses ?? [];
   const doneCount     = completedSet.filter(c => c.status === 'completed').length;
   const inProgCount   = completedSet.filter(c => c.status === 'in_progress').length;

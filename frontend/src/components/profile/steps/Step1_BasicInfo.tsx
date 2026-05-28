@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { MAJORS, MAJOR_CODES } from '@/data/majors';
 import type { ProfileData } from '@/types/profile';
 
@@ -15,8 +15,8 @@ interface Step1Props {
 const UNKNOWN_SPEC = '__unknown__';
 
 export default function Step1_BasicInfo({ data, onChange, onNext }: Step1Props) {
-  const { user } = useAuth();
-  const university = (user?.user_metadata?.university as string | undefined) ?? '';
+  const { user } = useAuthenticatedUser();
+  const university = (user.user_metadata?.university as string | undefined) ?? '';
 
   const majorInfo       = data.major ? MAJORS[data.major] : null;
   const specializations = useMemo(() => majorInfo?.specializations ?? [], [majorInfo]);

@@ -1,10 +1,11 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 
 interface AuthenticatedUserContextType {
   user: User;
+  session: Session;
   signOut: () => Promise<void>;
 }
 
@@ -12,15 +13,17 @@ const AuthenticatedUserContext = createContext<AuthenticatedUserContextType | un
 
 export function AuthenticatedUserProvider({
   user,
+  session,
   signOut,
   children,
 }: {
   user: User;
+  session: Session;
   signOut: () => Promise<void>;
   children: React.ReactNode;
 }) {
   return (
-    <AuthenticatedUserContext.Provider value={{ user, signOut }}>
+    <AuthenticatedUserContext.Provider value={{ user, session, signOut }}>
       {children}
     </AuthenticatedUserContext.Provider>
   );

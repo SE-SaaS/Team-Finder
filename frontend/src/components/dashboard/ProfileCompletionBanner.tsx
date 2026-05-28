@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { supabase } from '@/lib/supabase';
 import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
 import { logger } from '@/lib/logger';
@@ -10,7 +10,7 @@ import { logger } from '@/lib/logger';
 const DISMISSED_KEY = 'profile_banner_dismissed';
 
 export default function ProfileCompletionBanner() {
-  const { user } = useAuth();
+  const { user } = useAuthenticatedUser();
   const [isComplete, setIsComplete] = useState(true);
   const [loading,    setLoading]    = useState(true);
   const [dismissed,  setDismissed]  = useState(false);
@@ -24,7 +24,6 @@ export default function ProfileCompletionBanner() {
 
   useEffect(() => {
     async function check() {
-      if (!user) { setLoading(false); return; }
       try {
         const { data: profile } = await supabase
           .from('profiles').select('major, year, semester').eq('id', user.id).maybeSingle();

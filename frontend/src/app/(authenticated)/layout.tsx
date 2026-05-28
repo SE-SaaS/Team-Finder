@@ -10,7 +10,7 @@ export default function AuthenticatedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading, signOut } = useAuth();
+  const { user, session, loading, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -27,14 +27,14 @@ export default function AuthenticatedLayout({
     );
   }
 
-  // Render nothing while the useEffect above is redirecting to /auth/login;
-  // prevents a 1-frame flash of child pages reading user.
-  if (!user) {
+  // Render nothing while useEffect is redirecting; also satisfies TypeScript
+  // that session is non-null before passing it to the provider.
+  if (!user || !session) {
     return null;
   }
 
   return (
-    <AuthenticatedUserProvider user={user} signOut={signOut}>
+    <AuthenticatedUserProvider user={user} session={session} signOut={signOut}>
       {children}
     </AuthenticatedUserProvider>
   );

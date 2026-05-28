@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -9,7 +9,7 @@ interface Message {
 }
 
 export default function AIChat() {
-  const { session } = useAuth();
+  const { session } = useAuthenticatedUser();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -28,7 +28,7 @@ export default function AIChat() {
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
-    if (!session?.access_token) {
+    if (!session.access_token) {
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: 'Please sign in to use the Career Assistant.' },
