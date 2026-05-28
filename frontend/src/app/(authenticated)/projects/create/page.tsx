@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
@@ -10,7 +10,7 @@ import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas
 
 export default function CreateProjectPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuthenticatedUser();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -23,13 +23,6 @@ export default function CreateProjectPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/login');
-    }
-  }, [user, authLoading, router]);
 
   const handleSkillToggle = (skill: string) => {
     setFormData(prev => ({
@@ -75,7 +68,7 @@ export default function CreateProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate() || !user) return;
+    if (!validate()) return;
 
     setLoading(true);
 
@@ -106,15 +99,6 @@ export default function CreateProjectPage() {
       setLoading(false);
     }
   };
-
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <BackgroundCanvas />
-        <div className="text-[#8b949e]">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">

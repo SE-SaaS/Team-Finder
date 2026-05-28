@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { supabase } from '@/lib/supabase';
 
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
@@ -75,7 +75,7 @@ function ProjectRow({ project }: { project: Project }) {
             )}
             {project.status === 'locked' && (
               <span className="shrink-0 px-2 py-0.5 text-[10px] font-medium border border-[#8b949e]/50 text-[#8b949e] rounded-full">
-                🔒 Locked
+                 Locked
               </span>
             )}
           </div>
@@ -185,7 +185,7 @@ function CourseStatusBadge({ status }: { status: 'completed' | 'in-progress' | '
   const config = {
     completed: { bg: 'bg-[#238636]/20', text: 'text-[#3fb950]', icon: '✓', label: 'Completed' },
     'in-progress': { bg: 'bg-amber-500/20', text: 'text-amber-400', icon: '⟳', label: 'In Progress' },
-    locked: { bg: 'bg-[#30363d]', text: 'text-[#8b949e]', icon: '🔒', label: 'Locked' },
+    locked: { bg: 'bg-[#30363d]', text: 'text-[#8b949e]', icon: '', label: 'Locked' },
   };
   const { bg, text, icon, label } = config[status];
 
@@ -199,7 +199,7 @@ function CourseStatusBadge({ status }: { status: 'completed' | 'in-progress' | '
 // ── Dashboard ──────────────────────────────────────────────────────────────
 export default function Dashboard() {
   const router = useRouter();
-  const { user, loading, signOut } = useAuth();
+  const { user, signOut } = useAuthenticatedUser();
 
   const [isProfileComplete, setIsProfileComplete] = useState(false);
   const [checkingProfile, setCheckingProfile]     = useState(true);
@@ -232,12 +232,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
   }, [showUserMenu]);
 
   useEffect(() => {
-    if (!loading && !user) router.push('/auth/login');
-  }, [user, loading, router]);
-
-  useEffect(() => {
     async function checkProfile() {
-      if (!user) return;
       try {
         const { data: profile } = await supabase
           .from('profiles').select('major, year, name, university, semester').eq('id', user.id).maybeSingle();
@@ -283,7 +278,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       }
 
       try {
-        logger.log('📥 Fetching projects...');
+        logger.log(' Fetching projects...');
 
         const [uniResult, extResult] = await Promise.all([
           supabase
@@ -301,12 +296,12 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
             .limit(10),
         ]);
 
-        logger.log(`✅ University: ${uniResult.data?.length ?? 0}, External: ${extResult.data?.length ?? 0}`);
+        logger.log(` University: ${uniResult.data?.length ?? 0}, External: ${extResult.data?.length ?? 0}`);
 
         setUniversityProjects(uniResult.data ?? []);
         setExternalProjects(extResult.data ?? []);
       } catch (error) {
-        logger.error('❌ Error fetching projects:', error);
+        logger.error(' Error fetching projects:', error);
       } finally {
         setLoadingProjects(false);
       }
@@ -317,7 +312,6 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
   // Fetch user's own projects + trending projects
   useEffect(() => {
     async function fetchMyAndTrending() {
-      if (!user) return;
       try {
         const [myResult, trendingResult] = await Promise.all([
           supabase
@@ -344,7 +338,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
   // Fetch user's courses and skills
   useEffect(() => {
     async function fetchUserData() {
-      if (!user || !profileStats.major || !profileStats.university) return;
+      if (!profileStats.major || !profileStats.university) return;
 
       try {
         // Fetch user's completed courses from profile
@@ -411,7 +405,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
     });
   }, [baseProjects, searchQuery, difficultyFilter, techFilter]);
 
-  if (loading || checkingProfile) {
+  if (checkingProfile) {
     return (
       <>
         <BackgroundCanvas />
@@ -424,8 +418,6 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       </>
     );
   }
-
-  if (!user) return null;
 
   return (
     <>

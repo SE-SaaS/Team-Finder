@@ -1,26 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import ProfileWizardController from '@/components/profile/ProfileWizardController';
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading && !user) router.push('/auth/login');
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-gray-500 text-sm">Loading...</div>
-      </div>
-    );
-  }
+  useAuthenticatedUser();
 
   return (
     <div className="min-h-screen bg-black">

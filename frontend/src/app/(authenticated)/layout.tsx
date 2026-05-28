@@ -3,13 +3,14 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthenticatedUserProvider } from '@/contexts/AuthenticatedUserContext';
 
 export default function AuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,5 +33,9 @@ export default function AuthenticatedLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <AuthenticatedUserProvider user={user} signOut={signOut}>
+      {children}
+    </AuthenticatedUserProvider>
+  );
 }

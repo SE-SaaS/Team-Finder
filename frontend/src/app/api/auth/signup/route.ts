@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
-import { isValidUniversityEmail, getUniversityFromEmail } from '@/data/universities';
+import { getUniversityFromEmail } from '@/data/universities';
 
 export async function POST(req: NextRequest) {
   const { email, password, fullName } = await req.json();
 
-  // Server-side domain validation — cannot be bypassed from client
-  if (!email || !isValidUniversityEmail(email)) {
+  const university = getUniversityFromEmail(email);
+  if (!university) {
     return NextResponse.json(
       { error: 'Only @ju.edu.jo or @hu.edu.jo emails are accepted' },
       { status: 400 }
@@ -41,7 +41,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const university = getUniversityFromEmail(email);
   const supabase = createClient();
 
   const { error } = await supabase.auth.signUp({

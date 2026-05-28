@@ -37,7 +37,9 @@ _VALID_MAJOR_CODES = frozenset({
 def _load_major_plans() -> dict:
     try:
         import importlib.util
-        plans_path = os.path.join(os.path.dirname(__file__), "..", "majors_plans", "plans.py")
+        plans_path = os.path.join(
+            os.path.dirname(__file__), "..", "..", "data", "raw", "majors", "majors_plans", "plans.py"
+        )
         plans_path = os.path.abspath(plans_path)
         spec = importlib.util.spec_from_file_location("majors_plans", plans_path)
         mod = importlib.util.module_from_spec(spec)

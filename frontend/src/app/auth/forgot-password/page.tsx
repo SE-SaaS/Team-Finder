@@ -14,16 +14,6 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     setMessage(null);
 
-    // Validate university email
-    if (!email.endsWith('@ju.edu.jo') && !email.endsWith('@hu.edu.jo')) {
-      setMessage({
-        type: 'error',
-        text: 'Please use your university email (@ju.edu.jo or @hu.edu.jo)',
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,

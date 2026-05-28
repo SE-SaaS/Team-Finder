@@ -1,8 +1,8 @@
 'use client';
 
 import { Suspense, useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSearchParams } from 'next/navigation';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
@@ -28,9 +28,8 @@ export default function ProjectsPage() {
 }
 
 function ProjectsContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuthenticatedUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<'all' | 'university' | 'external'>('all');
@@ -43,17 +42,8 @@ function ProjectsContent() {
     }
   }, [searchParams]);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/login');
-    }
-  }, [user, authLoading, router]);
-
   // Fetch projects
   useEffect(() => {
-    if (!user) return;
-
     async function fetchProjects() {
       try {
         let query = supabase
@@ -78,15 +68,6 @@ function ProjectsContent() {
 
     fetchProjects();
   }, [user, activeFilter]);
-
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <BackgroundCanvas />
-        <div className="text-[#8b949e]">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">

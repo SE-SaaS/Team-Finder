@@ -59,7 +59,7 @@ There is no automated test suite. Manual verification flow lives in `TESTING_GUI
 
 The agent is a singleton cached in memory; it connects to the Supabase PostgreSQL database via `DATABASE_URL` using a `psycopg2.ThreadedConnectionPool` for tool queries and a separate `psycopg AsyncConnectionPool` for LangGraph's `AsyncPostgresSaver` checkpointer (which persists conversation state **in the same Supabase DB**). Thread IDs are formatted `{user_id}:{uuid}`; `main.py` enforces per-user thread ownership by prefix match before resuming a thread — this is the multi-tenant boundary.
 
-At startup the agent loads hardcoded curricula from `backend/majors_plans/plans.py` for 12 major codes (`AI_JU`, `BIT_JU`, `CIS_JU`, `CS_JU`, `CYS_JU`, `DS_JU`, `BIT_HU`, `CIS_HU`, `CS_HU`, `CYS_HU`, `DSAI_HU`, `SWE_HU`). Adding a new major requires updating both `_VALID_MAJOR_CODES` in `agent.py` and `plans.py`.
+At startup the agent loads hardcoded curricula from `data/raw/majors/majors_plans/plans.py` for 12 major codes (`AI_JU`, `BIT_JU`, `CIS_JU`, `CS_JU`, `CYS_JU`, `DS_JU`, `BIT_HU`, `CIS_HU`, `CS_HU`, `CYS_HU`, `DSAI_HU`, `SWE_HU`). Adding a new major requires updating both `_VALID_MAJOR_CODES` in `agent.py` and `plans.py`.
 
 CORS in `main.py` allows any `*.vercel.app` origin, any `localhost`/`127.0.0.1` port, plus a comma-separated `ALLOWED_ORIGINS` env var.
 

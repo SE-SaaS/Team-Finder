@@ -10,12 +10,12 @@ export function cosineSimilarity(vA: number[], vB: number[]): number {
     return 0;
   }
 
-  // Dot product
-  const dot = vA.reduce((sum, a, i) => sum + a * vB[i], 0);
+    // Dot product
+    const dot = vA.reduce((sum, a, i) => sum + a * vB[i], 0);
 
-  // Magnitudes
-  const magA = Math.sqrt(vA.reduce((sum, a) => sum + a * a, 0));
-  const magB = Math.sqrt(vB.reduce((sum, b) => sum + b * b, 0));
+    // Magnitudes
+    const magA = Math.sqrt(vA.reduce((sum, a) => sum + a * a, 0));
+    const magB = Math.sqrt(vB.reduce((sum, b) => sum + b * b, 0));
 
-  return dot / (magA * magB);
-}
+    return dot / (magA * magB);
+  }

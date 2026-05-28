@@ -1,16 +1,21 @@
 /**
- * Jordanian Universities with IT/CS Programs
- * Total: 25 universities (10 public + 15 private)
+ * Currently supported universities. Signup is restricted to email domains
+ * mapped in EMAIL_DOMAIN_MAP below — keep this list in sync with that map.
  */
-
 export const UNIVERSITIES = [
-  // ============================================
-  // PUBLIC UNIVERSITIES
-  // ============================================
   'University of Jordan (UJ) – Amman',
+  'Hashemite University – Zarqa',
+] as const;
+
+/**
+ * Jordanian universities planned for production rollout (10 public + 13 private).
+ * Not yet wired into signup — promote entries into UNIVERSITIES and add a domain
+ * to EMAIL_DOMAIN_MAP when onboarding a new university.
+ */
+export const FUTURE_UNIVERSITIES = [
+  // Public
   'Jordan University of Science & Technology (JUST) – Irbid',
   'Yarmouk University – Irbid',
-  'Hashemite University – Zarqa',
   'Mutah University – Karak',
   'Al al-Bayt University – Mafraq',
   'Al-Hussein Bin Talal University – Ma\'an',
@@ -18,9 +23,7 @@ export const UNIVERSITIES = [
   'German Jordanian University (GJU) – Amman',
   'The Jordanian University for Tourism & Heritage – Petra',
 
-  // ============================================
-  // PRIVATE UNIVERSITIES
-  // ============================================
+  // Private
   'Applied Science Private University (ASU) – Amman',
   'Middle East University (MEU) – Amman',
   'Petra University – Amman',
@@ -49,25 +52,6 @@ const EMAIL_DOMAIN_MAP: Record<string, string> = {
   'hu.edu.jo': 'Hashemite University',
 };
 
-const VALID_DOMAINS = Object.keys(EMAIL_DOMAIN_MAP);
-
-/**
- * Check if email is from a valid university domain
- * @param email - Email address to validate
- * @returns true if email is from @ju.edu.jo or @hu.edu.jo
- */
-export function isValidUniversityEmail(email: string): boolean {
-  if (!email || !email.includes('@')) return false;
-
-  const domain = email.split('@')[1]?.toLowerCase();
-  return VALID_DOMAINS.includes(domain);
-}
-
-/**
- * Get university name from email domain
- * @param email - Email address
- * @returns University name or null if not found
- */
 export function getUniversityFromEmail(email: string): string | null {
   if (!email || !email.includes('@')) return null;
 

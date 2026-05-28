@@ -3,16 +3,14 @@ import CourseCatalog from "./courses/CourseCatalog"
 import DevToolsHub from "./devtools/DevToolsHub"
 import PersonalizedPath from "./path/PersonalizedPath"
 import { useState, useEffect, useMemo } from "react"
-import { useRouter } from "next/navigation"
 import { useCourses } from "@/hooks/useCourses"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuthenticatedUser } from "@/contexts/AuthenticatedUserContext"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import BackgroundCanvas from "@/components/dashboard/background/BackgroundCanvas"
 
 export default function LearningPage() {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+  const { user } = useAuthenticatedUser()
   const [tab, setTab] = useState("Courses")
   const [userUni, setUserUni]             = useState<"JU" | "HU" | undefined>(undefined)
   const [defaultYear, setDefaultYear]     = useState<number | undefined>(undefined)
@@ -21,11 +19,6 @@ export default function LearningPage() {
   const { courses, loading } = useCourses()
 
   useEffect(() => {
-    if (!authLoading && !user) router.push("/auth/login")
-  }, [user, authLoading, router])
-
-  useEffect(() => {
-    if (!user) return
     async function loadProfile() {
       try {
         const { data } = await supabase

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
@@ -32,7 +32,7 @@ interface TeamMember {
 export default function ProjectDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuthenticatedUser();
   const [project, setProject] = useState<Project | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,16 +41,9 @@ export default function ProjectDetailPage() {
 
   const projectId = params.id as string;
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/login');
-    }
-  }, [user, authLoading, router]);
-
   // Fetch project details and team members
   useEffect(() => {
-    if (!user || !projectId) return;
+    if (!projectId) return;
 
     async function fetchProjectData() {
       try {
@@ -108,7 +101,7 @@ export default function ProjectDetailPage() {
     }
   };
 
-  if (authLoading || loading || !user) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <BackgroundCanvas />

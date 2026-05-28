@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
@@ -10,7 +10,7 @@ type Tab = 'account' | 'contact' | 'danger';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, signOut } = useAuthenticatedUser();
 
   const [activeTab, setActiveTab] = useState<Tab>('account');
   const [loading, setLoading] = useState(true);
@@ -44,11 +44,6 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
-    if (!authLoading && !user) router.push('/auth/login');
-  }, [user, authLoading, router]);
-
-  useEffect(() => {
-    if (!user) return;
     async function load() {
       try {
         // Load base fields (always exist)
@@ -93,7 +88,7 @@ export default function SettingsPage() {
   }, [user]);
 
   const handleSaveAccount = async () => {
-    if (!user || !name.trim()) { setErrorMsg('Display name cannot be empty'); return; }
+    if (!name.trim()) { setErrorMsg('Display name cannot be empty'); return; }
     setSaving(true);
     setSuccessMsg('');
     setErrorMsg('');
@@ -128,7 +123,6 @@ export default function SettingsPage() {
   };
 
   const handleSaveContact = async () => {
-    if (!user) return;
     setSavingContact(true);
     setContactSuccess('');
     setContactError('');
@@ -168,7 +162,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (authLoading || loading || !user) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
         <div className="text-[#8b949e]">Loading...</div>
