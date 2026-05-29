@@ -1,6 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { logger } from '@/lib/logger';
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -35,7 +34,30 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired - required for Server Components
   const { data: { user } } = await supabase.auth.getUser();
 
-  logger.log('[Middleware]', request.nextUrl.pathname, 'User:', user ? user.email : 'null');
+  const pathname = request.nextUrl.pathname;
+
+  const protectedRoutes = [
+    '/dashboard',
+    '/profile',
+    '/projects',
+    '/learning',
+    '/settings',
+  ];
+
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (isProtected && !user) {
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const authRoutes = ['/auth/login', '/auth/signup'];
+  if (user && authRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
 
   return response;
 }
