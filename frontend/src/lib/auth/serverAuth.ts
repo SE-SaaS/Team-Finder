@@ -30,8 +30,5 @@ export async function getUserFromRequest(req: NextRequest): Promise<User | null>
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log('[serverAuth] Cookies from request:', req.cookies.getAll().map(c => c.name));
-  console.log('[serverAuth] User from session:', user ? user.email : 'NULL');
-
   return user;
 }
