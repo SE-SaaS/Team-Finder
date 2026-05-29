@@ -6,6 +6,27 @@ import { logger } from '@/lib/logger';
 export async function POST(req: NextRequest) {
   const { email, password, fullName } = await req.json();
 
+  const supabase = createClient();
+
+  // Per-IP rate limit (5 / 15 min) enforced in the DB via SECURITY DEFINER fn.
+  const ip =
+    (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() ||
+    req.headers.get('x-real-ip') ||
+    '';
+  const { data: allowed, error: rlError } = await supabase.rpc(
+    'check_signup_rate_limit',
+    { p_ip: ip }
+  );
+  if (rlError) {
+    logger.error('[signup] rate-limit check failed', rlError);
+    // fail open: do not block legitimate signups if the limiter errors
+  } else if (allowed === false) {
+    return NextResponse.json(
+      { error: 'Too many signup attempts. Please try again in a few minutes.' },
+      { status: 429 }
+    );
+  }
+
   const university = getUniversityFromEmail(email);
   if (!university) {
     return NextResponse.json(
@@ -41,8 +62,6 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-
-  const supabase = createClient();
 
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
