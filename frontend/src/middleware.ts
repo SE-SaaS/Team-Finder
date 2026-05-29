@@ -42,6 +42,8 @@ export async function middleware(request: NextRequest) {
     '/projects',
     '/learning',
     '/settings',
+    '/chat',
+    '/qna',
   ];
 
   const isProtected = protectedRoutes.some((route) =>
