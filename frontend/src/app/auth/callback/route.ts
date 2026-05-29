@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
+import { getUniversityFromEmail } from '@/data/universities';
 
 export async function GET(req: NextRequest) {
   const requestUrl = new URL(req.url);
@@ -30,12 +31,19 @@ export async function GET(req: NextRequest) {
         .single();
 
       if (!existingProfile) {
+        const university = getUniversityFromEmail(user.email!);
+        if (!university) {
+          return NextResponse.redirect(
+            `${requestUrl.origin}/auth/login?error=${encodeURIComponent('Unrecognized university email')}`
+          );
+        }
+
         const { error: insertError } = await supabase.from('profiles').insert({
           id: user.id,
           email: user.email!,
           name: user.user_metadata?.name || 'Student',
           username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`,
-          university: user.user_metadata?.university || 'University of Jordan',
+          university,
           verification_method: 'email_domain',
         });
 
