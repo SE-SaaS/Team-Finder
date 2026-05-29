@@ -43,7 +43,7 @@ export default function ThreadPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async () => {
-    if (!user || !threadId) return;
+    if (!threadId) return;
     const { data: thread, error: thErr } = await supabase
       .from('chat_threads')
       .select('id, user_a_id, user_b_id')
