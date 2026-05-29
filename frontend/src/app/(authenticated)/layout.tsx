@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthenticatedUserProvider } from '@/contexts/AuthenticatedUserContext';
-import AIChat from '@/components/dashboard/AIChat';
 
 export default function AuthenticatedLayout({
   children,
@@ -37,7 +36,6 @@ export default function AuthenticatedLayout({
   return (
     <AuthenticatedUserProvider user={user} session={session} signOut={signOut}>
       {children}
-      <AIChat />
     </AuthenticatedUserProvider>
   );
 }

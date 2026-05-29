@@ -10,6 +10,7 @@ import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas
 import ThemeToggle from '@/components/dashboard/background/ThemeToggle';
 import { isProfileComplete as checkProfileComplete } from '@/lib/validation/profileValidation';
 import { logger } from '@/lib/logger';
+import AIChat from '@/components/dashboard/AIChat';
 import ProfileCompletionBanner from '@/components/dashboard/ProfileCompletionBanner';
 
 interface Project {
@@ -973,6 +974,8 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
         }
       `}</style>
 
+      {/* AI Chat Assistant */}
+      <AIChat />
     </>
   );
 }
