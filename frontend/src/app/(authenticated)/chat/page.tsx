@@ -40,10 +40,7 @@ export default function ChatListPage() {
   const [startingChat, setStartingChat] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-
     async function load() {
-      if (!user) return;
       const [threadsRes, statesRes, messagesRes] = await Promise.all([
         supabase
           .from('chat_threads')
@@ -128,7 +125,6 @@ export default function ChatListPage() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
     const q = searchQuery.trim();
     if (q.length < 2) {
       setSearchResults([]);
