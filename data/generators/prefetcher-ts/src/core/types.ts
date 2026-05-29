@@ -38,20 +38,11 @@ export const SOURCE_MAP: Record<Major, string[]> = {
 };
 
 export const SOURCE_STRATEGY: Record<string, Strategy> = {
-  github:         "api",
-  kaggle:         "api",
-  huggingface:    "api",
-  leetcode:       "graphql",
-  hackerrank:     "api",
-  sap:            "api",
-  gitlab:         "api",
-  paperswithcode: "api",
-  uci:            "api",
-  ctftime:        "api",
-  hackthebox:     "api",
-  vulnhub:        "scrape",
-  tableau_public: "scrape",
-  power_bi:       "scrape",
-  openhub:        "api",
-  ai_generator:   "internal",
+  github:      "api",
+  kaggle:      "api",
+  huggingface: "api",
+  leetcode:    "graphql",
+  hackerrank:  "api",
+  ctftime:     "api",
+  gitlab:      "api",
 };

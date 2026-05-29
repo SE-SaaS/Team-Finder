@@ -16,7 +16,6 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({ students: 0, projects: 0, matchRate: 94 });
 
-  // Fetch real stats
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -24,11 +23,7 @@ export default function SignupPage() {
           supabase.from('profiles').select('id', { count: 'exact', head: true }),
           supabase.from('projects').select('id', { count: 'exact', head: true }),
         ]);
-        setStats({
-          students: studentsRes.count || 0,
-          projects: projectsRes.count || 0,
-          matchRate: 94,
-        });
+        setStats({ students: studentsRes.count || 0, projects: projectsRes.count || 0, matchRate: 94 });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
       }
@@ -36,22 +31,11 @@ export default function SignupPage() {
     fetchStats();
   }, []);
 
-  const handleEmailChange = (email: string) => {
-    setEmail(email);
-
-    if (!email || !email.includes('@')) {
-      setDetectedUniversity(null);
-      setError('');
-      return;
-    }
-
-    const university = getUniversityFromEmail(email);
-    if (!university) {
-      setError('Only @ju.edu.jo or @hu.edu.jo emails accepted');
-      setDetectedUniversity(null);
-      return;
-    }
-
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (!val || !val.includes('@')) { setDetectedUniversity(null); setError(''); return; }
+    const university = getUniversityFromEmail(val);
+    if (!university) { setError('Only @ju.edu.jo or @hu.edu.jo emails accepted'); setDetectedUniversity(null); return; }
     setDetectedUniversity(university);
     setError('');
   };
@@ -59,35 +43,17 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    // Validate full name
-    if (!fullName.trim() || fullName.trim().length < 2) {
-      setError('Please enter your full name');
-      return;
-    }
-
+    if (password !== confirmPassword) { setError('Passwords do not match'); return; }
+    if (!fullName.trim() || fullName.trim().length < 2) { setError('Please enter your full name'); return; }
     setLoading(true);
-
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, fullName: fullName.trim() }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Failed to create account');
-        return;
-      }
-
+      if (!res.ok) { setError(data.error || 'Failed to create account'); return; }
       setStep('verify');
     } catch {
       setError('Network error. Please try again.');
@@ -96,30 +62,20 @@ export default function SignupPage() {
     }
   };
 
-  // Verification Screen
+  // ── Verification screen ───────────────────────────────────────────────────
   if (step === 'verify') {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="stars stars-blue"></div>
-          <div className="stars stars-red"></div>
-        </div>
-
-        <div className="relative z-10 w-full max-w-md text-center">
-          <div className="w-16 h-16 bg-[#dc2626]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-[#dc2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#120306', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div style={{ width: '100%', maxWidth: 400, textAlign: 'center' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+            <svg width="28" height="28" fill="none" stroke="#dc2626" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
             </svg>
           </div>
-
-          <h1 className="text-3xl font-bold text-white mb-3">Check your email</h1>
-          <p className="text-gray-400 mb-2">Verification link sent to</p>
-          <p className="text-[#dc2626] font-medium mb-8">{email}</p>
-
-          <Link
-            href="/auth/login"
-            className="inline-block w-full max-w-sm bg-[#dc2626] hover:bg-[#b91c1c] text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200"
-          >
+          <h1 style={{ fontSize: 28, fontWeight: 700, color: '#fff', marginBottom: 8 }}>Check your email</h1>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>Verification link sent to</p>
+          <p style={{ fontSize: 14, color: '#dc2626', fontWeight: 600, marginBottom: 32 }}>{email}</p>
+          <Link href="/auth/login" style={{ display: 'block', width: '100%', padding: '14px', background: '#dc2626', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 40, textDecoration: 'none', textAlign: 'center' }}>
             Go to Login
           </Link>
         </div>
@@ -127,198 +83,201 @@ export default function SignupPage() {
     );
   }
 
-  // Signup Form
+  // ── Signup form ───────────────────────────────────────────────────────────
+  const canSubmit = !!detectedUniversity && !!password && !!confirmPassword && !!fullName.trim() && password === confirmPassword;
+
   return (
-    <div className="min-h-screen bg-black flex">
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="stars stars-blue"></div>
-        <div className="stars stars-red"></div>
-      </div>
+    <div style={{ display: 'flex', width: '100%', minHeight: '100vh', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
 
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative z-10 flex-col justify-center px-16">
-        <div className="absolute top-8 left-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#dc2626] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">T</span>
-            </div>
-            <span className="text-white text-xl font-bold tracking-tight">TeamFinder</span>
-          </Link>
+      {/* ── Left panel ── */}
+      <div style={{
+        width: '44%', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        padding: '80px 60px', position: 'relative', overflow: 'hidden', background: '#120306',
+        // hide on small screens via inline is not possible — handled by the media wrapper below
+      }} className="auth-panel-l">
+
+        {/* decorative circles */}
+        <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', border: '1px solid rgba(220,38,38,0.1)', top: -220, right: -200, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', bottom: -100, left: -60, pointerEvents: 'none' }} />
+
+        {/* Brand */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 56, position: 'relative', zIndex: 1 }}>
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>T</div>
+          <span style={{ color: '#fff', fontSize: 15, fontWeight: 600 }}>TeamFinder</span>
         </div>
 
-        <div className="mb-6">
-          <span className="text-[#dc2626] text-xs font-semibold tracking-widest uppercase">
-            University Team Platform
-          </span>
-        </div>
-
-        <h1 className="text-6xl font-bold text-white mb-6 leading-tight">
-          Find your<br />
-          <span className="text-[#dc2626]">perfect</span><br />
-          <span className="text-gray-400">team.</span>
-        </h1>
-
-        <p className="text-gray-400 text-lg mb-12 max-w-md leading-relaxed">
-          Match with teammates based on skills and availability.
+        {/* Tag */}
+        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 4, textTransform: 'uppercase', color: '#dc2626', marginBottom: 16, position: 'relative', zIndex: 1 }}>
+          University Team Platform
         </p>
 
-        <div className="flex gap-12">
-          <div>
-            <div className="text-4xl font-bold text-white mb-1">{stats.students}+</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Students</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-white mb-1">{stats.projects}+</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Projects</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-white mb-1">{stats.matchRate}%</div>
-            <div className="text-xs text-gray-500 uppercase tracking-wide">Match Rate</div>
-          </div>
+        {/* Headline */}
+        <h1 style={{ fontSize: 44, fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 20, position: 'relative', zIndex: 1 }}>
+          Build<br />
+          <strong style={{ display: 'block', fontSize: 56 }}>
+            <span style={{ color: '#dc2626' }}>great</span><br />teams.
+          </strong>
+        </h1>
+
+        {/* Description */}
+        <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 14, lineHeight: 1.75, maxWidth: 280, marginBottom: 40, position: 'relative', zIndex: 1 }}>
+          Match with the right teammates. Launch projects that make a difference.
+        </p>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: 32, marginBottom: 32, position: 'relative', zIndex: 1 }}>
+          {[
+            { n: `${stats.students}+`, l: 'Students' },
+            { n: `${stats.projects}+`, l: 'Projects' },
+            { n: `${stats.matchRate}%`, l: 'Match Rate' },
+          ].map(s => (
+            <div key={s.l}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', lineHeight: 1, marginBottom: 2 }}>{s.n}</div>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'rgba(255,255,255,0.25)' }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Pills */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
+          {['Skill-based matching', 'University-verified accounts', 'JU & HU students only'].map(t => (
+            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626', flexShrink: 0 }} />
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)' }}>{t}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right Side - Signup Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 relative z-10">
-        <div className="w-full max-w-md">
-          <div className="mb-8">
-            <h2 className="text-4xl font-bold text-white mb-2">Join TeamFinder</h2>
-            <p className="text-gray-400">Create your account</p>
-          </div>
+      {/* ── Right panel ── */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 60px', background: '#fff5f5' }} className="auth-panel-r">
+        <div style={{ width: '100%', maxWidth: 400 }}>
 
-          <div className="flex gap-4 mb-8">
-            <Link
-              href="/auth/login"
-              onClick={() => {
-                setFullName('');
-                setEmail('');
-                setPassword('');
-                setConfirmPassword('');
-                setError('');
-                setDetectedUniversity(null);
-              }}
-              className="flex-1 bg-transparent border border-gray-700 text-gray-400 font-semibold py-3 rounded-lg text-center hover:border-gray-600 transition-colors"
-            >
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: '#120306', marginBottom: 6, letterSpacing: '-0.4px' }}>Get started</h2>
+          <p style={{ fontSize: 14, color: 'rgba(0,0,0,0.4)', marginBottom: 32 }}>Create your free account</p>
+
+          {/* Toggle */}
+          <div style={{ background: '#fde8e8', borderRadius: 40, padding: 4, display: 'flex', marginBottom: 28 }}>
+            <Link href="/auth/login" style={{ flex: 1, padding: '9px 12px', textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'rgba(0,0,0,0.35)', borderRadius: 36, textDecoration: 'none' }}>
               Sign in
             </Link>
-            <button className="flex-1 bg-[#dc2626] text-white font-semibold py-3 rounded-lg">
-              Create account
-            </button>
+            <span style={{ flex: 1, padding: '9px 12px', textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#111', borderRadius: 36, background: '#fffafa', boxShadow: '0 1px 8px rgba(0,0,0,0.1)' }}>
+              Register
+            </span>
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+            <div style={{ background: 'rgba(220,38,38,0.08)', border: '1.5px solid rgba(220,38,38,0.3)', color: '#dc2626', padding: '10px 14px', borderRadius: 12, fontSize: 13, marginBottom: 20 }}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
-                Full Name
-              </label>
+          <form onSubmit={handleSignup}>
+            {/* Full Name */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.5)', marginBottom: 6 }}>Full Name</label>
               <input
                 type="text"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={e => setFullName(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
                 placeholder="John Doe"
+                style={{ width: '100%', padding: '13px 16px', background: '#fffafa', border: '1.5px solid #fecaca', borderRadius: 14, color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                onFocus={e => (e.target.style.borderColor = '#dc2626')}
+                onBlur={e => (e.target.style.borderColor = '#fecaca')}
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
-                University Email
-              </label>
+            {/* Email */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.5)', marginBottom: 6 }}>University Email</label>
               <input
                 type="email"
                 value={email}
-                onChange={(e) => handleEmailChange(e.target.value)}
+                onChange={e => handleEmailChange(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
                 placeholder="you@ju.edu.jo or you@hu.edu.jo"
+                style={{ width: '100%', padding: '13px 16px', background: '#fffafa', border: '1.5px solid #fecaca', borderRadius: 14, color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                onFocus={e => (e.target.style.borderColor = '#dc2626')}
+                onBlur={e => (e.target.style.borderColor = '#fecaca')}
               />
               {detectedUniversity && (
-                <p className="mt-2 text-sm text-green-400 flex items-center gap-1">
-                  <span>✓</span> {detectedUniversity}
-                </p>
+                <p style={{ fontSize: 11, color: '#16a34a', marginTop: 5, fontWeight: 600 }}>✓ {detectedUniversity} detected</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
-                Password
-              </label>
+            {/* Password */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.5)', marginBottom: 6 }}>Password</label>
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
                 minLength={8}
                 maxLength={16}
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
-                placeholder="••••••••"
+                placeholder="Minimum 8 characters"
+                style={{ width: '100%', padding: '13px 16px', background: '#fffafa', border: '1.5px solid #fecaca', borderRadius: 14, color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                onFocus={e => (e.target.style.borderColor = '#dc2626')}
+                onBlur={e => (e.target.style.borderColor = '#fecaca')}
               />
-              <p className="mt-1.5 text-xs text-gray-600">
-                8-16 chars · uppercase · number · symbol
-              </p>
+              <p style={{ fontSize: 11, color: '#bbb', marginTop: 5 }}>8–16 chars · uppercase · number · symbol</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wide">
-                Confirm Password
-              </label>
+            {/* Confirm Password */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'rgba(0,0,0,0.5)', marginBottom: 6 }}>Confirm Password</label>
               <input
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={e => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
                 maxLength={16}
-                className="w-full px-4 py-3 bg-[#1a1a1a] border border-gray-800 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#dc2626] transition-colors"
-                placeholder="••••••••"
+                placeholder="Repeat your password"
+                style={{ width: '100%', padding: '13px 16px', background: '#fffafa', border: '1.5px solid #fecaca', borderRadius: 14, color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+                onFocus={e => (e.target.style.borderColor = '#dc2626')}
+                onBlur={e => (e.target.style.borderColor = '#fecaca')}
               />
               {confirmPassword && password !== confirmPassword && (
-                <p className="mt-1.5 text-xs text-red-400">
-                  Passwords do not match
-                </p>
+                <p style={{ fontSize: 11, color: '#dc2626', marginTop: 5, fontWeight: 600 }}>Passwords do not match</p>
               )}
               {confirmPassword && password === confirmPassword && (
-                <p className="mt-1.5 text-xs text-green-400 flex items-center gap-1">
-                  <span>✓</span> Passwords match
-                </p>
+                <p style={{ fontSize: 11, color: '#16a34a', marginTop: 5, fontWeight: 600 }}>✓ Passwords match</p>
               )}
             </div>
 
             <button
               type="submit"
-              disabled={loading || !detectedUniversity || !password || !confirmPassword || !fullName.trim() || password !== confirmPassword}
-              className={`
-                w-full font-semibold py-3.5 rounded-lg transition-all duration-200 mt-6
-                ${
-                  detectedUniversity && password && confirmPassword && fullName.trim() && password === confirmPassword
-                    ? 'bg-[#dc2626] hover:bg-[#b91c1c] text-white'
-                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                }
-              `}
+              disabled={loading || !canSubmit}
+              style={{
+                width: '100%', padding: '14px', background: canSubmit ? '#dc2626' : '#f5c6c6',
+                border: 'none', borderRadius: 40, color: '#fff', fontSize: 15, fontWeight: 700,
+                fontFamily: 'inherit', cursor: canSubmit ? 'pointer' : 'not-allowed',
+                marginTop: 8, letterSpacing: '-0.2px', transition: 'all 0.22s',
+              }}
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? 'Creating account…' : 'Create account →'}
             </button>
           </form>
 
-          <p className="text-xs text-gray-600 text-center mt-6">
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(0,0,0,0.35)', marginTop: 18 }}>
             By signing up you agree to our{' '}
-            <Link href="/legal/terms" className="text-gray-500 hover:text-gray-400 underline">
-              Terms of Service
-            </Link>
-            {' '}and{' '}
-            <Link href="/legal/privacy" className="text-gray-500 hover:text-gray-400 underline">
-              Privacy Policy
-            </Link>
+            <Link href="/legal/terms" style={{ color: '#dc2626', textDecoration: 'none', fontWeight: 600 }}>Terms</Link>
+            {' '}&amp;{' '}
+            <Link href="/legal/privacy" style={{ color: '#dc2626', textDecoration: 'none', fontWeight: 600 }}>Privacy</Link>
           </p>
         </div>
       </div>
+
+      {/* Responsive: hide left panel on small screens */}
+      <style>{`
+        @media (max-width: 820px) {
+          .auth-panel-l { display: none !important; }
+          .auth-panel-r { padding: 48px 28px !important; }
+        }
+      `}</style>
     </div>
   );
 }
