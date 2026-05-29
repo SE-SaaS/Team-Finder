@@ -20,11 +20,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Verify the user against the auth server on mount (getUser revalidates the
+    // token); getSession only reads unverified local storage.
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      // Still need the session for its access token (consumed by AIChat).
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        setLoading(false);
+      });
     });
 
     // Listen for auth changes
