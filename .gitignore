@@ -162,3 +162,6 @@ data/raw/
 
 # Smoke-test screenshots at repo root (product PNGs live under frontend/public)
 /*.png
+
+# Local pre-pull working backup — never commit
+.wip-backup-before-pull/
