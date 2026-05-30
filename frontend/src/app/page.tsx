@@ -494,7 +494,7 @@ export default function Home() {
             Team<span>Finder</span>
           </div>
           <Link
-            href="/auth/signup"
+            href="/auth/login"
             className="btn-join"
             ref={btnJoinRef as React.RefObject<HTMLAnchorElement>}
           >
@@ -560,7 +560,7 @@ export default function Home() {
               <span className="line-grad">Team.</span>
             </h1>
             <p className="hero-sub">Initiate Your Project Odyssey.</p>
-            <Link href="/auth/signup" className="btn-cta">
+            <Link href="/auth/login" className="btn-cta">
               Join TeamFinder
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
