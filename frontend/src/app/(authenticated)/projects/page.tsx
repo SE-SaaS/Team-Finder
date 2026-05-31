@@ -13,7 +13,7 @@ interface Project {
   description: string;
   type: 'university' | 'external';
   status: 'open' | 'in_progress' | 'completed';
-  skills_needed: string[];
+  tech_stack: string[];
   created_at: string;
 }
 
@@ -174,10 +174,10 @@ function ProjectsContent() {
                 </div>
 
                 {/* Skills Needed */}
-                {project.skills_needed && project.skills_needed.length > 0 && (
+                {project.tech_stack && project.tech_stack.length > 0 && (
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-1">
-                      {project.skills_needed.slice(0, 3).map((skill: string, idx: number) => (
+                      {project.tech_stack.slice(0, 3).map((skill: string, idx: number) => (
                         <span
                           key={idx}
                           className="text-xs px-2 py-1 rounded bg-[#238636]/10 text-[#3fb950] border border-[#238636]/30"
@@ -185,9 +185,9 @@ function ProjectsContent() {
                           {skill}
                         </span>
                       ))}
-                      {project.skills_needed.length > 3 && (
+                      {project.tech_stack.length > 3 && (
                         <span className="text-xs px-2 py-1 text-[#8b949e]">
-                          +{project.skills_needed.length - 3} more
+                          +{project.tech_stack.length - 3} more
                         </span>
                       )}
                     </div>
@@ -200,7 +200,7 @@ function ProjectsContent() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
-                    <span>{project.skills_needed?.length ?? 0} skills needed</span>
+                    <span>{project.tech_stack?.length ?? 0} skills needed</span>
                   </div>
                   <div
                     className={`px-2 py-0.5 rounded text-xs ${
