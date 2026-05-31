@@ -21,7 +21,6 @@ interface Project {
   difficulty: string;
   tech_stack: string[];
   skills_needed?: string[];
-  tags?: string[];
   team_size?: number;
   deadline?: string;
   university?: string;
@@ -51,7 +50,7 @@ const difficultyMap: Record<string, { dot: string; text: string }> = {
 // ── Project Row (GitHub repo-card style) ──────────────────────────────────
 function ProjectRow({ project }: { project: Project }) {
   const diff = difficultyMap[project.difficulty];
-  const tags = project.tech_stack ?? project.tags ?? [];
+  const tags = project.tech_stack ?? [];
   const primaryTag = tags[0];
 
   return (
@@ -396,10 +395,10 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       const q = searchQuery.toLowerCase();
       if (q && !p.title.toLowerCase().includes(q) &&
           !p.description.toLowerCase().includes(q) &&
-          !(p.tech_stack ?? p.tags ?? []).some(t => t.toLowerCase().includes(q))) return false;
+          !(p.tech_stack ?? []).some(t => t.toLowerCase().includes(q))) return false;
       if (difficultyFilter && p.difficulty !== difficultyFilter) return false;
       if (techFilter) {
-        const tags = p.tech_stack ?? p.tags ?? [];
+        const tags = p.tech_stack ?? [];
         if (!tags.some(t => t.toLowerCase().includes(techFilter.toLowerCase()))) return false;
       }
       return true;
