@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (error) {
-    console.error('Supabase signup error:', error);
+    logger.error('[signup] Supabase signup error:', error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

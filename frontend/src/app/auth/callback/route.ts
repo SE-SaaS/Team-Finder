@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabaseServer';
 import { getUniversityFromEmail } from '@/data/universities';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   const requestUrl = new URL(req.url);
@@ -48,7 +49,7 @@ export async function GET(req: NextRequest) {
         });
 
         if (insertError) {
-          console.error('Profile creation error:', insertError);
+          logger.error('[callback] Profile creation error:', insertError);
           return NextResponse.redirect(
             `${requestUrl.origin}/auth/login?error=${encodeURIComponent('Failed to create profile')}`
           );
