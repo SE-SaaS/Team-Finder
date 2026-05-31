@@ -11,6 +11,7 @@ export default function AskQuestionPage() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [tagsInput, setTagsInput] = useState('');
+  const [type, setType] = useState<'general' | 'course' | 'project'>('general');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +29,7 @@ export default function AskQuestionPage() {
     const res = await fetch('/api/qna/questions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, body, tags }),
+      body: JSON.stringify({ title, body, tags, type }),
     });
 
     if (!res.ok) {
@@ -76,6 +77,30 @@ export default function AskQuestionPage() {
               className="w-full bg-[#0d1117] border border-[#30363d] rounded-md px-3 py-2 text-sm text-[#f0f6fc] placeholder-[#6e7681] focus:outline-none focus:border-[#58a6ff]"
             />
             <p className="text-[11px] text-[#6e7681] mt-1">5–200 characters ({title.length}/200)</p>
+          </div>
+
+          <div>
+            <label className="block text-[#c9d1d9] text-sm font-medium mb-1">Type</label>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { value: 'general', label: 'General Question' },
+                { value: 'course',  label: 'Course Related'   },
+                { value: 'project', label: 'Project Related'  },
+              ] as const).map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setType(value)}
+                  className={`px-4 py-2.5 rounded-lg border-2 transition-all text-sm font-medium text-left ${
+                    type === value
+                      ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
+                      : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div>
