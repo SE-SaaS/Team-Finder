@@ -6,6 +6,7 @@ import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
+import { logger } from '@/lib/logger';
 
 interface Project {
   id: string;
@@ -58,7 +59,7 @@ function ProjectsContent() {
         if (error) throw error;
         setProjects(data || []);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        logger.error('[projects] Error fetching projects:', error);
       } finally {
         setLoading(false);
       }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getUniversityFromEmail } from '@/data/universities';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { logger } from '@/lib/logger';
 
 export default function SignupPage() {
   const [step, setStep] = useState<'signup' | 'verify'>('signup');
@@ -25,7 +26,7 @@ export default function SignupPage() {
         ]);
         setStats({ students: studentsRes.count || 0, projects: projectsRes.count || 0, matchRate: 94 });
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        logger.error('[signup] Failed to fetch stats:', error);
       }
     }
     fetchStats();

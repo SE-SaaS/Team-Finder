@@ -6,6 +6,7 @@ import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
+import { logger } from '@/lib/logger';
 
 interface Project {
   id: string;
@@ -73,7 +74,7 @@ export default function ProjectDetailPage() {
         setIsMember(projectData.creator_id === user!.id);
 
       } catch (error) {
-        console.error('Error fetching project:', error);
+        logger.error('[project-detail] Error fetching project:', error);
         router.push('/projects');
       } finally {
         setLoading(false);
@@ -94,7 +95,7 @@ export default function ProjectDetailPage() {
       alert('Join project functionality coming soon! This will be integrated with the team matching system.');
       setIsMember(true);
     } catch (error) {
-      console.error('Error joining project:', error);
+      logger.error('[project-detail] Error joining project:', error);
       alert('Failed to join project. Please try again.');
     } finally {
       setJoining(false);

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
+import { logger } from '@/lib/logger';
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -93,7 +94,7 @@ export default function CreateProjectPage() {
       // Redirect to the new project page
       router.push(`/projects/${data.id}`);
     } catch (error) {
-      console.error('Error creating project:', error);
+      logger.error('[project-create] Error creating project:', error);
       setErrors({ submit: 'Failed to create project. Please try again.' });
     } finally {
       setLoading(false);
