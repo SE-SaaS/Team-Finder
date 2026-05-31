@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import type { Course, ProfileData } from '@/types/profile';
 import { SKILL_LOCKS } from '@/data/skillLocks';
-import SkillPill from '@/lib/SkillPill';
+import SkillPill from '@/components/shared/SkillPill';
 
 interface Step3Props {
   data:             Partial<ProfileData>;
