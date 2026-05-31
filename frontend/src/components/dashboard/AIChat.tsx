@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
+import { logger } from '@/lib/logger';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -61,7 +62,7 @@ export default function AIChat() {
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error('Chat HTTP error:', response.status, errorBody);
+        logger.error('[AIChat] Chat HTTP error:', response.status, errorBody);
         let serverDetail = errorBody;
         try {
           const parsed = JSON.parse(errorBody);
@@ -81,7 +82,7 @@ export default function AIChat() {
       setMessages([...newMessages, { role: 'assistant', content: data.response }]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('Chat error:', error);
+      logger.error('[AIChat] Chat error:', error);
       setMessages([
         ...newMessages,
         {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import type { UniversityCourse, Difficulty, CourseAffiliation, CourseResource, CourseBook } from "@/types"
+import { logger } from "@/lib/logger"
 
 interface CourseRow {
   id: string
@@ -56,7 +57,7 @@ export function useCourses() {
 
       if (cancelled) return
       if (err) {
-        console.error("useCourses: failed to load courses", err)
+        logger.error('[useCourses] Failed to load courses:', err)
         setError(err.message)
         setCourses([])
       } else {

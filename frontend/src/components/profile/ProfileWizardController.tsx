@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { supabase } from '@/lib/supabase';
 import type { Course, ProfileData } from '@/types/profile';
+import { logger } from '@/lib/logger';
 
 import Step1_BasicInfo     from './steps/Step1_BasicInfo';
 import Step2_YearCourses   from './steps/Step2_YearCourses';
@@ -138,7 +139,7 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
           setData(fromDb);
         }
       } catch (err) {
-        console.error('[ProfileWizardController] hydration failed:', err);
+        logger.error('[ProfileWizardController] Hydration failed:', err);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -182,7 +183,7 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
         .limit(1000);
       if (cancelled) return;
       if (error) {
-        console.error('[ProfileWizardController] courses load failed:', error);
+        logger.error('[ProfileWizardController] Courses load failed:', error);
         return;
       }
       setAvailableCourses((rows ?? []) as Course[]);
@@ -256,7 +257,7 @@ export default function ProfileWizardController({ initialStep = 1 }: ProfileWiza
       clearDraft();
       router.push('/dashboard');
     } catch (err) {
-      console.error('[ProfileWizardController] save failed:', err);
+      logger.error('[ProfileWizardController] Save failed:', err);
       alert(`Save failed: ${(err as Error).message}`);
     } finally {
       setSaving(false);
