@@ -15,7 +15,6 @@ import ProfileCompletionBanner from '@/components/dashboard/ProfileCompletionBan
 
 interface Project {
   id: string;
-  type: 'university' | 'external';
   title: string;
   description: string;
   difficulty: string;
@@ -206,10 +205,9 @@ export default function Dashboard() {
   const [profileStats, setProfileStats]           = useState<ProfileStats>({
     major: null, year: null, name: null, skillsCount: 0, coursesCount: 0, university: null,
   });
-  const [universityProjects, setUniversityProjects] = useState<Project[]>([]);
   const [externalProjects, setExternalProjects]     = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects]       = useState(true);
-  const [activeTab, setActiveTab]                   = useState<'university' | 'external' | 'my'>('university');
+  const [activeTab, setActiveTab]                   = useState<'external' | 'my'>('external');
   const [userCourses, setUserCourses]               = useState<string[]>([]);
   const [userSkills, setUserSkills]                 = useState<string[]>([]);
   const [allCourses, setAllCourses]                 = useState<{ id: string; code: string; name: string; year: number; semester: number }[]>([]);
@@ -280,26 +278,16 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
       try {
         logger.log(' Fetching projects...');
 
-        const [uniResult, extResult] = await Promise.all([
-          supabase
-            .from('projects')
-            .select('*')
-            .eq('type', 'university')
-            .eq('status', 'open')
-            .order('created_at', { ascending: false })
-            .limit(10),
-          supabase
-            .from('projects')
-            .select('*')
-            .eq('type', 'external')
-            .order('created_at', { ascending: false })
-            .limit(10),
-        ]);
+        const { data } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('status', 'open')
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-        logger.log(` University: ${uniResult.data?.length ?? 0}, External: ${extResult.data?.length ?? 0}`);
+        logger.log(` Open projects: ${data?.length ?? 0}`);
 
-        setUniversityProjects(uniResult.data ?? []);
-        setExternalProjects(extResult.data ?? []);
+        setExternalProjects(data ?? []);
       } catch (error) {
         logger.error(' Error fetching projects:', error);
       } finally {
@@ -384,10 +372,8 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
 
   // Memoize base projects selection (must be before conditional returns)
   const baseProjects = useMemo(() => {
-    return activeTab === 'university' ? universityProjects
-      : activeTab === 'external' ? externalProjects
-      : myProjects;
-  }, [activeTab, universityProjects, externalProjects, myProjects]);
+    return activeTab === 'external' ? externalProjects : myProjects;
+  }, [activeTab, externalProjects, myProjects]);
 
   // Memoize filtered projects for performance
   const filteredProjects = useMemo(() => {
@@ -568,7 +554,7 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
                   { label: 'Projects Created', value: myProjects.length,                              color: 'text-[#58a6ff]'  },
                   { label: 'Skills Added',      value: profileStats.skillsCount,                      color: 'text-[#3fb950]'  },
                   { label: 'Courses Done',      value: userCourses.length,                             color: 'text-[#f78166]'  },
-                  { label: 'Open Projects',     value: universityProjects.length + externalProjects.length, color: 'text-amber-400' },
+                  { label: 'Open Projects',     value: externalProjects.length, color: 'text-amber-400' },
                 ].map(({ label, value, color }) => (
                   <div key={label} className="bg-[#161b22] border border-[#30363d] rounded-md p-3 text-center hover:border-[#8b949e] transition-colors">
                     <p className={`text-2xl font-bold ${color}`}>{value}</p>
@@ -602,22 +588,6 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
             {/* Tabs */}
             <div className="border border-[#30363d] rounded-md overflow-hidden">
               <div className="flex bg-[#161b22] border-b border-[#30363d] px-3 pt-2 gap-1">
-                <button
-                  onClick={() => setActiveTab('university')}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    activeTab === 'university'
-                      ? 'border-[#f78166] text-[#f0f6fc]'
-                      : 'border-transparent text-[#8b949e] hover:text-[#f0f6fc]'
-                  }`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
-                  </svg>
-                  University
-                  <span className="text-[10px] bg-[#30363d] text-[#8b949e] rounded-full px-2 py-0.5">
-                    {universityProjects.length}
-                  </span>
-                </button>
                 <button
                   onClick={() => setActiveTab('external')}
                   className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
@@ -736,23 +706,6 @@ const [showUserMenu, setShowUserMenu]             = useState(false);
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         Create Project
-                      </Link>
-                    </>
-                  ) : activeTab === 'university' ? (
-                    <>
-                      <svg className="w-12 h-12 text-[#8b949e] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      <p className="text-[#f0f6fc] font-medium mb-1">No university projects yet</p>
-                      <p className="text-[#8b949e] text-sm mb-4">Be the first to create a project for your university!</p>
-                      <Link
-                        href="/projects/create"
-                        className="inline-flex items-center gap-2 bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-semibold px-4 py-2 rounded-md transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create University Project
                       </Link>
                     </>
                   ) : (

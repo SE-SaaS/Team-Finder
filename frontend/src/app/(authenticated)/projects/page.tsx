@@ -1,7 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -12,49 +11,23 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  type: 'university' | 'external';
   status: 'open' | 'in_progress' | 'completed';
   tech_stack: string[];
   created_at: string;
 }
 
 export default function ProjectsPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-[#8b949e]">Loading...</div></div>}>
-      <ProjectsContent />
-    </Suspense>
-  );
-}
-
-function ProjectsContent() {
-  const searchParams = useSearchParams();
   const { user } = useAuthenticatedUser();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'university' | 'external'>('all');
 
-  // Get filter from URL query param
-  useEffect(() => {
-    const type = searchParams.get('type');
-    if (type === 'university' || type === 'external') {
-      setActiveFilter(type);
-    }
-  }, [searchParams]);
-
-  // Fetch projects
   useEffect(() => {
     async function fetchProjects() {
       try {
-        let query = supabase
+        const { data, error } = await supabase
           .from('projects')
           .select('*')
           .order('created_at', { ascending: false });
-
-        if (activeFilter !== 'all') {
-          query = query.eq('type', activeFilter);
-        }
-
-        const { data, error } = await query;
 
         if (error) throw error;
         setProjects(data || []);
@@ -66,7 +39,7 @@ function ProjectsContent() {
     }
 
     fetchProjects();
-  }, [user, activeFilter]);
+  }, [user]);
 
   return (
     <div className="min-h-screen">
@@ -100,40 +73,6 @@ function ProjectsContent() {
           <p className="text-[#8b949e]">Find and join projects that match your skills</p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-[#30363d]">
-          <button
-            onClick={() => setActiveFilter('all')}
-            className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-              activeFilter === 'all'
-                ? 'text-[#f0f6fc] border-[#fd8c73]'
-                : 'text-[#8b949e] border-transparent hover:text-[#f0f6fc]'
-            }`}
-          >
-            All Projects
-          </button>
-          <button
-            onClick={() => setActiveFilter('university')}
-            className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-              activeFilter === 'university'
-                ? 'text-[#f0f6fc] border-[#fd8c73]'
-                : 'text-[#8b949e] border-transparent hover:text-[#f0f6fc]'
-            }`}
-          >
-            University
-          </button>
-          <button
-            onClick={() => setActiveFilter('external')}
-            className={`px-4 py-2 font-medium transition-colors border-b-2 ${
-              activeFilter === 'external'
-                ? 'text-[#f0f6fc] border-[#fd8c73]'
-                : 'text-[#8b949e] border-transparent hover:text-[#f0f6fc]'
-            }`}
-          >
-            External
-          </button>
-        </div>
-
         {/* Projects Grid */}
         {loading ? (
           <div className="text-center py-12 text-[#8b949e]">Loading projects...</div>
@@ -157,20 +96,9 @@ function ProjectsContent() {
               >
                 {/* Project Header */}
                 <div className="mb-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="text-lg font-semibold text-[#f0f6fc] line-clamp-2">
-                      {project.title}
-                    </h3>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full shrink-0 ${
-                        project.type === 'university'
-                          ? 'bg-[#1f6feb]/10 text-[#58a6ff]'
-                          : 'bg-[#58a6ff]/10 text-[#58a6ff]'
-                      }`}
-                    >
-                      {project.type === 'university' ? '🎓 University' : '🌐 External'}
-                    </span>
-                  </div>
+                  <h3 className="text-lg font-semibold text-[#f0f6fc] line-clamp-2 mb-2">
+                    {project.title}
+                  </h3>
                   <p className="text-sm text-[#8b949e] line-clamp-3">{project.description}</p>
                 </div>
 

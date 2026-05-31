@@ -16,10 +16,9 @@ export default function CreateProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'university' as 'university' | 'external',
-    difficulty: '' as '' | 'beginner' | 'intermediate' | 'advanced',
+    project_url: '',
+    looking_for: '',
     tech_stack: [] as string[],
-    team_size: 3,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -50,16 +49,8 @@ export default function CreateProjectPage() {
       newErrors.description = 'Description must be at least 20 characters';
     }
 
-    if (!formData.difficulty) {
-      newErrors.difficulty = 'Select a difficulty level';
-    }
-
     if (formData.tech_stack.length === 0) {
       newErrors.tech_stack = 'Select at least one skill';
-    }
-
-    if (formData.team_size < 2 || formData.team_size > 10) {
-      newErrors.team_size = 'Team size must be between 2 and 10';
     }
 
     setErrors(newErrors);
@@ -79,10 +70,9 @@ export default function CreateProjectPage() {
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim(),
-          type: formData.type,
-          difficulty: formData.difficulty,
+          project_url: formData.project_url.trim() || null,
+          looking_for: formData.looking_for.trim() || null,
           tech_stack: formData.tech_stack,
-          team_size: formData.team_size,
           status: 'open',
           creator_id: user.id,
         })
@@ -91,7 +81,6 @@ export default function CreateProjectPage() {
 
       if (error) throw error;
 
-      // Redirect to the new project page
       router.push(`/projects/${data.id}`);
     } catch (error) {
       logger.error('[project-create] Error creating project:', error);
@@ -158,87 +147,33 @@ export default function CreateProjectPage() {
             )}
           </div>
 
-          {/* Project Type */}
+          {/* Project URL */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Project Type <span className="text-[#f85149]">*</span>
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, type: 'university' })}
-                className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
-                  formData.type === 'university'
-                    ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
-                    : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">🎓 University Project</div>
-                <div className="text-xs">Course assignments, capstone projects</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, type: 'external' })}
-                className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
-                  formData.type === 'external'
-                    ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
-                    : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">🌐 External Project</div>
-                <div className="text-xs">Personal projects, hackathons, startups</div>
-              </button>
-            </div>
-          </div>
-
-          {/* Difficulty */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Difficulty <span className="text-[#f85149]">*</span>
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              {([
-                { value: 'beginner',     label: '🟢 Beginner',     desc: 'Entry level' },
-                { value: 'intermediate', label: '🟡 Intermediate',  desc: 'Some experience needed' },
-                { value: 'advanced',     label: '🔴 Advanced',      desc: 'Expert level' },
-              ] as const).map(({ value, label, desc }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, difficulty: value })}
-                  className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
-                    formData.difficulty === value
-                      ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
-                      : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
-                  }`}
-                >
-                  <div className="font-semibold text-sm mb-0.5">{label}</div>
-                  <div className="text-xs opacity-70">{desc}</div>
-                </button>
-              ))}
-            </div>
-            {errors.difficulty && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.difficulty}</p>
-            )}
-          </div>
-
-          {/* Team Size */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Team Size <span className="text-[#f85149]">*</span>
+              Project URL
             </label>
             <input
-              type="number"
-              min="2"
-              max="10"
-              value={formData.team_size}
-              onChange={(e) => setFormData({ ...formData, team_size: parseInt(e.target.value) })}
-              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
+              type="url"
+              value={formData.project_url}
+              onChange={(e) => setFormData({ ...formData, project_url: e.target.value })}
+              placeholder="https://github.com/your-org/project"
+              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
             />
-            <p className="mt-1 text-xs text-[#8b949e]">Total team members including you (2-10)</p>
-            {errors.team_size && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.team_size}</p>
-            )}
+          </div>
+
+          {/* Looking For */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
+              Looking For
+            </label>
+            <input
+              type="text"
+              value={formData.looking_for}
+              onChange={(e) => setFormData({ ...formData, looking_for: e.target.value })}
+              placeholder="e.g., Backend developer, UI/UX designer"
+              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
+            />
+            <p className="mt-1 text-xs text-[#8b949e]">What kind of collaborators are you looking for?</p>
           </div>
 
           {/* Required Skills */}

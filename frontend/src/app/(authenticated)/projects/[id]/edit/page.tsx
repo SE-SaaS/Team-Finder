@@ -23,10 +23,9 @@ export default function EditProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'university' as 'university' | 'external',
-    difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
+    project_url: '',
+    looking_for: '',
     tech_stack: [] as string[],
-    team_size: 3,
     status: 'open' as 'open' | 'in_progress' | 'completed' | 'closed',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,10 +48,9 @@ export default function EditProjectPage() {
         setFormData({
           title: data.title,
           description: data.description,
-          type: data.type,
-          difficulty: data.difficulty || 'beginner',
+          project_url: data.project_url ?? '',
+          looking_for: data.looking_for ?? '',
           tech_stack: data.tech_stack || [],
-          team_size: data.team_size,
           status: data.status,
         });
       } catch {
@@ -82,7 +80,6 @@ export default function EditProjectPage() {
     if (!formData.description.trim()) newErrors.description = 'Project description is required';
     else if (formData.description.trim().length < 20) newErrors.description = 'Description must be at least 20 characters';
     if (formData.tech_stack.length === 0) newErrors.tech_stack = 'Select at least one required skill';
-    if (formData.team_size < 2 || formData.team_size > 10) newErrors.team_size = 'Team size must be between 2 and 10';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -101,9 +98,9 @@ export default function EditProjectPage() {
         .update({
           title: formData.title.trim(),
           description: formData.description.trim(),
-          type: formData.type,
+          project_url: formData.project_url.trim() || null,
+          looking_for: formData.looking_for.trim() || null,
           tech_stack: formData.tech_stack,
-          team_size: formData.team_size,
           status: formData.status,
         })
         .eq('id', projectId)
@@ -215,35 +212,29 @@ export default function EditProjectPage() {
             {errors.description && <p className="mt-2 text-sm text-[#f85149]">{errors.description}</p>}
           </div>
 
-          {/* Type */}
+          {/* Project URL */}
           <div>
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Project Type</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, type: 'university' })}
-                className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
-                  formData.type === 'university'
-                    ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
-                    : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">University Project</div>
-                <div className="text-xs">Course assignments, capstone projects</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, type: 'external' })}
-                className={`px-4 py-3 rounded-lg border-2 transition-all text-left ${
-                  formData.type === 'external'
-                    ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
-                    : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">External Project</div>
-                <div className="text-xs">Personal projects, hackathons, startups</div>
-              </button>
-            </div>
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Project URL</label>
+            <input
+              type="url"
+              value={formData.project_url}
+              onChange={e => setFormData({ ...formData, project_url: e.target.value })}
+              placeholder="https://github.com/your-org/project"
+              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
+            />
+          </div>
+
+          {/* Looking For */}
+          <div>
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Looking For</label>
+            <input
+              type="text"
+              value={formData.looking_for}
+              onChange={e => setFormData({ ...formData, looking_for: e.target.value })}
+              placeholder="e.g., Backend developer, UI/UX designer"
+              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
+            />
+            <p className="mt-1 text-xs text-[#8b949e]">What kind of collaborators are you looking for?</p>
           </div>
 
           {/* Status */}
@@ -269,23 +260,6 @@ export default function EditProjectPage() {
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Team Size */}
-          <div>
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Team Size <span className="text-[#f85149]">*</span>
-            </label>
-            <input
-              type="number"
-              min="2"
-              max="10"
-              value={formData.team_size}
-              onChange={e => setFormData({ ...formData, team_size: parseInt(e.target.value) })}
-              className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
-            />
-            <p className="mt-1 text-xs text-[#8b949e]">Total team members including you (2-10)</p>
-            {errors.team_size && <p className="mt-2 text-sm text-[#f85149]">{errors.team_size}</p>}
           </div>
 
           {/* Required Skills */}
