@@ -20,6 +20,10 @@ export async function POST(req: NextRequest) {
         .slice(0, 5)
     : [];
 
+  const VALID_TYPES = ['general', 'course', 'project'] as const;
+  type QuestionType = typeof VALID_TYPES[number];
+  const type: QuestionType = VALID_TYPES.includes(body.type) ? body.type : 'general';
+
   if (title.length < 5 || title.length > 200) {
     return NextResponse.json({ error: 'Title must be 5–200 characters' }, { status: 400 });
   }
@@ -30,7 +34,7 @@ export async function POST(req: NextRequest) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('qna_questions')
-    .insert({ author_id: user.id, title, body: text, tags })
+    .insert({ author_id: user.id, title, body: text, tags, type })
     .select('id')
     .single();
 
