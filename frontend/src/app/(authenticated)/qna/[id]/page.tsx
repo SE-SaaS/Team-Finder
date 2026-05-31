@@ -17,6 +17,7 @@ interface Question {
   author_name: string | null;
   vote_count: number;
   my_vote: boolean;
+  accepted_answer_id: string | null;
 }
 
 interface Answer {
@@ -48,7 +49,7 @@ export default function QuestionDetailPage() {
 
     const { data: q, error: qErr } = await supabase
       .from('qna_questions')
-      .select('id, title, body, tags, created_at, author_id')
+      .select('id, title, body, tags, created_at, author_id, accepted_answer_id')
       .eq('id', questionId)
       .maybeSingle();
     if (qErr || !q) {
@@ -106,15 +107,23 @@ export default function QuestionDetailPage() {
       author_name: nameById.get(q.author_id) ?? null,
       vote_count: qVotesRes.data?.length ?? 0,
       my_vote: !!myQVoteRes.data,
+      accepted_answer_id: q.accepted_answer_id ?? null,
     });
 
+    const acceptedId = q.accepted_answer_id ?? null;
     setAnswers(
-      (ansRows ?? []).map((a) => ({
-        ...a,
-        author_name: nameById.get(a.author_id) ?? null,
-        vote_count: aVoteCount.get(a.id) ?? 0,
-        my_vote: myAVoteSet.has(a.id),
-      }))
+      (ansRows ?? [])
+        .map((a) => ({
+          ...a,
+          author_name: nameById.get(a.author_id) ?? null,
+          vote_count: aVoteCount.get(a.id) ?? 0,
+          my_vote: myAVoteSet.has(a.id),
+        }))
+        .sort((a, b) => {
+          if (a.id === acceptedId) return -1;
+          if (b.id === acceptedId) return 1;
+          return b.vote_count - a.vote_count;
+        })
     );
 
     setLoading(false);
@@ -147,6 +156,30 @@ export default function QuestionDetailPage() {
     );
     const res = await fetch(`/api/qna/answers/${answerId}/vote`, { method: 'POST' });
     if (!res.ok) setAnswers(previous);
+  }
+
+  async function toggleAcceptAnswer(answerId: string) {
+    if (!question) return;
+    const previousQuestion = question;
+    const previousAnswers = answers;
+    const newAcceptedId = question.accepted_answer_id === answerId ? null : answerId;
+    setQuestion({ ...question, accepted_answer_id: newAcceptedId });
+    setAnswers((prev) =>
+      [...prev].sort((a, b) => {
+        if (a.id === newAcceptedId) return -1;
+        if (b.id === newAcceptedId) return 1;
+        return b.vote_count - a.vote_count;
+      })
+    );
+    const res = await fetch(`/api/qna/questions/${question.id}/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer_id: newAcceptedId }),
+    });
+    if (!res.ok) {
+      setQuestion(previousQuestion);
+      setAnswers(previousAnswers);
+    }
   }
 
   async function handleSubmitAnswer(e: React.FormEvent) {
@@ -267,35 +300,67 @@ export default function QuestionDetailPage() {
             </p>
           ) : (
             <ul className="space-y-3">
-              {answers.map((a) => (
-                <li key={a.id} className="border border-[#30363d] rounded-md bg-[#0d1117] p-4">
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => toggleAnswerVote(a.id)}
-                      className={`shrink-0 flex flex-col items-center gap-0.5 text-xs px-2 py-1.5 rounded-md border transition-colors ${
-                        a.my_vote
-                          ? 'bg-[#238636]/20 border-[#238636] text-[#3fb950]'
-                          : 'border-[#30363d] text-[#8b949e] hover:text-[#f0f6fc] hover:border-[#8b949e]'
-                      }`}
-                      title={a.my_vote ? 'Remove upvote' : 'Upvote'}
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                      </svg>
-                      <span>{a.vote_count}</span>
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[#c9d1d9] text-sm whitespace-pre-wrap leading-relaxed">{a.body}</p>
-                      <div className="mt-2 flex items-center gap-2 text-[11px] text-[#8b949e]">
-                        <span>by <span className="text-[#c9d1d9]">{a.author_name ?? 'anonymous'}</span></span>
-                        <span>•</span>
-                        <span>{new Date(a.created_at).toLocaleString()}</span>
+              {answers.map((a) => {
+                const isAccepted = a.id === question.accepted_answer_id;
+                const isAuthor = user.id === question.author_id;
+                return (
+                  <li
+                    key={a.id}
+                    className={`border rounded-md bg-[#0d1117] p-4 ${
+                      isAccepted ? 'border-[#238636]' : 'border-[#30363d]'
+                    }`}
+                  >
+                    {isAccepted && (
+                      <div className="flex justify-end mb-2">
+                        <span className="text-[11px] text-[#3fb950] font-semibold flex items-center gap-1">
+                          &#10003; Accepted Answer
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => toggleAnswerVote(a.id)}
+                        className={`shrink-0 flex flex-col items-center gap-0.5 text-xs px-2 py-1.5 rounded-md border transition-colors ${
+                          a.my_vote
+                            ? 'bg-[#238636]/20 border-[#238636] text-[#3fb950]'
+                            : 'border-[#30363d] text-[#8b949e] hover:text-[#f0f6fc] hover:border-[#8b949e]'
+                        }`}
+                        title={a.my_vote ? 'Remove upvote' : 'Upvote'}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
+                        <span>{a.vote_count}</span>
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[#c9d1d9] text-sm whitespace-pre-wrap leading-relaxed">{a.body}</p>
+                        <div className="mt-2 flex items-center flex-wrap gap-2 text-[11px] text-[#8b949e]">
+                          <span>by <span className="text-[#c9d1d9]">{a.author_name ?? 'anonymous'}</span></span>
+                          <span>•</span>
+                          <span>{new Date(a.created_at).toLocaleString()}</span>
+                          {isAuthor && (
+                            <>
+                              <span>•</span>
+                              <button
+                                type="button"
+                                onClick={() => toggleAcceptAnswer(a.id)}
+                                className={`flex items-center gap-1 px-2 py-0.5 rounded border transition-colors ${
+                                  isAccepted
+                                    ? 'bg-[#238636]/20 border-[#238636] text-[#3fb950]'
+                                    : 'border-[#30363d] text-[#8b949e] hover:border-[#238636] hover:text-[#3fb950]'
+                                }`}
+                              >
+                                &#10003; {isAccepted ? 'Accepted' : 'Accept'}
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAuthenticatedUser } from '@/contexts/AuthenticatedUserContext';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
@@ -19,7 +18,6 @@ interface QuestionRow {
 }
 
 export default function QnaListPage() {
-  const { user } = useAuthenticatedUser();
   const [questions, setQuestions] = useState<QuestionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
