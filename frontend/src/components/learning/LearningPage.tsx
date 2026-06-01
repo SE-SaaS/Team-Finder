@@ -45,7 +45,7 @@ export default function LearningPage() {
   ], [courses.length])
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%",
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh",
       background: "transparent", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
       <BackgroundCanvas />
 
