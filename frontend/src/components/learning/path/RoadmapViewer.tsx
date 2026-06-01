@@ -66,7 +66,7 @@ export default function RoadmapViewer({ roadmap }: RoadmapViewerProps) {
     <div style={{ display: "flex", height: "100%", background: "transparent" }}>
 
       {/* ReactFlow Canvas */}
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, height: "100%" }}>
         <ReactFlow
           nodes={rfNodes}
           edges={rfEdges}
