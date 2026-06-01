@@ -10,7 +10,7 @@ import { PENALTY_THRESHOLD, PENALTY_MULTIPLIER } from '../constants/penalties';
 export interface Student {
   /** Skills the student has */
   skills: string[];
-  /** Student's rating (1-5 scale) */
+  /** Student's trust score (0-1, computed from peer ratings and endorsements) */
   rating: number;
   /** Student's availability */
   availability: string;
@@ -46,12 +46,12 @@ export interface MatchScore {
  * Runs the full 3-step penalty floor matching engine
  *
  * Algorithm:
- * 1. Compute base score from skill similarity, rating, and availability
- * 2. Apply penalty if rating is below threshold
+ * 1. Compute base score from skill similarity, trust score, and availability
+ * 2. Apply penalty if trust score is below threshold
  * 3. Convert to 0-100 integer scale
  *
  * @param projectSkills - Skills required by the project
- * @param student - Student data including skills, rating, and availability
+ * @param student - Student data including skills, trust score (0-1), and availability
  * @returns Complete match score with breakdown
  */
 export function finalScore(projectSkills: string[], student: Student): MatchScore {
@@ -60,7 +60,7 @@ export function finalScore(projectSkills: string[], student: Student): MatchScor
   const vStudent = toVector(student.skills);
 
   const skillSim = cosineSimilarity(vProject, vStudent);
-  const ratingNorm = student.rating / 5; // Normalize to 0-1
+  const ratingNorm = student.rating; // Already 0-1 trust score
   const availNorm = availScore(student.availability);
 
   const base = (
@@ -69,8 +69,8 @@ export function finalScore(projectSkills: string[], student: Student): MatchScor
     availNorm * W.availability
   );
 
-  // Step 2: Apply penalty if rating too low
-  const penaltyActive = ratingNorm < PENALTY_THRESHOLD;
+  // Step 2: Apply penalty if trust score too low
+  const penaltyActive = student.rating < PENALTY_THRESHOLD;
   const final = penaltyActive ? base * PENALTY_MULTIPLIER : base;
 
   // Step 3: Convert to 0-100 integer
