@@ -8,11 +8,21 @@ import { supabase } from '@/lib/supabase';
 import { ALL_SKILLS } from '@/lib/skills';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 
+type ProjectType = 'code' | 'research' | 'theory' | 'design' | 'data' | 'other';
+
+const PROJECT_TYPES: { value: ProjectType; label: string }[] = [
+  { value: 'code',     label: 'Code / Software' },
+  { value: 'research', label: 'Research'         },
+  { value: 'theory',   label: 'Theory'           },
+  { value: 'design',   label: 'Design'           },
+  { value: 'data',     label: 'Data / ML'        },
+  { value: 'other',    label: 'Other'            },
+];
+
 export default function EditProjectPage() {
   const router = useRouter();
   const params = useParams();
   const { user } = useAuthenticatedUser();
-
   const projectId = params.id as string;
 
   const [loading, setLoading] = useState(true);
@@ -23,6 +33,7 @@ export default function EditProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    type: 'code' as ProjectType,
     project_url: '',
     looking_for: '',
     tech_stack: [] as string[],
@@ -33,7 +44,6 @@ export default function EditProjectPage() {
 
   useEffect(() => {
     if (!projectId) return;
-
     async function fetchProject() {
       try {
         const { data, error } = await supabase
@@ -41,13 +51,12 @@ export default function EditProjectPage() {
           .select('*')
           .eq('id', projectId)
           .single();
-
         if (error || !data) { setNotFound(true); return; }
         if (data.creator_id !== user.id) { setForbidden(true); return; }
-
         setFormData({
           title: data.title,
           description: data.description,
+          type: data.type as ProjectType,
           project_url: data.project_url ?? '',
           looking_for: data.looking_for ?? '',
           tech_stack: data.tech_stack || [],
@@ -59,7 +68,6 @@ export default function EditProjectPage() {
         setLoading(false);
       }
     }
-
     fetchProject();
   }, [user, projectId]);
 
@@ -87,17 +95,16 @@ export default function EditProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
     setSaving(true);
     setSuccessMsg('');
     setErrors({});
-
     try {
       const { error } = await supabase
         .from('projects')
         .update({
           title: formData.title.trim(),
           description: formData.description.trim(),
+          type: formData.type,
           project_url: formData.project_url.trim() || null,
           looking_for: formData.looking_for.trim() || null,
           tech_stack: formData.tech_stack,
@@ -105,9 +112,7 @@ export default function EditProjectPage() {
         })
         .eq('id', projectId)
         .eq('creator_id', user.id);
-
       if (error) throw error;
-
       setSuccessMsg('Project updated successfully.');
       setTimeout(() => router.push(`/projects/${projectId}`), 1200);
     } catch {
@@ -125,7 +130,6 @@ export default function EditProjectPage() {
       </div>
     );
   }
-
   if (forbidden) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -138,7 +142,6 @@ export default function EditProjectPage() {
       </div>
     );
   }
-
   if (notFound) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -154,13 +157,9 @@ export default function EditProjectPage() {
   return (
     <div className="min-h-screen">
       <BackgroundCanvas />
-      {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
-          <Link
-            href={`/projects/${projectId}`}
-            className="flex items-center gap-2 text-[#8b949e] hover:text-[#f0f6fc] transition-colors"
-          >
+          <Link href={`/projects/${projectId}`} className="flex items-center gap-2 text-[#8b949e] hover:text-[#f0f6fc] transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -184,7 +183,6 @@ export default function EditProjectPage() {
             </div>
           )}
 
-          {/* Title */}
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Project Title <span className="text-[#f85149]">*</span>
@@ -198,7 +196,6 @@ export default function EditProjectPage() {
             {errors.title && <p className="mt-2 text-sm text-[#f85149]">{errors.title}</p>}
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Description <span className="text-[#f85149]">*</span>
@@ -212,7 +209,26 @@ export default function EditProjectPage() {
             {errors.description && <p className="mt-2 text-sm text-[#f85149]">{errors.description}</p>}
           </div>
 
-          {/* Project URL */}
+          <div>
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Project Type</label>
+            <div className="grid grid-cols-3 gap-3">
+              {PROJECT_TYPES.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, type: value })}
+                  className={`px-4 py-2.5 rounded-lg border-2 transition-all text-sm font-medium text-left ${
+                    formData.type === value
+                      ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
+                      : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Project URL</label>
             <input
@@ -224,7 +240,6 @@ export default function EditProjectPage() {
             />
           </div>
 
-          {/* Looking For */}
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Looking For</label>
             <input
@@ -237,7 +252,6 @@ export default function EditProjectPage() {
             <p className="mt-1 text-xs text-[#8b949e]">What kind of collaborators are you looking for?</p>
           </div>
 
-          {/* Status */}
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Status</label>
             <div className="grid grid-cols-3 gap-3">
@@ -248,10 +262,8 @@ export default function EditProjectPage() {
                   onClick={() => setFormData({ ...formData, status: s })}
                   className={`px-4 py-2.5 rounded-lg border-2 transition-all text-sm font-medium capitalize ${
                     formData.status === s
-                      ? s === 'open'
-                        ? 'border-[#238636] bg-[#238636]/10 text-[#3fb950]'
-                        : s === 'in_progress'
-                        ? 'border-[#9e6a03] bg-[#9e6a03]/10 text-[#d29922]'
+                      ? s === 'open' ? 'border-[#238636] bg-[#238636]/10 text-[#3fb950]'
+                        : s === 'in_progress' ? 'border-[#9e6a03] bg-[#9e6a03]/10 text-[#d29922]'
                         : 'border-[#8b949e] bg-[#8b949e]/10 text-[#8b949e]'
                       : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]/50'
                   }`}
@@ -262,7 +274,6 @@ export default function EditProjectPage() {
             </div>
           </div>
 
-          {/* Required Skills */}
           <div>
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Required Skills <span className="text-[#f85149]">*</span>

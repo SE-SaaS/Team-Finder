@@ -9,6 +9,17 @@ import { ALL_SKILLS } from '@/lib/skills';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 import { logger } from '@/lib/logger';
 
+type ProjectType = 'code' | 'research' | 'theory' | 'design' | 'data' | 'other';
+
+const PROJECT_TYPES: { value: ProjectType; label: string }[] = [
+  { value: 'code',     label: 'Code / Software' },
+  { value: 'research', label: 'Research'         },
+  { value: 'theory',   label: 'Theory'           },
+  { value: 'design',   label: 'Design'           },
+  { value: 'data',     label: 'Data / ML'        },
+  { value: 'other',    label: 'Other'            },
+];
+
 export default function CreateProjectPage() {
   const router = useRouter();
   const { user } = useAuthenticatedUser();
@@ -16,11 +27,11 @@ export default function CreateProjectPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    type: 'code' as ProjectType,
     project_url: '',
     looking_for: '',
     tech_stack: [] as string[],
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
@@ -29,47 +40,33 @@ export default function CreateProjectPage() {
       ...prev,
       tech_stack: prev.tech_stack.includes(skill)
         ? prev.tech_stack.filter(s => s !== skill)
-        : [...prev.tech_stack, skill]
+        : [...prev.tech_stack, skill],
     }));
     if (errors.tech_stack) setErrors({ ...errors, tech_stack: '' });
   };
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = 'Project title is required';
-    } else if (formData.title.trim().length < 5) {
-      newErrors.title = 'Title must be at least 5 characters';
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = 'Project description is required';
-    } else if (formData.description.trim().length < 20) {
-      newErrors.description = 'Description must be at least 20 characters';
-    }
-
-    if (formData.tech_stack.length === 0) {
-      newErrors.tech_stack = 'Select at least one skill';
-    }
-
+    if (!formData.title.trim()) newErrors.title = 'Project title is required';
+    else if (formData.title.trim().length < 5) newErrors.title = 'Title must be at least 5 characters';
+    if (!formData.description.trim()) newErrors.description = 'Project description is required';
+    else if (formData.description.trim().length < 20) newErrors.description = 'Description must be at least 20 characters';
+    if (formData.tech_stack.length === 0) newErrors.tech_stack = 'Select at least one skill';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validate()) return;
-
     setLoading(true);
-
     try {
       const { data, error } = await supabase
         .from('projects')
         .insert({
           title: formData.title.trim(),
           description: formData.description.trim(),
+          type: formData.type,
           project_url: formData.project_url.trim() || null,
           looking_for: formData.looking_for.trim() || null,
           tech_stack: formData.tech_stack,
@@ -78,9 +75,7 @@ export default function CreateProjectPage() {
         })
         .select()
         .single();
-
       if (error) throw error;
-
       router.push(`/projects/${data.id}`);
     } catch (error) {
       logger.error('[project-create] Error creating project:', error);
@@ -93,7 +88,6 @@ export default function CreateProjectPage() {
   return (
     <div className="min-h-screen">
       <BackgroundCanvas />
-      {/* Header */}
       <header className="border-b border-[#30363d] bg-[#161b22]">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <Link href="/dashboard" className="flex items-center gap-3">
@@ -105,7 +99,6 @@ export default function CreateProjectPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#f0f6fc] mb-2">Create New Project</h1>
@@ -113,7 +106,6 @@ export default function CreateProjectPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
-          {/* Project Title */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Project Title <span className="text-[#f85149]">*</span>
@@ -125,12 +117,9 @@ export default function CreateProjectPage() {
               placeholder="e.g., AI-Powered Study Buddy App"
               className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent"
             />
-            {errors.title && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.title}</p>
-            )}
+            {errors.title && <p className="mt-2 text-sm text-[#f85149]">{errors.title}</p>}
           </div>
 
-          {/* Project Description */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Description <span className="text-[#f85149]">*</span>
@@ -142,16 +131,33 @@ export default function CreateProjectPage() {
               rows={6}
               className="w-full px-4 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#6e7681] focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent resize-none"
             />
-            {errors.description && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.description}</p>
-            )}
+            {errors.description && <p className="mt-2 text-sm text-[#f85149]">{errors.description}</p>}
           </div>
 
-          {/* Project URL */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Project URL
+              Project Type <span className="text-[#f85149]">*</span>
             </label>
+            <div className="grid grid-cols-3 gap-3">
+              {PROJECT_TYPES.map(({ value, label }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, type: value })}
+                  className={`px-4 py-2.5 rounded-lg border-2 transition-all text-sm font-medium text-left ${
+                    formData.type === value
+                      ? 'border-[#58a6ff] bg-[#58a6ff]/10 text-[#f0f6fc]'
+                      : 'border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#58a6ff]/50'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Project URL</label>
             <input
               type="url"
               value={formData.project_url}
@@ -161,11 +167,8 @@ export default function CreateProjectPage() {
             />
           </div>
 
-          {/* Looking For */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
-              Looking For
-            </label>
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Looking For</label>
             <input
               type="text"
               value={formData.looking_for}
@@ -176,7 +179,6 @@ export default function CreateProjectPage() {
             <p className="mt-1 text-xs text-[#8b949e]">What kind of collaborators are you looking for?</p>
           </div>
 
-          {/* Required Skills */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-[#c9d1d9] mb-2">
               Required Skills <span className="text-[#f85149]">*</span>
@@ -198,22 +200,18 @@ export default function CreateProjectPage() {
                 </button>
               ))}
             </div>
-            {errors.tech_stack && (
-              <p className="mt-2 text-sm text-[#f85149]">{errors.tech_stack}</p>
-            )}
+            {errors.tech_stack && <p className="mt-2 text-sm text-[#f85149]">{errors.tech_stack}</p>}
             <p className="mt-2 text-xs text-[#8b949e]">
               {formData.tech_stack.length} skill{formData.tech_stack.length !== 1 ? 's' : ''} selected
             </p>
           </div>
 
-          {/* Submit Error */}
           {errors.submit && (
             <div className="mb-6 p-4 bg-[#f85149]/10 border border-[#f85149] rounded-lg text-[#f85149]">
               {errors.submit}
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex gap-4">
             <button
               type="button"
