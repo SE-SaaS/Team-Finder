@@ -1,0 +1,30 @@
+# Keep the build context small. The Dockerfile only COPYs backend/ and
+# data/raw/majors/majors_plans/, but trimming here speeds the context upload.
+
+.git/
+.gitignore
+
+# Frontend stays on Vercel, never needed in the backend image.
+frontend/
+
+# Data generation tooling and large raw assets the backend does not load.
+data/generators/
+data/extraction/
+data/raw/majors/*.pdf
+
+node_modules/
+**/node_modules/
+
+# Python caches and local env files.
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.env
+.env.*
+backend/.env
+backend/.env.*
+
+# Local-only helpers.
+backend/start_server.bat
+backend/install_dependencies.bat
+backend/nixpacks.toml

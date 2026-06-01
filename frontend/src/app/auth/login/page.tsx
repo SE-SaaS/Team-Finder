@@ -64,15 +64,7 @@ export default function LoginPage() {
           Match with the right teammates. Launch projects that make a difference.
         </p>
 
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: 32, marginBottom: 32, position: 'relative', zIndex: 1 }}>
-          {[{ n: '124+', l: 'Students' }, { n: '48+', l: 'Projects' }, { n: '94%', l: 'Match Rate' }].map(s => (
-            <div key={s.l}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', lineHeight: 1, marginBottom: 2 }}>{s.n}</div>
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, color: 'rgba(255,255,255,0.25)' }}>{s.l}</div>
-            </div>
-          ))}
-        </div>
+        
 
         {/* Pills */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
