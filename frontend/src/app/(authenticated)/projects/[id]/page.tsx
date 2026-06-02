@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import BackgroundCanvas from '@/components/dashboard/background/BackgroundCanvas';
 import { logger } from '@/lib/logger';
+import FindTeammatesPanel from '@/components/projects/FindTeammatesPanel';
 
 type ProjectType = 'code' | 'research' | 'theory' | 'design' | 'data' | 'other';
 
@@ -378,6 +379,9 @@ export default function ProjectDetailPage() {
                   </div>
                 )}
               </div>
+            )}
+            {isOwner && project.tech_stack.length > 0 && (
+              <FindTeammatesPanel techStack={project.tech_stack} />
             )}
           </div>
 
